@@ -1,0 +1,552 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Polar &amp; Relative Motion · Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --hl:#fbe7a1; --hl-ink:#3d2f00;
+  --good:#1f7a4d; --good-soft:#e1f3e9; --warn:#9a6200; --warn-soft:#fbf0dc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --plot-2:#c2571a;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+    --hl:#4a3f17; --hl-ink:#fbe7a1;
+    --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+    --plot-2:#f0a070;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  --hl:#4a3f17; --hl-ink:#fbe7a1;
+  --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+  --plot-2:#f0a070;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;padding-block:28px 20px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+.back{display:inline-block;font:600 .9rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top p{margin:0;color:var(--muted);font-size:.95rem;max-width:52ch}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:18px}
+.topic h2{font-family:var(--display);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.topic button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent}
+.topic button:hover{background:var(--surface)}
+.topic button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.topic button[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+.topic .pname{font-weight:600}
+.topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
+main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.phead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 .95rem/1 var(--body);padding:10px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.statement{font-size:1.08rem;max-width:68ch;margin:0}
+.num{font-family:var(--mono);font-size:.92em;background:var(--hl);color:var(--hl-ink);padding:0 .3em;border-radius:3px;white-space:nowrap}
+.variant{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface-2)}
+.box h3{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.box ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.box li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.box li .v{font-family:var(--mono);font-size:.92rem}
+.method{font-size:.95rem;color:var(--muted);margin:0}
+.method b{color:var(--ink)}
+
+.answers h3{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;font-weight:600}
+.arow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(120px,1fr) 11rem;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.arow label{font-weight:600}
+.arow .inp{display:flex;align-items:center;gap:6px}
+.arow input{width:100%;min-width:0;font:1rem var(--mono);padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.arow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.arow .unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap;min-width:4.2em}
+.chip{font:600 .8rem/1 var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.idle{color:var(--muted)}
+.checkbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+
+.solution{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.solution h3{font-family:var(--display);font-size:1.3rem;margin:0;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:4px 10px}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center;font-size:.8rem}
+.step-title{font-weight:600;align-self:center}
+.step-body{grid-column:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+.eq{overflow-x:auto;padding:6px 0;font-size:1.12rem}
+.eq math{font-size:1.12em}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.final{display:flex;flex-wrap:wrap;gap:10px}
+.final .ans{border:2px solid var(--accent);border-radius:8px;padding:10px 14px;background:var(--accent-soft)}
+.final .ans .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--display);font-weight:600}
+.final .ans .val{font-family:var(--mono);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plotwrap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2)}
+.plotwrap figcaption{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+canvas{display:block;width:100%;height:260px}
+.takeaway{border-left:3px solid var(--hl);background:var(--surface-2);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.95rem;margin:0}
+
+@media (max-width:780px){
+  .layout{grid-template-columns:1fr}
+  nav.problems{position:static}
+  .topic ul{flex-direction:row;flex-wrap:wrap}
+  .topic li{flex:1 1 150px}
+  .soon{display:none}
+  .arow{grid-template-columns:1fr auto}
+  .arow label{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .solution{animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinematics: Polar &amp; Relative Motion</h1></div>
+    <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
+  </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: polar coordinates &amp; relative motion</summary>
+    <div class="cgrid">
+      <div><h4>When to use polar</h4><p>Motion is described from a <b>fixed point O</b>: a rotating arm, a collar on a rod, a cam, a spiral. The frame is still inertial; only the basis vectors ê_r and ê_θ rotate.</p><div class="ceq" data-tex="\dot{\hat e}_r=\dot\theta\,\hat e_\theta,\qquad \dot{\hat e}_\theta=-\dot\theta\,\hat e_r"></div></div>
+      <div><h4>Velocity</h4><div class="ceq" data-tex="\vec v=\dot r\,\hat e_r+r\dot\theta\,\hat e_\theta"></div><p>v_r = ṙ (radial), v_θ = rθ̇ = rω (transverse).</p></div>
+      <div><h4>Acceleration</h4><div class="ceq" data-tex="\vec a=(\ddot r-r\dot\theta^2)\,\hat e_r+(r\ddot\theta+2\dot r\dot\theta)\,\hat e_\theta"></div><p>−rθ̇² is centripetal; 2ṙθ̇ is the Coriolis term. It is a real kinematic acceleration here, not a fictitious force.</p></div>
+      <div><h4>Caution</h4><p>ṙ and r̈ are not the speed and a_r is not dv/dt. a_r = r̈ − rθ̇² includes the centripetal part.</p></div>
+      <div><h4>Relative motion</h4><div class="ceq" data-tex="\vec r_B=\vec r_A+\vec r_{B/A},\quad \vec v_B=\vec v_A+\vec v_{B/A},\quad \vec a_B=\vec a_A+\vec a_{B/A}"></div><p>Find each object's motion in fixed axes first, then subtract.</p></div>
+      <div><h4>Newton's 2nd law in polar</h4><div class="ceq" data-tex="\textstyle\sum F_r=m(\ddot r-r\dot\theta^2),\quad \sum F_\theta=m(r\ddot\theta+2\dot r\dot\theta)"></div></div>
+    </div>
+  </details>
+  <div class="layout">
+    <nav class="problems" id="nav" aria-label="Problems"></nav>
+    <main class="sheet" id="sheet" aria-live="polite"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const T = String.raw;
+const g = 9.81;
+function pick(min, max, step){ const n = Math.round((max-min)/step); return +(min + step*Math.floor(Math.random()*(n+1))).toFixed(6); }
+function fmt(x, sig=4){ if(!isFinite(x)) return "—"; if(Math.abs(x) < 1e-12) return "0"; return String(Number(x.toPrecision(sig))); }
+function sgn(x, sig=4){ return (x < 0 ? " - " : " + ") + fmt(Math.abs(x), sig); }   // signed term for equations
+function tex(s, display=true){
+  if(window.katex){ try{ return katex.renderToString(s,{output:"mathml",displayMode:display,throwOnError:false}); }catch(e){} }
+  return '<code>'+s.replace(/</g,"&lt;")+'</code>';
+}
+function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&nbsp;"+unit:""}</span>`; }
+
+/* =====================================================================
+   PROBLEM BANK
+   To add a problem, copy one object below and edit:
+     id, topic, name, tag, original (the numbers from your notes),
+     randomize() -> new givens, solve(v) -> computed values,
+     statement, given, find, method, answers, steps, plot, takeaway
+   ===================================================================== */
+const P = (x,s=4)=> x<0 ? `(${fmt(x,s)})` : fmt(x,s);   // wrap negatives in parentheses inside equations
+const D2R = Math.PI/180;
+const polarPath = (fn, a0, a1, n=160)=>{ const pts=[]; for(let i=0;i<=n;i++){ const th=a0+(a1-a0)*i/n, r=fn(th); pts.push([r*Math.cos(th), r*Math.sin(th)]); } return pts; };
+
+const PROBLEMS = [
+
+/* ---------- 1. Simple collar: r(t), θ(t) ---------- */
+{
+  id:"collar", topic:"Polar Coordinates & Relative Motion", name:"Simple Collar", tag:"r(t), θ(t)",
+  kind:"Polar kinematics",
+  original:{ r0:1, c:0.2, k:2, t:2 },
+  randomize(){ return { r0:pick(0.5,2,0.5), c:pick(0.1,0.5,0.1), k:pick(1,4,0.5), t:pick(1,4,0.5) }; },
+  solve(v){ const r=v.r0+v.c*v.t*v.t, rd=2*v.c*v.t, rdd=2*v.c, th=v.k*v.t, w=v.k, al=0;
+    const vr=rd, vt=r*w, ar=rdd-r*w*w, at=r*al+2*rd*w; return {r,rd,rdd,th,w,al,vr,vt,ar,at,V:Math.hypot(vr,vt),A:Math.hypot(ar,at)}; },
+  statement:(v)=>`Collar A slides along a rod that rotates about a fixed pin O. Its position is r = ${N(v.r0)} + ${N(v.c)}t² m and the rod's angle is θ = ${N(v.k)}t rad, with t in seconds. Find the velocity and acceleration of the collar at t = ${N(v.t,"s")}.`,
+  given:(v)=>[["r(t)",`${fmt(v.r0)} + ${fmt(v.c)}t² m`],["θ(t)",`${fmt(v.k)}t rad`],["t",`${fmt(v.t)} s`]],
+  find:["v_r and v_θ","a_r and a_θ"],
+  method:"Circular motion with a changing radius, viewed from the fixed pin O, so use polar coordinates. Differentiate r(t) and θ(t), then plug into the polar velocity and acceleration equations.",
+  answers:(v,r)=>[
+    {label:"v_r", unit:"m/s", val:r.vr, scale:r.V},
+    {label:"v_θ", unit:"m/s", val:r.vt, scale:r.V},
+    {label:"a_r", unit:"m/s²", val:r.ar, scale:r.A},
+    {label:"a_θ", unit:"m/s²", val:r.at, scale:r.A}],
+  steps(v,r){ return [
+    {t:"Radial terms at t", eq:T`r=${fmt(v.r0)}+${fmt(v.c)}t^2=${fmt(r.r)}\ \text{m},\quad \dot r=${fmt(2*v.c)}t=${fmt(r.rd)}\ \text{m/s},\quad \ddot r=${fmt(r.rdd)}\ \text{m/s}^2`},
+    {t:"Angular terms at t", eq:T`\theta=${fmt(v.k)}t=${fmt(r.th)}\ \text{rad},\quad \dot\theta=\omega=${fmt(r.w)}\ \text{rad/s},\quad \ddot\theta=\alpha=0`},
+    {t:"Velocity", eq:T`\vec v=\dot r\,\hat e_r+r\dot\theta\,\hat e_\theta=${fmt(r.rd)}\,\hat e_r+(${fmt(r.r)})(${fmt(r.w)})\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`},
+    {t:"Acceleration equation", eq:T`\vec a=(\ddot r-r\dot\theta^2)\,\hat e_r+(r\ddot\theta+2\dot r\dot\theta)\,\hat e_\theta`},
+    {t:"Plug in", eq:T`\vec a=\big(${fmt(r.rdd)}-${fmt(r.r)}(${fmt(r.w)})^2\big)\hat e_r+\big(${fmt(r.r)}(0)+2(${fmt(r.rd)})(${fmt(r.w)})\big)\hat e_\theta=${fmt(r.ar)}\,\hat e_r${sgn(r.at)}\,\hat e_\theta\ \text{m/s}^2`}
+  ];},
+  takeaway:"Here a_θ comes entirely from the Coriolis term 2ṙθ̇, because θ̈ = 0. The collar still has transverse acceleration since it moves outward along a rotating rod.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=160;i++){const t=v.t*i/160, rr=v.r0+v.c*t*t; pts.push([rr*Math.cos(v.k*t), rr*Math.sin(v.k*t)]);} const M=[r.r*Math.cos(r.th), r.r*Math.sin(r.th)]; return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:"Path of the collar from t = 0 (to scale). Orange is the rod at the instant asked; the dot is the collar."}; }
+},
+
+/* ---------- 2. Sliding collar on an arc: r = b cos θ ---------- */
+{
+  id:"arc", topic:"Polar Coordinates & Relative Motion", name:"Sliding Collar Arc", tag:"r(θ) = b cos θ",
+  kind:"Polar kinematics",
+  original:{ b:2, th:25, w:4 },
+  randomize(){ return { b:pick(1,3,0.5), th:pick(10,75,5), w:pick(2,6,0.5) }; },
+  solve(v){ const th=v.th*D2R, c=Math.cos(th), s=Math.sin(th), r=v.b*c, rd=-v.b*v.w*s, rdd=-v.b*v.w*v.w*c;
+    const vr=rd, vt=r*v.w, ar=rdd-r*v.w*v.w, at=2*rd*v.w; return {r,rd,rdd,vr,vt,ar,at,V:Math.hypot(vr,vt),A:Math.hypot(ar,at)}; },
+  statement:(v)=>`Collar A slides along a semicircular arc whose shape, measured from the fixed point O, is r = ${N(v.b)} cos θ m. At the instant θ = ${N(v.th,"°")}, the line OA rotates at θ̇ = ${N(v.w,"rad/s")} with θ̈ = 0. Find the velocity and acceleration of A.`,
+  given:(v)=>[["Path",`r = ${fmt(v.b)} cos θ m`],["θ",`${fmt(v.th)}°`],["θ̇ = ω",`${fmt(v.w)} rad/s`],["θ̈ = α","0"]],
+  find:["v_r and v_θ","a_r and a_θ"],
+  method:"The motion is circular but viewed from O, which is not the center of the arc, so use polar coordinates. r depends on θ, so use the chain rule to get ṙ and r̈.",
+  answers:(v,r)=>[
+    {label:"v_r", unit:"m/s", val:r.vr, scale:r.V},
+    {label:"v_θ", unit:"m/s", val:r.vt, scale:r.V},
+    {label:"a_r", unit:"m/s²", val:r.ar, scale:r.A},
+    {label:"a_θ", unit:"m/s²", val:r.at, scale:r.A}],
+  steps(v,r){ return [
+    {t:"Position", eq:T`r=${fmt(v.b)}\cos ${fmt(v.th)}^\circ=${fmt(r.r)}\ \text{m}`},
+    {t:"ṙ by the chain rule", eq:T`\dot r=\frac{d}{dt}(${fmt(v.b)}\cos\theta)=-${fmt(v.b)}\dot\theta\sin\theta=-${fmt(v.b)}(${fmt(v.w)})\sin ${fmt(v.th)}^\circ=${fmt(r.rd)}\ \text{m/s}`},
+    {t:"Velocity", eq:T`\vec v=\dot r\,\hat e_r+r\omega\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+(${fmt(r.r)})(${fmt(v.w)})\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`},
+    {t:"r̈ (θ̈ = 0)", eq:T`\ddot r=-${fmt(v.b)}\dot\theta^2\cos\theta-${fmt(v.b)}\ddot\theta\sin\theta=-${fmt(v.b)}(${fmt(v.w)})^2\cos ${fmt(v.th)}^\circ=${fmt(r.rdd)}\ \text{m/s}^2`},
+    {t:"Acceleration", eq:T`\vec a=\big(${P(r.rdd)}-${fmt(r.r)}(${fmt(v.w)})^2\big)\hat e_r+\big(${fmt(r.r)}(0)+2${P(r.rd)}(${fmt(v.w)})\big)\hat e_\theta=${fmt(r.ar)}\,\hat e_r${sgn(r.at)}\,\hat e_\theta\ \text{m/s}^2`}
+  ];},
+  takeaway:(v,r)=>`Check: the speed |v| = ${fmt(r.V)} m/s equals bθ̇ = ${fmt(v.b*v.w)} m/s at every angle. The arc is a circle of diameter b, and A goes around its center at 2θ̇.`,
+  plot(v,r){ const pts=polarPath(t=>v.b*Math.cos(t), -Math.PI/2, Math.PI/2); const th=v.th*D2R, M=[r.r*Math.cos(th), r.r*Math.sin(th)]; return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:"The arc r = b cos θ is a circle through O (to scale). Orange is the line OA; the dot is the collar."}; }
+},
+
+/* ---------- 3. Cam and roller follower ---------- */
+{
+  id:"cam", topic:"Polar Coordinates & Relative Motion", name:"Cam & Roller Follower", tag:"r(θ), polar → x–y",
+  kind:"Polar kinematics",
+  original:{ p:0.15, e:0.5, th:135, w:4 },
+  randomize(){ return { p:pick(0.10,0.30,0.05), e:pick(0.2,0.7,0.1), th:pick(30,330,15), w:pick(2,8,1) }; },
+  solve(v){ const th=v.th*D2R, c=Math.cos(th), s=Math.sin(th), Dn=1+v.e*c, r=v.p/Dn;
+    const drdth=v.p*v.e*s/(Dn*Dn), d2=2*v.p*v.e*v.e*s*s/Math.pow(Dn,3)+v.p*v.e*c/(Dn*Dn);
+    const rd=drdth*v.w, rdd=d2*v.w*v.w, vr=rd, vt=r*v.w, ar=rdd-r*v.w*v.w, at=2*rd*v.w;
+    const vx=vr*c-vt*s, vy=vr*s+vt*c, ax=ar*c-at*s, ay=ar*s+at*c;
+    return {c,s,Dn,r,drdth,d2,rd,rdd,vr,vt,ar,at,vx,vy,ax,ay,V:Math.hypot(vr,vt),A:Math.hypot(ar,at)}; },
+  statement:(v)=>`A slotted arm rotates about O at a constant θ̇ = ${N(v.w,"rad/s")} and drives a roller follower around a fixed cam whose profile is r = ${N(v.p)}(1 + ${N(v.e)} cos θ)⁻¹ m. Find the velocity and acceleration of the roller when θ = ${N(v.th,"°")}, in polar and in Cartesian components.`,
+  given:(v)=>[["Cam profile",`r = ${fmt(v.p)}/(1 + ${fmt(v.e)} cos θ) m`],["θ",`${fmt(v.th)}°`],["θ̇ = ω",`${fmt(v.w)} rad/s (constant)`],["θ̈ = α","0"]],
+  find:["v_r, v_θ and v_x, v_y","a_r, a_θ and a_x, a_y"],
+  method:"The arm rotates about O and the roller's distance from O is set by the cam, so use polar coordinates. Differentiate r(θ) with the chain rule, then convert with ê_r = cos θ î + sin θ ĵ and ê_θ = −sin θ î + cos θ ĵ.",
+  answers:(v,r)=>[
+    {label:"v_r", unit:"m/s", val:r.vr, scale:r.V},
+    {label:"v_θ", unit:"m/s", val:r.vt, scale:r.V},
+    {label:"v_x", unit:"m/s", val:r.vx, scale:r.V},
+    {label:"v_y", unit:"m/s", val:r.vy, scale:r.V},
+    {label:"a_r", unit:"m/s²", val:r.ar, scale:r.A},
+    {label:"a_θ", unit:"m/s²", val:r.at, scale:r.A},
+    {label:"a_x", unit:"m/s²", val:r.ax, scale:r.A},
+    {label:"a_y", unit:"m/s²", val:r.ay, scale:r.A}],
+  steps(v,r){ return [
+    {t:"Position", eq:T`r=\frac{${fmt(v.p)}}{1+${fmt(v.e)}\cos ${fmt(v.th)}^\circ}=\frac{${fmt(v.p)}}{${fmt(r.Dn)}}=${fmt(r.r)}\ \text{m}`},
+    {t:"ṙ by the chain rule", eq:T`\dot r=${fmt(v.p)}(1+${fmt(v.e)}\cos\theta)^{-2}(${fmt(v.e)}\sin\theta)\,\dot\theta=${fmt(r.drdth)}(${fmt(v.w)})=${fmt(r.rd)}\ \text{m/s}`},
+    {t:"Velocity (polar)", eq:T`\vec v=\dot r\,\hat e_r+r\omega\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`},
+    {t:"Velocity (Cartesian)", eq:T`\vec v=${fmt(r.vr)}(\cos\theta\,\hat i+\sin\theta\,\hat j)+${fmt(r.vt)}(-\sin\theta\,\hat i+\cos\theta\,\hat j)=${fmt(r.vx)}\,\hat i${sgn(r.vy)}\,\hat j\ \text{m/s}`},
+    {t:"r̈ (θ̈ = 0)", eq:T`\ddot r=\Big[\frac{2(${fmt(v.p)})(${fmt(v.e)}\sin\theta)^2}{(1+${fmt(v.e)}\cos\theta)^3}+\frac{${fmt(v.p)}(${fmt(v.e)}\cos\theta)}{(1+${fmt(v.e)}\cos\theta)^2}\Big]\dot\theta^2=${fmt(r.d2)}(${fmt(v.w)})^2=${fmt(r.rdd)}\ \text{m/s}^2`},
+    {t:"Acceleration (polar)", eq:T`\vec a=\big(${P(r.rdd)}-${fmt(r.r)}(${fmt(v.w)})^2\big)\hat e_r+\big(0+2${P(r.rd)}(${fmt(v.w)})\big)\hat e_\theta=${fmt(r.ar)}\,\hat e_r${sgn(r.at)}\,\hat e_\theta\ \text{m/s}^2`},
+    {t:"Acceleration (Cartesian)", eq:T`a_x=a_r\cos\theta-a_\theta\sin\theta=${fmt(r.ax)},\quad a_y=a_r\sin\theta+a_\theta\cos\theta=${fmt(r.ay)}\ \text{m/s}^2`}
+  ];},
+  takeaway:"Polar coordinates make the derivatives easy because r is given as a function of θ. Converting to x–y at the end is just a change of basis vectors at that angle.",
+  plot(v,r){ const pts=polarPath(t=>v.p/(1+v.e*Math.cos(t)), 0, 2*Math.PI, 200); const th=v.th*D2R, M=[r.r*Math.cos(th), r.r*Math.sin(th)]; return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:"Cam profile to scale, with O at the origin. Orange is the slotted arm; the dot is the roller."}; }
+},
+
+/* ---------- 4. Bar with spring: a_r = −k r ---------- */
+{
+  id:"spring", topic:"Polar Coordinates & Relative Motion", name:"Bar with Spring", tag:"a_r(r)",
+  kind:"Polar kinematics",
+  original:{ w:12, k:8, r1:1, vr1:2, r2:1.5 },
+  randomize(){ const r1=pick(0.5,1.5,0.25); return { w:pick(6,15,1), k:pick(4,20,2), r1, vr1:pick(1,4,0.5), r2:+(r1+pick(0.25,1,0.25)).toFixed(2) }; },
+  solve(v){ const C=v.w*v.w-v.k, vr=Math.sqrt(v.vr1*v.vr1+C*(v.r2*v.r2-v.r1*v.r1)), vt=v.r2*v.w; return {C,vr,vt,V:Math.hypot(vr,vt)}; },
+  statement:(v)=>`A bar rotates about a fixed pin at a constant ω = ${N(v.w,"rad/s")}. A collar attached to a spring slides along the bar, and the spring gives it a radial acceleration a_r = −${N(v.k)} r m/s². When r = ${N(v.r1,"m")}, the collar's radial speed is ṙ = ${N(v.vr1,"m/s")}. Find its velocity when r = ${N(v.r2,"m")}.`,
+  given:(v)=>[["ω",`${fmt(v.w)} rad/s (constant)`],["a_r",`−${fmt(v.k)}r m/s²`],["r₁, ṙ₁",`${fmt(v.r1)} m, ${fmt(v.vr1)} m/s`],["r₂",`${fmt(v.r2)} m`]],
+  find:["v_r at r₂","v_θ at r₂"],
+  method:"Circular motion with a varying radius, so use polar coordinates. a_r is given, so set it equal to r̈ − rω², solve for r̈ as a function of r, and use the chain rule r̈ = ṙ dṙ/dr to integrate.",
+  answers:(v,r)=>[
+    {label:"v_r at r₂", unit:"m/s", val:r.vr},
+    {label:"v_θ at r₂", unit:"m/s", val:r.vt}],
+  steps(v,r){ return [
+    {t:"Radial component of acceleration", eq:T`a_r=\ddot r-r\omega^2\;\Rightarrow\;-${fmt(v.k)}r=\ddot r-r(${fmt(v.w)})^2`},
+    {t:"Solve for r̈ as a function of r", eq:T`\ddot r=\frac{dv_r}{dt}=(${fmt(v.w*v.w)}-${fmt(v.k)})\,r=${fmt(r.C)}\,r`},
+    {t:"Chain rule to remove time", eq:T`\frac{dv_r}{dt}\cdot\frac{dr}{dr}=v_r\frac{dv_r}{dr}\;\Rightarrow\;\int_{${fmt(v.r1)}}^{${fmt(v.r2)}}${fmt(r.C)}\,r\,dr=\int_{${fmt(v.vr1)}}^{v_r}v_r\,dv_r`},
+    {t:"Integrate", eq:T`\frac{${fmt(r.C)}}{2}\big(${fmt(v.r2)}^2-${fmt(v.r1)}^2\big)=\frac{v_r^2}{2}-\frac{${fmt(v.vr1)}^2}{2}\;\Rightarrow\;v_r=${fmt(r.vr)}\ \text{m/s}`},
+    {t:"Transverse component", eq:T`v_\theta=r\omega=(${fmt(v.r2)})(${fmt(v.w)})=${fmt(r.vt)}\ \text{m/s}`},
+    {t:"Velocity", eq:T`\vec v=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`}
+  ];},
+  takeaway:"a_r is not the same as dv_r/dt. The radial acceleration includes the centripetal term −rω², which is why the spring's pull and the rotation combine into r̈ = (ω² − k) r.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const rr=v.r1+(v.r2-v.r1)*i/80; pts.push([rr, Math.sqrt(v.vr1*v.vr1+r.C*(rr*rr-v.r1*v.r1))]);} return {xl:"r (m)", yl:"v_r (m/s)", series:[{pts}], mark:[v.r2,r.vr], cap:"Radial speed as the collar slides out from r₁ to r₂. The dot marks r₂."}; }
+},
+
+/* ---------- 5. Boat on a spiral path ---------- */
+{
+  id:"boat", topic:"Polar Coordinates & Relative Motion", name:"Survey Boat Spiral", tag:"r = bθ, speed known",
+  kind:"Polar kinematics",
+  original:{ kn:4, b:10, n:3 },
+  randomize(){ return { kn:pick(2,8,0.5), b:pick(5,20,1), n:pick(1,6,0.5) }; },
+  solve(v){ const sp=v.kn*1852/3600, th=v.n*Math.PI, r=v.b*th, w=sp/Math.sqrt(v.b*v.b+r*r); return {sp,th,r,w,vr:v.b*w,vt:r*w}; },
+  statement:(v)=>`An archaeology survey boat searches the sea floor by following the spiral path r = ${N(v.b)}θ m (θ in radians) at a constant speed of ${N(v.kn,"knots")}. Find the boat's angular rate θ̇ and its velocity components when θ = ${N(v.n)}π rad. (1 knot = 1852 m/h.)`,
+  given:(v)=>[["Path",`r = ${fmt(v.b)}θ m`],["Speed",`${fmt(v.kn)} knots`],["θ",`${fmt(v.n)}π rad`]],
+  find:["θ̇ at that point","v_r and v_θ"],
+  method:"The path is given as r(θ), so use polar coordinates. Write ṙ and rθ̇ in terms of θ̇, then use speed² = v_r² + v_θ² to solve for θ̇.",
+  answers:(v,r)=>[
+    {label:"θ̇", unit:"rad/s", val:r.w},
+    {label:"v_r", unit:"m/s", val:r.vr},
+    {label:"v_θ", unit:"m/s", val:r.vt}],
+  steps(v,r){ return [
+    {t:"Convert the speed", eq:T`v=${fmt(v.kn)}\ \text{knots}\cdot\frac{1852\ \text{m/h}}{1\ \text{knot}}\cdot\frac{1\ \text{h}}{3600\ \text{s}}=${fmt(r.sp)}\ \text{m/s}`},
+    {t:"Position at θ", eq:T`r=${fmt(v.b)}(${fmt(v.n)}\pi)=${fmt(r.r)}\ \text{m}`},
+    {t:"Velocity in terms of θ̇", eq:T`\dot r=\frac{d}{dt}(${fmt(v.b)}\theta)=${fmt(v.b)}\dot\theta\;\Rightarrow\;\vec v=${fmt(v.b)}\dot\theta\,\hat e_r+r\dot\theta\,\hat e_\theta`},
+    {t:"Use the known speed", eq:T`v^2=(${fmt(v.b)}\dot\theta)^2+(r\dot\theta)^2\;\Rightarrow\;${fmt(r.sp)}^2=\dot\theta^2\big(${fmt(v.b*v.b)}+${fmt(r.r*r.r,5)}\big)\;\Rightarrow\;\dot\theta=${fmt(r.w)}\ \text{rad/s}`},
+    {t:"Plug back in", eq:T`\vec v=${fmt(v.b)}(${fmt(r.w)})\,\hat e_r+${fmt(r.r)}(${fmt(r.w)})\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`}
+  ];},
+  takeaway:"Keep θ̇ at full precision before plugging back in: rounding it to two significant figures changes v_θ noticeably because r is large. Far out on the spiral, almost all of the speed is transverse.",
+  plot(v,r){ const pts=polarPath(t=>v.b*t, 0, r.th, 240); const M=[r.r*Math.cos(r.th), r.r*Math.sin(r.th)]; return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:"Spiral search path from θ = 0 to the angle asked (to scale). The dot is the boat."}; }
+},
+
+/* ---------- 6. Intersection: relative motion of two cars ---------- */
+{
+  id:"cars", topic:"Polar Coordinates & Relative Motion", name:"Intersection", tag:"relative, straight",
+  kind:"Relative motion (translating axes)",
+  original:{ kmh:36, aB:1.2, d:35, t:5 },
+  randomize(){ const aB=pick(0.8,2.0,0.1); let t=pick(2,6,0.5), d=pick(25,60,5); if(0.5*aB*t*t>=d) d=Math.ceil((0.5*aB*t*t+5)/5)*5; return { kmh:pick(18,72,9), aB, d, t }; },
+  solve(v){ const vA=v.kmh/3.6, xA=vA*v.t, vB=-v.aB*v.t, yB=v.d-0.5*v.aB*v.t*v.t; return {vA,xA,vB,yB, rx:-xA, ry:yB, vx:-vA, vy:vB, ay:-v.aB}; },
+  statement:(v)=>`Car A passes through the center of an intersection heading east at a constant ${N(v.kmh,"km/h")}. At that same instant, car B starts from rest ${N(v.d,"m")} north of the intersection and heads south with a constant acceleration of ${N(v.aB,"m/s²")}. Find the position, velocity, and acceleration of B relative to A at t = ${N(v.t,"s")}. Take x east and y north, with the origin at the center of the intersection.`,
+  given:(v)=>[["v_A",`${fmt(v.kmh)} km/h east (constant)`],["B start",`${fmt(v.d)} m north, from rest`],["a_B",`${fmt(v.aB)} m/s² south`],["t",`${fmt(v.t)} s`]],
+  find:["r_B/A","v_B/A","a_B/A"],
+  method:"Straight-line motion of two cars, so find each car's position, velocity, and acceleration in fixed x–y axes first, then subtract: r_B = r_A + r_B/A (and the same for v and a).",
+  answers:(v,r)=>[
+    {label:"r_B/A, x", unit:"m", val:r.rx, scale:Math.hypot(r.rx,r.ry)},
+    {label:"r_B/A, y", unit:"m", val:r.ry, scale:Math.hypot(r.rx,r.ry)},
+    {label:"v_B/A, x", unit:"m/s", val:r.vx, scale:Math.hypot(r.vx,r.vy)},
+    {label:"v_B/A, y", unit:"m/s", val:r.vy, scale:Math.hypot(r.vx,r.vy)},
+    {label:"a_B/A, y", unit:"m/s²", val:r.ay}],
+  steps(v,r){ return [
+    {t:"Car A: constant speed", eq:T`v_A=${fmt(v.kmh)}\ \tfrac{\text{km}}{\text{h}}\cdot\tfrac{1000\ \text{m}}{\text{km}}\cdot\tfrac{1\ \text{h}}{3600\ \text{s}}=${fmt(r.vA)}\ \text{m/s},\quad \vec r_A=${fmt(r.vA)}(${fmt(v.t)})\,\hat i=${fmt(r.xA)}\,\hat i\ \text{m},\quad \vec a_A=0`},
+    {t:"Car B: constant acceleration from rest", eq:T`\vec v_B=\vec a_B t=-${fmt(v.aB)}(${fmt(v.t)})\,\hat j=${fmt(r.vB)}\,\hat j\ \text{m/s}`},
+    {t:"Car B position", eq:T`y_B=y_0+\tfrac12 a t^2=${fmt(v.d)}-\tfrac12(${fmt(v.aB)})(${fmt(v.t)})^2=${fmt(r.yB)}\ \text{m}\;\Rightarrow\;\vec r_B=${fmt(r.yB)}\,\hat j`},
+    {t:"Relative position", eq:T`\vec r_{B/A}=\vec r_B-\vec r_A=${fmt(r.rx)}\,\hat i${sgn(r.ry)}\,\hat j\ \text{m}`},
+    {t:"Relative velocity", eq:T`\vec v_{B/A}=\vec v_B-\vec v_A=${fmt(r.vy)}\,\hat j-${fmt(r.vA)}\,\hat i=${fmt(r.vx)}\,\hat i${sgn(r.vy)}\,\hat j\ \text{m/s}`},
+    {t:"Relative acceleration", eq:T`\vec a_{B/A}=\vec a_B-\vec a_A=-${fmt(v.aB)}\,\hat j-0=${fmt(r.ay)}\,\hat j\ \text{m/s}^2`}
+  ];},
+  takeaway:"Because A moves at constant velocity, B's acceleration looks the same from A as from the ground. Relative acceleration only differs when the observer is accelerating.",
+  plot(v,r){ const A=[[0,0],[r.xA,0]], B=[[0,v.d],[0,r.yB]]; return {xl:"x (m, east)", yl:"y (m, north)", series:[{pts:A},{pts:B,alt:true},{pts:[[r.xA,0],[0,r.yB]]}], mark:[r.xA,0], mark2:[0,r.yB], equal:true, cap:"Blue: car A's path; orange: car B's path. Dots show both cars at time t. The thin line from A to B is r_B/A."}; }
+},
+
+/* ---------- 7. Trains: relative motion with a curved track ---------- */
+{
+  id:"trains", topic:"Polar Coordinates & Relative Motion", name:"Trains", tag:"relative, curved",
+  kind:"Relative motion",
+  original:{ R:500, vB:50, vA:20, aA:2 },
+  randomize(){ return { R:pick(300,800,50), vB:pick(30,70,5), vA:pick(10,40,5), aA:pick(1,4,0.5) }; },
+  solve(v){ const w=v.vB/v.R, aB=-v.R*w*w; return {w, aB, vrel:-v.vA-v.vB, ax:-aB, ay:-v.aA, A:Math.hypot(aB,v.aA)}; },
+  statement:(v)=>`Train B travels at a constant speed of ${N(v.vB,"ft/s")} around a circular track of radius ${N(v.R,"ft")} centered at O. At the instant shown, B is on the x axis moving north (+y). Train A, on a straight north–south track just east of B, is moving south at ${N(v.vA,"ft/s")} and speeding up at ${N(v.aA,"ft/s²")}. Find the velocity and acceleration of A relative to B.`,
+  given:(v)=>[["v_B",`${fmt(v.vB)} ft/s, constant, +ĵ now`],["ρ = r",`${fmt(v.R)} ft`],["v_A",`${fmt(v.vA)} ft/s south`],["a_A",`${fmt(v.aA)} ft/s² (speeding up)`]],
+  find:["v_A/B","a_A/B (x and y)"],
+  method:"Use v_A = v_B + v_A/B and a_A = a_B + a_A/B. B moves on a fixed-radius circle at constant speed, so ṙ = r̈ = 0 and θ̈ = 0: only the centripetal term −rθ̇² survives in its acceleration.",
+  answers:(v,r)=>[
+    {label:"v_A/B, y", unit:"ft/s", val:r.vrel},
+    {label:"a_A/B, x", unit:"ft/s²", val:r.ax, scale:r.A},
+    {label:"a_A/B, y", unit:"ft/s²", val:r.ay, scale:r.A}],
+  steps(v,r){ return [
+    {t:"Relative velocity", eq:T`\vec v_A=\vec v_B+\vec v_{A/B}\;\Rightarrow\;-${fmt(v.vA)}\,\hat j=${fmt(v.vB)}\,\hat j+\vec v_{A/B}\;\Rightarrow\;\vec v_{A/B}=${fmt(r.vrel)}\,\hat j\ \text{ft/s}`},
+    {t:"B's acceleration in polar form", eq:T`\vec a_B=(\ddot r-r\dot\theta^2)\,\hat e_r+(r\ddot\theta+2\dot r\dot\theta)\,\hat e_\theta=-r\omega^2\,\hat e_r`,
+      note:"Fixed radius (ṙ = r̈ = 0) and constant speed (θ̈ = 0). At this instant ê_r = î."},
+    {t:"Angular rate of B", eq:T`v=r\omega\;\Rightarrow\;\omega=\frac{${fmt(v.vB)}}{${fmt(v.R)}}=${fmt(r.w)}\ \text{rad/s}`},
+    {t:"B's acceleration", eq:T`\vec a_B=-${fmt(v.R)}(${fmt(r.w)})^2\,\hat i=${fmt(r.aB)}\,\hat i\ \text{ft/s}^2`},
+    {t:"Relative acceleration", eq:T`\vec a_A=\vec a_B+\vec a_{A/B}\;\Rightarrow\;-${fmt(v.aA)}\,\hat j=${fmt(r.aB)}\,\hat i+\vec a_{A/B}\;\Rightarrow\;\vec a_{A/B}=${fmt(r.ax)}\,\hat i-${fmt(v.aA)}\,\hat j\ \text{ft/s}^2`}
+  ];},
+  takeaway:"A is speeding up while moving south, so its acceleration points south (−ĵ). Even though A only moves in a straight line, a_A/B has an x component because B is accelerating toward the center of its curve.",
+  plot(v,r){ const pts=polarPath(()=>v.R, -Math.PI/2, Math.PI/2); const xA=v.R*1.12; return {xl:"x (ft)", yl:"y (ft)", series:[{pts},{pts:[[xA,-v.R],[xA,v.R]],alt:true}], mark:[v.R,0], mark2:[xA,0], equal:true, cap:"Blue: B's circular track; orange: A's straight track (to scale). Dots show both trains at the instant considered."}; }
+},
+
+/* ---------- 8. Aircraft carrier and jet ---------- */
+{
+  id:"jet", topic:"Polar Coordinates & Relative Motion", name:"Carrier & Jet", tag:"relative velocity",
+  kind:"Relative motion",
+  original:{ vP:1, hd:30, vS:4 },
+  randomize(){ return { vP:pick(1,10,0.5), hd:pick(10,80,5), vS:pick(2,8,0.5) }; },
+  solve(v){ const h=v.hd*D2R, px=v.vP*Math.sin(h), py=v.vP*Math.cos(h); return {px,py,rx:px-v.vS, ry:py, M:Math.hypot(px-v.vS,py)}; },
+  statement:(v)=>`A jet on the deck of an aircraft carrier moves at ${N(v.vP,"m/s")} on a heading ${N(v.hd,"°")} east of north (measured from the ground). The carrier steams due east at ${N(v.vS,"m/s")}. Find the velocity of the jet relative to the ship. Take x east and y north.`,
+  given:(v)=>[["v_P",`${fmt(v.vP)} m/s, ${fmt(v.hd)}° east of north`],["v_S",`${fmt(v.vS)} m/s east`]],
+  find:["v_P/S (x and y)"],
+  method:"Break each velocity into x–y components, then use v_P = v_S + v_P/S.",
+  answers:(v,r)=>[
+    {label:"v_P/S, x", unit:"m/s", val:r.rx, scale:r.M},
+    {label:"v_P/S, y", unit:"m/s", val:r.ry, scale:r.M}],
+  steps(v,r){ return [
+    {t:"Jet velocity in components", eq:T`\vec v_P=${fmt(v.vP)}\sin ${fmt(v.hd)}^\circ\,\hat i+${fmt(v.vP)}\cos ${fmt(v.hd)}^\circ\,\hat j=${fmt(r.px)}\,\hat i+${fmt(r.py)}\,\hat j`,
+      note:"The heading is measured from north, so sine goes with east (x) and cosine with north (y)."},
+    {t:"Ship velocity", eq:T`\vec v_S=${fmt(v.vS)}\,\hat i`},
+    {t:"Relative velocity", eq:T`\vec v_P=\vec v_S+\vec v_{P/S}\;\Rightarrow\;\vec v_{P/S}=\vec v_P-\vec v_S=(${fmt(r.px)}-${fmt(v.vS)})\,\hat i+${fmt(r.py)}\,\hat j=${fmt(r.rx)}\,\hat i+${fmt(r.ry)}\,\hat j\ \text{m/s}`}
+  ];},
+  takeaway:(v,r)=>`Seen from the deck, the jet moves at ${fmt(r.M,3)} m/s${r.rx<0?", drifting west because the ship is outrunning it eastward":""}.`,
+  plot(v,r){ return {xl:"x (m/s, east)", yl:"y (m/s, north)", series:[{pts:[[0,0],[r.px,r.py]]},{pts:[[0,0],[v.vS,0]],alt:true},{pts:[[v.vS,0],[r.px,r.py]]}], mark:[r.px,r.py], mark2:[v.vS,0], equal:true, cap:"Velocity triangle: blue from the origin is v_P, orange is v_S, and the blue segment from the tip of v_S to the tip of v_P is v_P/S."}; }
+}
+
+];
+
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
+const $ = (s)=>document.querySelector(s);
+const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
+
+function renderNav(){
+  const topics=[...new Set(PROBLEMS.map(p=>p.topic))];
+  $("#nav").innerHTML = topics.map(tp=>`<div class="topic"><h2>${tp}</h2><ul>${
+    PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
+  }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
+  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+}
+
+function select(id){
+  state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
+  try{ localStorage.setItem("dpl-last-polar", id); }catch(e){}
+  renderNav(); renderSheet(); window.scrollTo({top:0});
+}
+function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
+function original(){ state.vars={...cur().original}; state.isOriginal=true; state.shown=0; renderSheet(); }
+
+function renderSheet(){
+  const p=cur(), v=state.vars, r=p.solve(v), ans=p.answers(v,r);
+  const steps=p.steps(v,r);
+  $("#sheet").innerHTML = `
+    <div class="phead">
+      <div><div class="eyebrow">${p.kind} · ${p.tag}</div><h2>${p.name}</h2></div>
+      <div class="controls">
+        <button class="btn primary" id="new" type="button">New numbers</button>
+        <button class="btn" id="orig" type="button">Class example</button>
+      </div>
+    </div>
+    <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
+    <p class="statement">${p.statement(v,r)}</p>
+    <div class="cols">
+      <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
+      <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="method"><b>Method.</b> ${p.method}</p>
+
+    <form class="answers" id="ansform" autocomplete="off">
+      <h3>Your answers</h3>
+      ${ans.map((a,i)=>`<div class="arow">
+        <label for="a${i}">${a.label}</label>
+        <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
+        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+      <div class="checkbar">
+        <button class="btn primary" type="submit">Check answers</button>
+        <button class="btn" type="button" id="next">Show next step</button>
+        <button class="btn" type="button" id="all">Show full solution</button>
+        <span class="hint">Correct within 1%.</span>
+      </div>
+    </form>
+    <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
+
+  $("#new").onclick=fresh; $("#orig").onclick=original;
+  $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
+  $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  if(state.shown) drawSolution(p,v,r,ans,steps);
+}
+
+function check(a,i){
+  const raw=$("#a"+i).value.trim().replace(/,/g,""), chip=$("#c"+i);
+  if(raw===""){ chip.className="chip idle"; chip.textContent="enter a value"; return; }
+  const x=parseFloat(raw);
+  if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
+  const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
+  else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
+  else { chip.className="chip bad"; chip.textContent="not yet"; }
+}
+
+function drawSolution(p,v,r,ans,steps){
+  const sol=$("#sol"); sol.hidden=false;
+  const done = state.shown>=steps.length;
+  const tk = typeof p.takeaway==="function" ? p.takeaway(v,r) : p.takeaway;
+  sol.innerHTML = `<h3>Worked solution</h3>
+    <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
+    ${done ? `
+      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
+      <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
+      : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
+  if(done) drawPlot(p.plot(v,r));
+}
+
+function drawPlot(P){
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const all=P.series.flatMap(s=>s.pts);
+  let x0=P.xmin??Math.min(0,...all.map(p=>p[0])), x1=Math.max(...all.map(p=>p[0]));
+  let y0=Math.min(0,...all.map(p=>p[1])), y1=Math.max(...all.map(p=>p[1]));
+  const padY=(y1-y0)*0.08||1; y1+=padY; if(y0<0) y0-=padY;
+  const L=58,R=16,Tp=12,B=40, pw=W-L-R, ph=H-Tp-B;
+  let sx=pw/(x1-x0), sy=ph/(y1-y0);
+  if(P.equal){ const s=Math.min(sx,sy); sx=sy=s; const cx=(x0+x1)/2, cy=(y0+y1)/2; x0=cx-pw/(2*s); y0=cy-ph/(2*s); }
+  const X=(x)=>L+(x-x0)*sx, Y=(y)=>Tp+ph-(y-y0)*sy;
+  const nice=(span)=>{const r=span/5, m=Math.pow(10,Math.floor(Math.log10(r))), f=r/m; return (f<1.5?1:f<3.5?2:f<7.5?5:10)*m;};
+  c.font="12px "+col("--mono"); c.lineWidth=1;
+  const xs=nice(P.equal?(pw/sx):(x1-x0)), ys=nice(P.equal?(ph/sy):(y1-y0));
+  const xEnd=x0+pw/sx, yEnd=y0+ph/sy;
+  c.strokeStyle=col("--line"); c.fillStyle=col("--muted");
+  c.textAlign="center"; c.textBaseline="top";
+  for(let x=Math.ceil(x0/xs)*xs; x<=xEnd+1e-9; x+=xs){ c.beginPath(); c.moveTo(X(x),Tp); c.lineTo(X(x),Tp+ph); c.stroke(); c.fillText(fmt(x,3),X(x),Tp+ph+6); }
+  c.textAlign="right"; c.textBaseline="middle";
+  for(let y=Math.ceil(y0/ys)*ys; y<=yEnd+1e-9; y+=ys){ c.beginPath(); c.moveTo(L,Y(y)); c.lineTo(L+pw,Y(y)); c.stroke(); c.fillText(fmt(y,3),L-6,Y(y)); }
+  c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
+  c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
+  c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
+  if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
+}
+
+window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
+
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-polar"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+state.id=start; state.vars={...cur().original};
+renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
+</script>
+</body></html>

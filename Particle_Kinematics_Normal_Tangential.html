@@ -1,9 +1,9 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Particle Kinematics: Cartesian · Dynamics Practice</title>
+<title>Particle Kinematics: Normal–Tangential · Dynamics Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet()};document.head.appendChild(s)"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
 <style>
 :root{
   --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
@@ -63,6 +63,13 @@ nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);displ
 .topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
 .soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
 
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
 main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
 .eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
 .phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
@@ -137,9 +144,18 @@ canvas{display:block;width:100%;height:260px}
 
 <div class="wrap">
   <header class="top">
-    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinematics: Cartesian</h1></div>
+    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinematics: Normal–Tangential</h1></div>
     <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
   </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: normal &amp; tangential coordinates</summary>
+    <div class="cgrid">
+      <div><h4>When to use N–T</h4><p>The <b>path is known</b> (a circle, a curve, a track). Polar coordinates are position-based geometry; N–T is path-based geometry.</p></div>
+      <div><h4>Velocity</h4><div class="ceq" data-tex="\vec v=\frac{d\vec r}{dt}=\frac{d\vec r}{ds}\frac{ds}{dt}=v\,\hat e_t"></div><p>Velocity is <b>only</b> tangential. v = ds/dt is the speed along the path.</p></div>
+      <div><h4>Acceleration</h4><div class="ceq" data-tex="\vec a=\frac{dv}{dt}\hat e_t+\frac{v^2}{\rho}\hat e_n,\qquad |\vec a|=\sqrt{a_t^2+a_n^2}"></div><p>ê_n always points toward the center of curvature C.</p></div>
+      <div><h4>Circular path (ρ = r)</h4><div class="ceq" data-tex="s=r\theta,\quad v=r\omega,\quad a_n=\frac{v^2}{r}=r\omega^2"></div><p>Straight line: ρ → ∞, so a_n = 0.</p></div>
+    </div>
+  </details>
   <div class="layout">
     <nav class="problems" id="nav" aria-label="Problems"></nav>
     <main class="sheet" id="sheet" aria-live="polite"></main>
@@ -170,136 +186,116 @@ function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&n
    ===================================================================== */
 const PROBLEMS = [
 
-/* ---------- 1. Private plane: constant acceleration ---------- */
+/* ---------- 1. Robot arm: constant a_t, circular path ---------- */
 {
-  id:"plane", topic:"Particle Kinematics · Cartesian", name:"Private Plane", tag:"a = const",
-  kind:"Rectilinear motion",
-  original:{ mph:60, a:-10 },
-  randomize(){ return { mph:pick(45,95,5), a:-pick(6,16,1) }; },
-  solve(v){ const v1=v.mph*5280/3600, t2=v1/(-v.a), s2=v1*v1/(-2*v.a); return {v1,t2,s2}; },
-  statement:(v)=>`A small private plane touches down at ${N(v.mph,"mph")} and brakes with a constant deceleration of ${N(-v.a,"ft/s²")}. Find how long it takes to stop and the minimum runway length required.`,
-  given:(v,r)=>[["v₁",`${fmt(v.mph)} mph`],["a",`${fmt(v.a)} ft/s² (constant)`],["t₁, s₁",`0, 0`],["v₂","0 (stopped)"]],
-  find:["Stopping time t₂","Runway length s₂"],
-  method:"Kinematic relations, 4-step procedure: a = dv/dt, separate variables, integrate, solve. Then repeat with v = ds/dt.",
+  id:"robot", topic:"Particle Kinematics · Normal–Tangential", name:"Robot Arm", tag:"a_t const",
+  kind:"Circular motion (N–T)",
+  original:{ at:10, t:4, L:0.8 },
+  randomize(){ return { at:pick(5,25,1), t:pick(2,8,1), L:pick(0.5,1.2,0.1) }; },
+  solve(v){ const at=v.at/1000, vel=at*v.t, an=vel*vel/v.L, a=Math.sqrt(at*at+an*an); return {atm:at, vel, an, a, amm:a*1000}; },
+  statement:(v)=>`A robot arm rotates about its base B. The gripper P, at the end of the ${N(v.L,"m")} arm, starts from rest and moves along its circular path with a constant tangential acceleration of ${N(v.at,"mm/s²")}. Find the speed of P and the magnitude of its acceleration at t = ${N(v.t,"s")}.`,
+  given:(v)=>[["Arm length ρ",`${fmt(v.L)} m (constant)`],["a_t",`${fmt(v.at)} mm/s² = ${fmt(v.at/1000)} m/s²`],["v₀, t₀","0, 0"],["t",`${fmt(v.t)} s`]],
+  find:["Speed v at t","Acceleration magnitude |a| at t"],
+  method:"No forces are asked for, so this is a kinematics problem. The path is known (a circle of radius ρ = arm length), so use normal–tangential coordinates.",
   answers:(v,r)=>[
-    {label:"Stopping time t₂", unit:"s", val:r.t2},
-    {label:"Runway length s₂", unit:"ft", val:r.s2}],
-  steps(v,r){ const A=-v.a; return [
-    {t:"Convert the landing speed to ft/s", eq:T`v_1=${fmt(v.mph)}\,\tfrac{\text{mi}}{\text{h}}\cdot\tfrac{5280\ \text{ft}}{1\ \text{mi}}\cdot\tfrac{1\ \text{h}}{3600\ \text{s}}=${fmt(r.v1)}\ \text{ft/s}`},
-    {t:"Kinematic relation and separate variables", eq:T`a=\frac{dv}{dt}\;\Rightarrow\;a\,dt=dv`},
-    {t:"Integrate from the initial state", eq:T`\int_0^{t}(-${fmt(A)})\,dt=\int_{${fmt(r.v1)}}^{v}dv\;\Rightarrow\;v(t)=${fmt(r.v1)}-${fmt(A)}t`,
-      note:"Plug in only the initial state so the result is a velocity function."},
-    {t:"State 2: the plane stops (v = 0)", eq:T`0=${fmt(r.v1)}-${fmt(A)}t_2\;\Rightarrow\;t_2=\frac{${fmt(r.v1)}}{${fmt(A)}}=${fmt(r.t2)}\ \text{s}`},
-    {t:"Repeat for position with v = ds/dt", eq:T`\int_0^{t}(${fmt(r.v1)}-${fmt(A)}t)\,dt=\int_0^{s}ds\;\Rightarrow\;s(t)=${fmt(r.v1)}t-${fmt(A/2)}t^2`},
-    {t:"Evaluate at t₂", eq:T`s_2=${fmt(r.v1)}(${fmt(r.t2)})-${fmt(A/2)}(${fmt(r.t2)})^2=${fmt(r.s2)}\ \text{ft}`},
-    {t:"Check with the constant-acceleration equation", eq:T`v_2^2=v_1^2+2a\,\Delta s\;\Rightarrow\;0=${fmt(r.v1)}^2+2(-${fmt(A)})s_2\;\Rightarrow\;s_2=${fmt(r.s2)}\ \text{ft}\ \checkmark`}
-  ];},
-  takeaway:"This is the minimum runway length. Because a is constant, the 4-step procedure and the constant-acceleration equations give the same answer.",
-  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=r.t2*i/60; pts.push([t, r.v1*t+0.5*v.a*t*t]);} return {xl:"t (s)", yl:"s (ft)", series:[{pts,label:"s(t)"}], mark:[r.t2,r.s2], cap:"Position vs. time. The curve flattens as the plane slows; the dot marks the stop."}; }
-},
-
-/* ---------- 2. Scotch yoke: a(t) ---------- */
-{
-  id:"yoke", topic:"Particle Kinematics · Cartesian", name:"Scotch Yoke", tag:"a(t)",
-  kind:"Linear motion",
-  original:{ A:1.8, k:3, v0:0.6, t2:0.5 },
-  randomize(){ return { A:pick(1.2,3.0,0.1), k:pick(2,5,0.5), v0:pick(0.3,1.0,0.1), t2:pick(0.2,1.0,0.1) }; },
-  solve(v){ const B=v.A/v.k, C=v.v0-B, kt=v.k*v.t2; const v2=C+B*Math.cos(kt), x2=C*v.t2+(v.A/(v.k*v.k))*Math.sin(kt); return {B,C,kt,v2,x2}; },
-  statement:(v)=>`The slider A of a Scotch yoke mechanism has acceleration a = −${N(v.A)} sin(${N(v.k)} t) m/s², with t in seconds. At t = 0 it is at x = 0 moving with v = ${N(v.v0,"m/s")}. Find its velocity and position at t = ${N(v.t2,"s")}.`,
-  given:(v)=>[["a(t)",`−${fmt(v.A)} sin(${fmt(v.k)}t) m/s²`],["x₁, t₁","0, 0"],["v₁",`${fmt(v.v0)} m/s`],["t₂",`${fmt(v.t2)} s`]],
-  find:["Velocity v(t₂)","Position x(t₂)"],
-  method:"Acceleration is a function of time, so integrate a = dv/dt directly, then v = dx/dt. Angles are in radians.",
-  answers:(v,r)=>[
-    {label:"Velocity v(t₂)", unit:"m/s", val:r.v2},
-    {label:"Position x(t₂)", unit:"m", val:r.x2}],
-  steps(v,r){ const K2=v.A/(v.k*v.k); return [
-    {t:"Kinematic relation, separate, integrate", eq:T`a=\frac{dv}{dt}\;\Rightarrow\;\int_{${fmt(v.v0)}}^{v}dv=-${fmt(v.A)}\int_0^{t}\sin(${fmt(v.k)}t)\,dt`},
-    {t:"Evaluate the integral", eq:T`v-${fmt(v.v0)}=\frac{${fmt(v.A)}}{${fmt(v.k)}}\big[\cos(${fmt(v.k)}t)-1\big]`},
-    {t:"Velocity function", eq:T`v(t)=${fmt(r.C)}${sgn(r.B)}\cos(${fmt(v.k)}t)\ \text{m/s}`,
-      note: Math.abs(r.C)<1e-9 ? "Here v₁ equals A/k, so the constant term cancels (same as in the original example)." : `The constant term is v₁ − A/k = ${fmt(v.v0)} − ${fmt(r.B)} = ${fmt(r.C)}. In the original example this was zero because v₁ = A/k.`},
-    {t:"Velocity at t₂ (radians!)", eq:T`v(${fmt(v.t2)})=${fmt(r.C)}${sgn(r.B)}\cos(${fmt(r.kt)})=${fmt(r.v2,3)}\ \text{m/s}`},
-    {t:"Repeat with v = dx/dt", eq:T`\int_0^{t}\Big(${fmt(r.C)}${sgn(r.B)}\cos(${fmt(v.k)}t)\Big)dt=\int_0^{x}dx\;\Rightarrow\;x(t)=${fmt(r.C)}\,t${sgn(K2)}\sin(${fmt(v.k)}t)`,
-      note:`The sine coefficient is A/k² = ${fmt(v.A)}/${fmt(v.k)}² = ${fmt(K2)}.`},
-    {t:"Position at t₂", eq:T`x(${fmt(v.t2)})=${fmt(r.C)}(${fmt(v.t2)})${sgn(K2)}\sin(${fmt(r.kt)})=${fmt(r.x2,3)}\ \text{m}`}
-  ];},
-  takeaway:"Set your calculator to radians: k·t is an angle in radians. With a = a(t), no chain rule is needed.",
-  plot(v,r){ const T2=Math.max(v.t2*1.6, 2*Math.PI/v.k); const p1=[],p2=[]; for(let i=0;i<=120;i++){const t=T2*i/120; p1.push([t,r.C+r.B*Math.cos(v.k*t)]); p2.push([t,r.C*t+(v.A/(v.k*v.k))*Math.sin(v.k*t)]);} return {xl:"t (s)", yl:"v (m/s), x (m)", series:[{pts:p1,label:"v(t)"},{pts:p2,label:"x(t)",alt:true}], mark:[v.t2,r.v2], mark2:[v.t2,r.x2], cap:"Velocity (blue) and position (orange) over one full cycle. Dots mark t₂."}; }
-},
-
-/* ---------- 3. Parachute: a(v) ---------- */
-{
-  id:"chute", topic:"Particle Kinematics · Cartesian", name:"Parachute", tag:"a(v)",
-  kind:"Rectilinear motion",
-  original:{ c:0.004, v1:50, v2:10 },
-  randomize(){ return { c:pick(0.002,0.008,0.001), v1:pick(35,75,5), v2:pick(6,20,1) }; },
-  solve(v){ const t2=(1/v.v2-1/v.v1)/v.c; return {t2}; },
-  statement:(v)=>`When a parachute opens, the jumper's deceleration depends on speed: a = −${N(v.c)} v² m/s² (v in m/s). The chute opens at t = 0 when v = ${N(v.v1,"m/s")}. How long until the jumper slows to ${N(v.v2,"m/s")}?`,
-  given:(v)=>[["a(v)",`−${fmt(v.c)} v² m/s²`],["t₁","0"],["v₁",`${fmt(v.v1)} m/s`],["v₂",`${fmt(v.v2)} m/s`]],
-  find:["Time t₂"],
-  method:"Acceleration is a function of velocity: use a = dv/dt, move v to the dv side, then integrate.",
-  answers:(v,r)=>[{label:"Time t₂", unit:"s", val:r.t2}],
+    {label:"Speed v", unit:"m/s", val:r.vel},
+    {label:"Acceleration |a|", unit:"mm/s²", val:r.amm}],
   steps(v,r){ return [
-    {t:"Kinematic relation with a(v)", eq:T`a(v)=\frac{dv}{dt}\;\Rightarrow\;-${fmt(v.c)}\,v^2=\frac{dv}{dt}`},
-    {t:"Separate variables and integrate", eq:T`-${fmt(v.c)}\int_0^{t}dt=\int_{${fmt(v.v1)}}^{v}\frac{1}{v^2}\,dv`,
-      note:"Power rule: ∫v⁻² dv = v⁻¹/(−1) = −1/v."},
-    {t:"Evaluate", eq:T`-${fmt(v.c)}\,t=-\frac{1}{v}+\frac{1}{${fmt(v.v1)}}`},
-    {t:"Plug in state 2 and solve", eq:T`-${fmt(v.c)}\,t_2=-\frac{1}{${fmt(v.v2)}}+\frac{1}{${fmt(v.v1)}}\;\Rightarrow\;t_2=\frac{${fmt(1/v.v2)}-${fmt(1/v.v1)}}{${fmt(v.c)}}=${fmt(r.t2)}\ \text{s}`}
+    {t:"Governing equation (N–T)", eq:T`\vec a=a_t\,\hat e_t+a_n\,\hat e_n=\frac{dv}{dt}\hat e_t+\frac{v^2}{\rho}\hat e_n,\qquad |\vec a|=\sqrt{a_t^2+a_n^2}`},
+    {t:"Convert units", eq:T`a_t=${fmt(v.at)}\ \text{mm/s}^2=${fmt(r.atm)}\ \text{m/s}^2`},
+    {t:"Find v from a_t", eq:T`a_t=\frac{dv}{dt}\;\Rightarrow\;\int_0^{${fmt(v.t)}}${fmt(r.atm)}\,dt=\int_0^{v}dv\;\Rightarrow\;v=${fmt(r.atm)}(${fmt(v.t)})=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Normal acceleration", eq:T`a_n=\frac{v^2}{\rho}=\frac{(${fmt(r.vel)})^2}{${fmt(v.L)}}=${fmt(r.an)}\ \text{m/s}^2`},
+    {t:"Magnitude", eq:T`|\vec a|=\sqrt{(${fmt(r.atm)})^2+(${fmt(r.an)})^2}=${fmt(r.a)}\ \text{m/s}^2=${fmt(r.amm)}\ \text{mm/s}^2`}
   ];},
-  takeaway:"The velocity function is v(t) = 1 / (1/v₁ + c·t). Speed drops quickly at first and then more slowly, because drag scales with v².",
-  plot(v,r){ const pts=[]; const T2=r.t2*1.3; for(let i=0;i<=80;i++){const t=T2*i/80; pts.push([t,1/(1/v.v1+v.c*t)]);} return {xl:"t (s)", yl:"v (m/s)", series:[{pts,label:"v(t)"}], mark:[r.t2,v.v2], cap:"Speed vs. time after the chute opens. The dot marks the target speed v₂."}; }
+  takeaway:(v,r)=>`Even with constant a_t, the total acceleration grows over time because a_n = v²/ρ grows as the arm speeds up. At this instant a_n is ${fmt(r.an/r.atm,3)} times a_t.`,
+  plot(v,r){ const pts=[]; const T2=v.t*1.5; for(let i=0;i<=80;i++){const t=T2*i/80, u=r.atm*t, an=u*u/v.L; pts.push([t,1000*Math.sqrt(r.atm*r.atm+an*an)]);} return {xl:"t (s)", yl:"|a| (mm/s²)", series:[{pts}], mark:[v.t,r.amm], cap:"Total acceleration vs. time. It starts at a_t and climbs as a_n = v²/ρ grows. The dot marks your time."}; }
 },
 
-/* ---------- 4. Gas gun: a(s) ---------- */
+/* ---------- 2. Crank AB: v = rω, then Cartesian check ---------- */
 {
-  id:"gasgun", topic:"Particle Kinematics · Cartesian", name:"Gas Gun", tag:"a(s)",
-  kind:"Rectilinear motion",
-  original:{ s0:1.5, sf:3, vf:200 },
-  randomize(){ const s0=pick(0.5,2.0,0.25); return { s0, sf:+(s0+pick(1,3,0.25)).toFixed(2), vf:pick(150,400,10) }; },
-  solve(v){ const L=Math.log(v.sf/v.s0), C=v.vf*v.vf/(2*L), af=C/v.sf; return {L,C,af}; },
-  statement:(v)=>`In a gas gun, expanding gas accelerates a projectile with a = C/s, where s is its distance from the breech and C is a constant. The projectile starts from rest at s = ${N(v.s0,"m")} and leaves the barrel at s = ${N(v.sf,"m")} with a speed of ${N(v.vf,"m/s")}. Find C and the acceleration at the muzzle.`,
-  given:(v)=>[["a(s)","C / s"],["s₀, v₀",`${fmt(v.s0)} m, 0`],["s_f",`${fmt(v.sf)} m`],["v_f",`${fmt(v.vf)} m/s`]],
-  find:["Gas constant C","Muzzle acceleration a_f"],
-  method:"Acceleration is a function of position, so use the chain rule: a = (dv/dt)(ds/ds) = v dv/ds, giving a ds = v dv. Assume isothermal (constant-temperature) expansion.",
+  id:"crank", topic:"Particle Kinematics · Normal–Tangential", name:"Crank AB", tag:"v = rω",
+  kind:"Circular motion (N–T and x–y)",
+  original:{ rpm:5000, rin:2, th:45 },
+  randomize(){ return { rpm:pick(1000,6000,250), rin:pick(1,4,0.5), th:pick(15,75,5) }; },
+  solve(v){ const w=v.rpm*2*Math.PI/60, r=v.rin/12, sp=r*w, th=v.th*Math.PI/180, vx=-r*w*Math.cos(th), vy=-r*w*Math.sin(th); return {w,r,sp,vx,vy}; },
+  statement:(v)=>`Crank AB rotates counterclockwise about pin A at ${N(v.rpm,"rpm")}. Point B is ${N(v.rin,"in")} from A. At the instant shown, AB makes an angle θ = ${N(v.th,"°")} with the vertical (B up and to the left of A). Find the velocity of B (a) in normal–tangential form and (b) in Cartesian components.`,
+  given:(v)=>[["ω",`${fmt(v.rpm)} rpm (counterclockwise)`],["r = AB",`${fmt(v.rin)} in`],["θ from vertical",`${fmt(v.th)}°`],["Path","circle about A"]],
+  find:["Speed v_B (N–T)","v_x and v_y of B"],
+  method:"B moves on a circle about A, so v = rω along ê_t. For the Cartesian check, write x(θ) and y(θ) and differentiate with the chain rule (θ̇ = ω).",
   answers:(v,r)=>[
-    {label:"Constant C", unit:"m²/s²", val:r.C},
-    {label:"Muzzle acceleration a_f", unit:"m/s²", val:r.af}],
+    {label:"Speed v_B", unit:"ft/s", val:r.sp},
+    {label:"v_x", unit:"ft/s", val:r.vx},
+    {label:"v_y", unit:"ft/s", val:r.vy}],
   steps(v,r){ return [
-    {t:"Chain rule to remove time", eq:T`a(s)=\frac{dv}{dt}\cdot\frac{ds}{ds}=v\frac{dv}{ds}\;\Rightarrow\;a(s)\,ds=v\,dv`},
-    {t:"Substitute a = C/s and integrate", eq:T`C\int_{${fmt(v.s0)}}^{${fmt(v.sf)}}\frac{1}{s}\,ds=\int_0^{${fmt(v.vf)}}v\,dv`},
-    {t:"Evaluate", eq:T`C\big[\ln s\big]_{${fmt(v.s0)}}^{${fmt(v.sf)}}=\frac{v^2}{2}\Big|_0^{${fmt(v.vf)}}\;\Rightarrow\;C\ln\!\frac{${fmt(v.sf)}}{${fmt(v.s0)}}=\frac{${fmt(v.vf)}^2}{2}`},
-    {t:"Solve for C", eq:T`${fmt(r.L)}\,C=${fmt(v.vf*v.vf/2,6)}\;\Rightarrow\;C=${fmt(r.C)}\ \text{m}^2/\text{s}^2`},
-    {t:"Acceleration at the muzzle", eq:T`a_f=\frac{C}{s_f}=\frac{${fmt(r.C)}}{${fmt(v.sf)}}=${fmt(r.af)}\ \text{m/s}^2`}
+    {t:"Convert ω to rad/s and r to ft", eq:T`\omega=${fmt(v.rpm)}\,\tfrac{\text{rev}}{\text{min}}\cdot\tfrac{2\pi\ \text{rad}}{\text{rev}}\cdot\tfrac{1\ \text{min}}{60\ \text{s}}=${fmt(r.w)}\ \text{rad/s},\qquad r=\tfrac{${fmt(v.rin)}}{12}=${fmt(r.r)}\ \text{ft}`},
+    {t:"(a) N–T: velocity is only tangential", eq:T`\vec v=v\,\hat e_t=r\omega\,\hat e_t=(${fmt(r.r)})(${fmt(r.w)})\,\hat e_t=${fmt(r.sp)}\,\hat e_t\ \text{ft/s}`},
+    {t:"(b) Cartesian: position of B", eq:T`x=-r\sin\theta,\qquad y=r\cos\theta`,
+      note:"θ is measured from the vertical, and B sits to the left of A."},
+    {t:"Differentiate (chain rule, θ̇ = ω)", eq:T`\dot x=-r\dot\theta\cos\theta,\qquad \dot y=-r\dot\theta\sin\theta`},
+    {t:"Plug in", eq:T`\dot x=-(${fmt(r.r)})(${fmt(r.w)})\cos ${fmt(v.th)}^\circ=${fmt(r.vx)},\qquad \dot y=-(${fmt(r.r)})(${fmt(r.w)})\sin ${fmt(v.th)}^\circ=${fmt(r.vy)}`},
+    {t:"Result and check", eq:T`\vec v=${fmt(r.vx)}\,\hat i${sgn(r.vy)}\,\hat j\ \text{ft/s},\qquad \sqrt{v_x^2+v_y^2}=${fmt(Math.hypot(r.vx,r.vy))}\ \text{ft/s}\ \checkmark`}
   ];},
-  takeaway:(v,r)=>`That is about ${fmt(r.af/g,3)} g. The acceleration is largest at the breech (s₀) and falls off as the gas expands.`,
-  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const s=v.s0+(v.sf-v.s0)*i/80; pts.push([s,Math.sqrt(2*r.C*Math.log(s/v.s0))]);} return {xl:"s (m)", yl:"v (m/s)", series:[{pts,label:"v(s)"}], mark:[v.sf,v.vf], xmin:0, cap:"Speed along the barrel, v(s) = √(2C ln(s/s₀)). The dot marks the muzzle."}; }
+  takeaway:"Both methods describe the same vector. N–T gives the speed in one line because the velocity is always along ê_t; the Cartesian form tells you the direction in terms of the fixed x–y axes.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=100;i++){const a=2*Math.PI*i/100; pts.push([v.rin*Math.cos(a), v.rin*Math.sin(a)]);} const th=v.th*Math.PI/180, B=[-v.rin*Math.sin(th), v.rin*Math.cos(th)]; const k=v.rin*0.6/r.sp; return {xl:"x (in)", yl:"y (in)", series:[{pts},{pts:[[0,0],B],alt:true},{pts:[B,[B[0]+r.vx*k,B[1]+r.vy*k]]}], mark:B, equal:true, cap:"Path of B around A (to scale). Orange is the crank; the short blue segment from B shows the direction of v_B, tangent to the circle."}; }
 },
 
-/* ---------- 5. Survey plane drop: projectile ---------- */
+/* ---------- 3. Race car on a circular track ---------- */
 {
-  id:"survey", topic:"Particle Kinematics · Cartesian", name:"Survey Plane Drop", tag:"2-D projectile",
-  kind:"Curvilinear motion (parabolic)",
-  original:{ vx:40, h:30 },
-  randomize(){ return { vx:pick(25,70,5), h:pick(20,120,5) }; },
-  solve(v){ const t=Math.sqrt(2*v.h/g), d=v.vx*t; return {t,d}; },
-  statement:(v)=>`A survey plane flies level at ${N(v.h,"m")} above the ground with a constant horizontal speed of ${N(v.vx,"m/s")} and releases a marker. Neglecting air resistance, find the time of fall and the horizontal distance d the marker travels before it hits the ground. Use g = 9.81 m/s².`,
-  given:(v)=>[["v₀ (horizontal)",`${fmt(v.vx)} m/s`],["h",`${fmt(v.h)} m`],["a",`aₓ = 0, a_y = −g`],["v₁y, t₁","0, 0"]],
-  find:["Fall time t₂","Horizontal distance d"],
-  method:"Inertial Cartesian frame at the ground below the release point. Acceleration is constant (−g ĵ), so integrate a = dv/dt, then v = dr/dt, and split the vector equation into î and ĵ scalar equations.",
+  id:"circle", topic:"Particle Kinematics · Normal–Tangential", name:"Circle Track", tag:"find t, s",
+  kind:"Circular motion (N–T)",
+  original:{ at:6, rho:200, a:20 },
+  randomize(){ const at=pick(4,10,1); return { at, rho:pick(150,400,25), a:pick(at+8,at+22,1) }; },
+  solve(v){ const an=Math.sqrt(v.a*v.a-v.at*v.at), vel=Math.sqrt(an*v.rho), t=vel/v.at, s=0.5*v.at*t*t, th=s/v.rho; return {an,vel,t,s,th,deg:th*180/Math.PI}; },
+  statement:(v)=>`A race car starts from rest at point A on a circular track of radius ${N(v.rho,"ft")} and speeds up at a constant tangential rate of ${N(v.at,"ft/s²")}. Find the time when the magnitude of its total acceleration reaches ${N(v.a,"ft/s²")}, the distance it has traveled along the track, and its angular position θ measured from A.`,
+  given:(v)=>[["ρ",`${fmt(v.rho)} ft`],["a_t",`${fmt(v.at)} ft/s² (constant)`],["v₀, s₀, t₀","0, 0, 0"],["|a| target",`${fmt(v.a)} ft/s²`]],
+  find:["Time t","Arc length s","Angle θ from A"],
+  method:"Known path, only linear quantities given, so use N–T. Use a_t to get v(t), write a_n in terms of t, then set |a| equal to the target.",
   answers:(v,r)=>[
-    {label:"Fall time t₂", unit:"s", val:r.t},
-    {label:"Distance d", unit:"m", val:r.d}],
-  steps(v,r){ return [
-    {t:"Integrate acceleration", eq:T`\vec a=\frac{d\vec v}{dt}=-g\,\hat{j}\;\Rightarrow\;\vec v(t)=${fmt(v.vx)}\,\hat{i}-${fmt(g)}\,t\,\hat{j}`},
-    {t:"Repeat for position (start at height h)", eq:T`\int_0^{t}\vec v\,dt=\int_{\vec r_0}^{\vec r}d\vec r\;\Rightarrow\;\vec r(t)=${fmt(v.vx)}\,t\,\hat{i}+\Big(${fmt(v.h)}-\tfrac{${fmt(g)}}{2}t^2\Big)\hat{j}`,
-      note:"One vector equation gives two scalar equations."},
-    {t:"ĵ equation: hits the ground at y = 0", eq:T`0=${fmt(v.h)}-\frac{${fmt(g)}}{2}t_2^2\;\Rightarrow\;t_2=\sqrt{\frac{2(${fmt(v.h)})}{${fmt(g)}}}=${fmt(r.t)}\ \text{s}`},
-    {t:"î equation: horizontal distance", eq:T`d=v_0\,t_2=${fmt(v.vx)}(${fmt(r.t)})=${fmt(r.d)}\ \text{m}`}
+    {label:"Time t", unit:"s", val:r.t},
+    {label:"Arc length s", unit:"ft", val:r.s},
+    {label:"Angle θ", unit:"deg", val:r.deg}],
+  steps(v,r){ const c=v.at*v.at/v.rho; return [
+    {t:"Tangential: integrate a_t", eq:T`a_t=\frac{dv}{dt}\;\Rightarrow\;\int_0^{t}${fmt(v.at)}\,dt=\int_0^{v}dv\;\Rightarrow\;v=${fmt(v.at)}t\quad(1)`},
+    {t:"Normal acceleration, plug in (1)", eq:T`a_n=\frac{v^2}{\rho}=\frac{(${fmt(v.at)}t)^2}{${fmt(v.rho)}}=${fmt(c)}\,t^2\quad(2)`},
+    {t:"Set the magnitude equal to the target", eq:T`|\vec a|^2=a_t^2+a_n^2\;\Rightarrow\;${fmt(v.a)}^2=${fmt(v.at)}^2+(${fmt(c)}t^2)^2`},
+    {t:"Solve for t", eq:T`t^4=\frac{${fmt(v.a*v.a)}-${fmt(v.at*v.at)}}{${fmt(c*c)}}=${fmt(Math.pow(r.t,4),5)}\;\Rightarrow\;t=${fmt(r.t)}\ \text{s}`},
+    {t:"Distance along the track", eq:T`v=\frac{ds}{dt}\;\Rightarrow\;\int_0^{${fmt(r.t)}}${fmt(v.at)}t\,dt=\int_0^{s}ds\;\Rightarrow\;s=\frac{${fmt(v.at)}}{2}(${fmt(r.t)})^2=${fmt(r.s)}\ \text{ft}`},
+    {t:"Where is the car? Use s = ρθ", eq:T`\theta=\frac{s}{\rho}=\frac{${fmt(r.s)}}{${fmt(v.rho)}}=${fmt(r.th)}\ \text{rad}=${fmt(r.deg)}^\circ`,
+      note: r.deg>360 ? "More than 360°, so the car has completed at least one full lap." : ""}
   ];},
-  takeaway:"Cartesian coordinates fit projectile motion because aₓ only affects vₓ and a_y only affects v_y. With drag, F_D = −c v|v| makes aₓ and a_y depend on both components, so the equations become coupled.",
-  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=r.t*i/60; pts.push([v.vx*t, v.h-0.5*g*t*t]);} return {xl:"x (m)", yl:"y (m)", series:[{pts,label:"path"}], mark:[r.d,0], equal:true, cap:"Trajectory drawn to scale. The dot marks the impact point at distance d."}; }
+  takeaway:(v,r)=>`At that instant a_n = ${fmt(r.an,3)} ft/s² is much larger than a_t = ${fmt(v.at)} ft/s², so almost all of the acceleration points toward the center. Keep full precision for t; rounding it early shifts s and θ.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=100;i++){const a=2*Math.PI*i/100; pts.push([v.rho*Math.cos(a), v.rho*Math.sin(a)]);} const arc=[]; const n=Math.max(10,Math.ceil(r.th*20)); for(let i=0;i<=n;i++){const a=r.th*i/n; arc.push([v.rho*Math.cos(a), v.rho*Math.sin(a)]);} return {xl:"x (ft)", yl:"y (ft)", series:[{pts},{pts:arc,alt:true}], mark:[v.rho*Math.cos(r.th), v.rho*Math.sin(r.th)], mark2:[v.rho,0], equal:true, cap:"Track to scale. The car starts at A (orange dot, on the +x axis), travels counterclockwise along the orange arc, and is at the blue dot when |a| reaches the target."}; }
+},
+
+/* ---------- 4. Race track: straight into a curve ---------- */
+{
+  id:"racetrack", topic:"Particle Kinematics · Normal–Tangential", name:"Race Track", tag:"ρ → ∞ vs. ρ",
+  kind:"Straight line into a curve (N–T)",
+  original:{ L:1, t:30, rho:0.2 },
+  randomize(){ return { L:pick(0.5,1.5,0.25), t:pick(20,45,5), rho:pick(0.1,0.4,0.05) }; },
+  solve(v){ const M=1609.34, at_mi=2*v.L/(v.t*v.t), vA_mi=at_mi*v.t, an_mi=vA_mi*vA_mi/v.rho; return {M, at_mi, vA_mi, an_mi, at:at_mi*M, vA:vA_mi*M, an:an_mi*M, mag:Math.hypot(at_mi,an_mi)*M}; },
+  statement:(v)=>`A car starts from rest and accelerates at a constant rate along a ${N(v.L,"mi")} straightaway, reaching point A after ${N(v.t,"s")}. At A the track turns into a curve of radius ρ = ${N(v.rho,"mi")}, and the car keeps the same tangential acceleration. Find the car's acceleration just before A and just after A. Use 1 mi = 1609.34 m and give answers in SI units.`,
+  given:(v)=>[["s₀, v₀, t₀","0, 0, 0"],["Straight length",`${fmt(v.L)} mi`],["t to reach A",`${fmt(v.t)} s`],["ρ after A",`${fmt(v.rho)} mi`]],
+  find:["a_t (before and after A)","Speed at A","a_n just after A"],
+  method:"Kinematic perspective with a = (dv/dt) ê_t + (v²/ρ) ê_n. On the straight, ρ → ∞ so a_n = 0. The tangential acceleration doesn't change at A, but a_n jumps from zero to v²/ρ.",
+  answers:(v,r)=>[
+    {label:"a_t (before and after A)", unit:"m/s²", val:r.at},
+    {label:"Speed at A", unit:"m/s", val:r.vA},
+    {label:"a_n just after A", unit:"m/s²", val:r.an}],
+  steps(v,r){ return [
+    {t:"Tangential acceleration from the straightaway", eq:T`s=v_0t+\tfrac12 a_t t^2\;\Rightarrow\;${fmt(v.L)}=\tfrac12 a_t(${fmt(v.t)})^2\;\Rightarrow\;a_t=${fmt(r.at_mi)}\ \text{mi/s}^2=${fmt(r.at)}\ \text{m/s}^2`,
+      note:"Starts from rest, so v₀t drops out."},
+    {t:"Just before A: straight line, ρ → ∞", eq:T`a_n=\frac{v^2}{\rho}\to 0\;\Rightarrow\;\vec a=${fmt(r.at)}\,\hat e_t\ \text{m/s}^2`},
+    {t:"Speed at A", eq:T`a_t=\frac{dv}{dt}\;\Rightarrow\;v_A=a_t t=(${fmt(r.at_mi)})(${fmt(v.t)})=${fmt(r.vA_mi)}\ \text{mi/s}=${fmt(r.vA)}\ \text{m/s}`},
+    {t:"Just after A: now ρ is finite", eq:T`a_n=\frac{v_A^2}{\rho}=\frac{(${fmt(r.vA_mi)})^2}{${fmt(v.rho)}}=${fmt(r.an_mi)}\ \text{mi/s}^2=${fmt(r.an)}\ \text{m/s}^2`},
+    {t:"Acceleration just after A", eq:T`\vec a=${fmt(r.at)}\,\hat e_t+${fmt(r.an)}\,\hat e_n\ \text{m/s}^2,\qquad |\vec a|=${fmt(r.mag)}\ \text{m/s}^2`}
+  ];},
+  takeaway:(v,r)=>`The acceleration changes suddenly at A even though a_t stays the same: a_n jumps from 0 to ${fmt(r.an,3)} m/s² the instant the path starts to curve. (Speed at A is about ${fmt(r.vA*2.23694,3)} mph.)`,
+  plot(v,r){ const s=[[-v.L,0],[0,0]]; const arc=[]; for(let i=0;i<=40;i++){const a=Math.PI/2*i/40; arc.push([v.rho*Math.sin(a), v.rho-v.rho*Math.cos(a)]);} const up=[[v.rho,v.rho],[v.rho,v.rho+v.L*0.4]]; return {xl:"x (mi)", yl:"y (mi)", series:[{pts:s},{pts:arc,alt:true},{pts:up}], mark:[0,0], equal:true, cap:"Track layout to scale. Blue sections are straight (a_n = 0); the orange curve has radius ρ. The dot is point A, where a_n switches on."}; }
 }
 
 ];
+
 
 /* =====================================================================
    APP
@@ -318,7 +314,7 @@ function renderNav(){
 
 function select(id){
   state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
-  try{ localStorage.setItem("dpl-last", id); }catch(e){}
+  try{ localStorage.setItem("dpl-last-nt", id); }catch(e){}
   renderNav(); renderSheet(); window.scrollTo({top:0});
 }
 function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
@@ -424,8 +420,10 @@ function drawPlot(P){
 window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
-let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-nt"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
 </script>
 </body></html>
