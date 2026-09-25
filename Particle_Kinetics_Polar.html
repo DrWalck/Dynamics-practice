@@ -1,0 +1,596 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Particle Kinetics Polar · Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --hl:#fbe7a1; --hl-ink:#3d2f00;
+  --good:#1f7a4d; --good-soft:#e1f3e9; --warn:#9a6200; --warn-soft:#fbf0dc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --plot-2:#c2571a;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+    --hl:#4a3f17; --hl-ink:#fbe7a1;
+    --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+    --plot-2:#f0a070;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  --hl:#4a3f17; --hl-ink:#fbe7a1;
+  --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+  --plot-2:#f0a070;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;padding-block:28px 20px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+.back{display:inline-block;font:600 .9rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top p{margin:0;color:var(--muted);font-size:.95rem;max-width:52ch}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:18px}
+.topic h2{font-family:var(--display);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.topic button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent}
+.topic button:hover{background:var(--surface)}
+.topic button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.topic button[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+.topic .pname{font-weight:600}
+.topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.topic button{grid-template-columns:1fr;gap:1px}
+.topic .ptag{white-space:normal}
+.soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
+main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.phead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 .95rem/1 var(--body);padding:10px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.statement{font-size:1.08rem;max-width:68ch;margin:0}
+.num{font-family:var(--mono);font-size:.92em;background:var(--hl);color:var(--hl-ink);padding:0 .3em;border-radius:3px;white-space:nowrap}
+.variant{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface-2)}
+.box h3{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.box ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.box li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.box li .v{font-family:var(--mono);font-size:.92rem}
+.method{font-size:.95rem;color:var(--muted);margin:0}
+.method b{color:var(--ink)}
+
+.answers h3{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;font-weight:600}
+.arow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(120px,1fr) 11rem;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.arow label{font-weight:600}
+.arow .inp{display:flex;align-items:center;gap:6px}
+.arow input{width:100%;min-width:0;font:1rem var(--mono);padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.arow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.arow .unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap;min-width:4.2em}
+.chip{font:600 .8rem/1 var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.idle{color:var(--muted)}
+.checkbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+
+.solution{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.solution h3{font-family:var(--display);font-size:1.3rem;margin:0;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:4px 10px}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center;font-size:.8rem}
+.step-title{font-weight:600;align-self:center}
+.step-body{grid-column:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+.eq{overflow-x:auto;padding:6px 0;font-size:1.12rem}
+.eq math{font-size:1.12em}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.final{display:flex;flex-wrap:wrap;gap:10px}
+.final .ans{border:2px solid var(--accent);border-radius:8px;padding:10px 14px;background:var(--accent-soft)}
+.final .ans .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--display);font-weight:600}
+.final .ans .val{font-family:var(--mono);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plotwrap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2)}
+.plotwrap figcaption{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+canvas{display:block;width:100%;height:260px}
+.takeaway{border-left:3px solid var(--hl);background:var(--surface-2);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.95rem;margin:0}
+
+@media (max-width:780px){
+  .layout{grid-template-columns:1fr}
+  nav.problems{position:static}
+  .topic ul{flex-direction:row;flex-wrap:wrap}
+  .topic li{flex:1 1 150px}
+  .soon{display:none}
+  .arow{grid-template-columns:1fr auto}
+  .arow label{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .solution{animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinetics: Polar</h1></div>
+    <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
+  </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: kinetics in polar coordinates</summary>
+    <div class="cgrid">
+      <div><h4>Equations of motion</h4><div class="ceq" data-tex="\sum F_r=m(\ddot r-r\dot\theta^2),\qquad \sum F_\theta=m(r\ddot\theta+2\dot r\dot\theta)"></div></div>
+      <div><h4>Which method?</h4><p><b>Forces or accelerations:</b> Newton.<br><b>Two positions, need speed:</b> work &amp; energy.<br><b>Known time, need velocity:</b> impulse &amp; momentum.</p></div>
+      <div><h4>Gravitation &amp; orbits</h4><div class="ceq" data-tex="F=\frac{GM_Em}{r^2},\quad v_{circ}=\sqrt{\frac{GM_E}{r}},\quad v_{esc}=\sqrt{\frac{2GM_E}{r}}"></div><p>GM_E = 3.986 × 10¹⁴ m³/s². Measure r from Earth's center.</p></div>
+      <div><h4>Work in polar</h4><div class="ceq" data-tex="U=\int F_r\,dr+\int F_\theta\,r\,d\theta"></div><p>Spring: stretch = r − s₀, not r.</p></div>
+      <div><h4>Central forces</h4><div class="ceq" data-tex="\sum F_\theta=0\;\Rightarrow\;H_O=mr^2\dot\theta=\text{constant}"></div><p>A purely radial force can't change angular momentum about O.</p></div>
+      <div><h4>Short impulses</h4><p>Treat r and the directions of ê_r, ê_θ as unchanged while a brief force acts, then apply ∫F dt = mΔv component by component.</p></div>
+    </div>
+  </details>
+  <div class="layout">
+    <nav class="problems" id="nav" aria-label="Problems"></nav>
+    <main class="sheet" id="sheet" aria-live="polite"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const T = String.raw;
+const g = 9.81;
+function pick(min, max, step){ const n = Math.round((max-min)/step); return +(min + step*Math.floor(Math.random()*(n+1))).toFixed(6); }
+function fmt(x, sig=4){ if(!isFinite(x)) return "—"; if(Math.abs(x) < 1e-12) return "0"; return String(Number(x.toPrecision(sig))); }
+function sgn(x, sig=4){ return (x < 0 ? " - " : " + ") + fmt(Math.abs(x), sig); }   // signed term for equations
+function tex(s, display=true){
+  if(window.katex){ try{ return katex.renderToString(s,{output:"mathml",displayMode:display,throwOnError:false}); }catch(e){} }
+  return '<code>'+s.replace(/</g,"&lt;")+'</code>';
+}
+function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&nbsp;"+unit:""}</span>`; }
+
+/* =====================================================================
+   PROBLEM BANK
+   To add a problem, copy one object below and edit:
+     id, topic, name, tag, original (the numbers from your notes),
+     randomize() -> new givens, solve(v) -> computed values,
+     statement, given, find, method, answers, steps, plot, takeaway
+   ===================================================================== */
+const P = (x,s=4)=> x<0 ? `(${fx(x,s)})` : fx(x,s);
+const D2R = Math.PI/180;
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function big(x){ return x!==0 && (Math.abs(x)>=1e6 || Math.abs(x)<1e-3); }
+function parts(x,s){ let e=Math.floor(Math.log10(Math.abs(x))), m=Number((x/Math.pow(10,e)).toPrecision(s)); if(Math.abs(m)>=10){m/=10;e++;} return [m,e]; }
+function sci(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m} × 10${String(e).split("").map(c=>SUP[c]).join("")}`; }   // plain text
+function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m}\\times10^{${e}}`; }                                           // TeX
+function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
+function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
+
+
+const H1="Newton's 2nd Law in Polar", H2="Work & Energy in Polar", H3="Impulse & Momentum in Polar";
+const MU=3.986e14, REARTH=6.371e6;
+const circ=(R,n=120)=>{const p=[];for(let i=0;i<=n;i++){const a=2*Math.PI*i/n;p.push([R*Math.cos(a),R*Math.sin(a)]);}return p;};
+
+const PROBLEMS = [
+
+/* ================= NEWTON ================= */
+{
+  id:"smoothbar", topic:H1, name:"Smooth Bar in a Horizontal Plane", tag:"ΣF_r = 0, chain rule",
+  kind:"Newton's 2nd law (polar)",
+  original:{ rpm:60, vr1:10, r1:1, r2:2 },
+  randomize(){ const r1=pick(0.5,1.5,0.25); return { rpm:pick(30,90,10), vr1:pick(2,12,1), r1, r2:+(r1+pick(0.5,1.5,0.25)).toFixed(2) }; },
+  solve(v){ const w=v.rpm*2*Math.PI/60, w2=w*w, vr2=Math.sqrt(v.vr1*v.vr1+w2*(v.r2*v.r2-v.r1*v.r1)); return {w,w2,vr2,vt:v.r2*w}; },
+  statement:(v)=>`A smooth bar rotates in a horizontal plane at a constant ${N(v.rpm,"rpm")}. A 1 kg collar slides freely along it. When r = ${N(v.r1,"m")}, the collar's radial velocity is ${N(v.vr1,"m/s")} outward. Find its radial velocity when r = ${N(v.r2,"m")}.`,
+  given:(v)=>[["ω",`${fmt(v.rpm)} rpm (constant), α = 0`],["m","1 kg"],["r₁, v_r1",`${fmt(v.r1)} m, ${fmt(v.vr1)} m/s`],["r₂",`${fmt(v.r2)} m`],["Bar","smooth, horizontal"]],
+  find:["Radial velocity at r₂"],
+  method:"Circular motion with a varying radius, so use polar. The bar is smooth, so it can only push on the collar in the θ direction: ΣF_r = 0. That gives r̈ as a function of r; use the chain rule r̈ = v_r dv_r/dr.",
+  answers:(v,r)=>[{label:"v_r at r₂", unit:"m/s", val:r.vr2}],
+  steps(v,r){ return [
+    {t:"Convert ω", eq:T`\omega=${fmt(v.rpm)}\,\tfrac{\text{rev}}{\text{min}}\cdot\tfrac{2\pi\ \text{rad}}{\text{rev}}\cdot\tfrac{1\ \text{min}}{60\ \text{s}}=${fmt(r.w)}\ \text{rad/s}`},
+    {t:"Radial equation: no radial force from a smooth bar", eq:T`\sum F_r=m(\ddot r-r\omega^2)=0\;\Rightarrow\;\ddot r=r\omega^2=${fmt(r.w2)}\,r`,
+      note:"Horizontal plane, so the weight is perpendicular to the plane of motion. The bar's normal force is in the θ direction."},
+    {t:"Chain rule to remove time", eq:T`\ddot r=\frac{dv_r}{dt}\frac{dr}{dr}=v_r\frac{dv_r}{dr}\;\Rightarrow\;\int_{${fmt(v.r1)}}^{${fmt(v.r2)}}${fmt(r.w2)}\,r\,dr=\int_{${fmt(v.vr1)}}^{v_r}v_r\,dv_r`},
+    {t:"Integrate", eq:T`\frac{${fmt(r.w2)}}{2}\big(${fmt(v.r2)}^2-${fmt(v.r1)}^2\big)=\frac{v_r^2}{2}-\frac{${fmt(v.vr1)}^2}{2}`},
+    {t:"Solve", eq:T`v_r^2=${fmt(v.vr1*v.vr1)}+${fmt(r.w2)}\big(${fmt(v.r2*v.r2)}-${fmt(v.r1*v.r1)}\big)=${fmt(r.vr2*r.vr2)}\;\Rightarrow\;v_r=${fmt(r.vr2)}\ \text{m/s outward}`}
+  ];},
+  takeaway:"a_r = r̈ − rω² is zero here, but r̈ is not: the collar speeds up along the bar with no radial force at all, because the bar keeps turning under it.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const rr=v.r1+(v.r2-v.r1)*i/80; pts.push([rr,Math.sqrt(v.vr1*v.vr1+r.w2*(rr*rr-v.r1*v.r1))]);} return {xl:"r (m)", yl:"v_r (m/s)", series:[{pts}], mark:[v.r2,r.vr2], xmin:v.r1, cap:"Radial velocity as the collar slides out from r₁ to r₂."}; }
+},
+
+{
+  id:"trainer", topic:H1, name:"Spatial Disorientation Trainer", tag:"r(t), θ(t) → forces",
+  kind:"Newton's 2nd law (polar + vertical)",
+  original:{ r0:10, A:2, c:0.1, W:175, t:5 },
+  randomize(){ return { r0:pick(8,12,1), A:pick(1,3,0.5), c:pick(0.05,0.15,0.01), W:pick(120,250,5), t:pick(2,8,1) }; },
+  solve(v){ const k=Math.PI/3, m=v.W/32.2, ph=k*v.t, r=v.r0+v.A*Math.cos(ph), rd=-v.A*k*Math.sin(ph), rdd=-v.A*k*k*Math.cos(ph), th=v.c*(2*v.t*v.t-v.t), w=v.c*(4*v.t-1), al=4*v.c;
+    const ar=rdd-r*w*w, at=r*al+2*rd*w, Fr=m*ar, Ft=m*at, R=Math.hypot(Fr,Ft), S=Math.hypot(Fr,Ft,v.W); return {k,m,ph,r,rd,rdd,th,w,al,ar,at,Fr,Ft,R,S}; },
+  statement:(v)=>`A pilot (weight ${N(v.W,"lb")}) rides in a spatial disorientation trainer whose cab moves in a horizontal plane. Its position is r = ${N(v.r0)} + ${N(v.A)} cos(πt/3) ft and θ = ${N(v.c)}(2t² − t) rad. At t = ${N(v.t,"s")}, find the radial and transverse components of the resultant force on the pilot, its magnitude, and the magnitude of the total force the seat exerts on the pilot.`,
+  given:(v)=>[["r(t)",`${fmt(v.r0)} + ${fmt(v.A)} cos(πt/3) ft`],["θ(t)",`${fmt(v.c)}(2t² − t) rad`],["W",`${fmt(v.W)} lb`],["t",`${fmt(v.t)} s`],["Plane of motion","horizontal"]],
+  find:["ΣF_r and ΣF_θ","|ΣF| (resultant)","Seat force (includes support of weight)"],
+  method:"r(t) and θ(t) are given, so differentiate and use the polar equations of motion ΣF_r = m(r̈ − rθ̇²) and ΣF_θ = m(rθ̈ + 2ṙθ̇). The motion is horizontal, so vertically the seat just supports the weight.",
+  answers:(v,r)=>[
+    {label:"ΣF_r", unit:"lb", val:r.Fr, scale:r.R},
+    {label:"ΣF_θ", unit:"lb", val:r.Ft, scale:r.R},
+    {label:"|ΣF| (resultant)", unit:"lb", val:r.R},
+    {label:"Total seat force", unit:"lb", val:r.S}],
+  steps(v,r){ return [
+    {t:"Mass", eq:T`m=\frac{W}{g}=\frac{${fmt(v.W)}}{32.2}=${fmt(r.m)}\ \text{slug}`},
+    {t:"Radial terms at t (angle πt/3 in radians)", eq:T`r=${fmt(r.r)}\ \text{ft},\quad \dot r=-\tfrac{${fmt(v.A)}\pi}{3}\sin\tfrac{\pi t}{3}=${fmt(r.rd)}\ \text{ft/s},\quad \ddot r=-\tfrac{${fmt(v.A)}\pi^2}{9}\cos\tfrac{\pi t}{3}=${fmt(r.rdd)}\ \text{ft/s}^2`},
+    {t:"Angular terms at t", eq:T`\dot\theta=${fmt(v.c)}(4t-1)=${fmt(r.w)}\ \text{rad/s},\qquad \ddot\theta=${fmt(4*v.c)}\ \text{rad/s}^2`},
+    {t:"Radial force", eq:T`\sum F_r=m(\ddot r-r\dot\theta^2)=${fmt(r.m)}\big(${P(r.rdd)}-${fmt(r.r)}(${fmt(r.w)})^2\big)=${fmt(r.Fr)}\ \text{lb}`},
+    {t:"Transverse force", eq:T`\sum F_\theta=m(r\ddot\theta+2\dot r\dot\theta)=${fmt(r.m)}\big(${fmt(r.r)}(${fmt(r.al)})+2${P(r.rd)}(${fmt(r.w)})\big)=${fmt(r.Ft)}\ \text{lb}`},
+    {t:"Resultant force (= ma)", eq:T`|\sum\vec F|=\sqrt{(${fmt(r.Fr)})^2+(${fmt(r.Ft)})^2}=${fmt(r.R)}\ \text{lb}`,
+      note:"ΣF_z = 0: the seat's vertical push cancels the weight, so it does not appear in the resultant."},
+    {t:"Total force the seat exerts on the pilot", eq:T`F_{seat}=\sqrt{(${fmt(r.Fr)})^2+(${fmt(r.Ft)})^2+${fmt(v.W)}^2}=${fmt(r.S)}\ \text{lb}=${fmt(r.S/v.W,3)}\,W`}
+  ];},
+  takeaway:(v,r)=>`The seat pushes on the pilot with ${fmt(r.S/v.W,3)} times body weight. That is what the pilot feels, which is why this trainer can cause disorientation.`,
+  plot(v,r){ const pts=[]; const Tt=v.t; for(let i=0;i<=200;i++){const t=Tt*i/200, rr=v.r0+v.A*Math.cos(r.k*t), th=v.c*(2*t*t-t); pts.push([rr*Math.cos(th), rr*Math.sin(th)]);} const M=[r.r*Math.cos(r.th), r.r*Math.sin(r.th)]; return {xl:"x (ft)", yl:"y (ft)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:"Top view of the cab's path from t = 0 to the time asked (to scale). Orange is the arm; the dot is the cab."}; }
+},
+
+{
+  id:"moon", topic:H1, name:"Moon's Orbit", tag:"circular orbit",
+  kind:"Newton's 2nd law (polar), gravitation",
+  original:{ rkm:383000 },
+  randomize(){ return { rkm:pick(300000,420000,1000) }; },
+  solve(v){ const r=v.rkm*1000, w=Math.sqrt(MU/(r**3)), vel=Math.sqrt(MU/r), Td=2*Math.PI*r/vel/86400; return {r,w,vel,Td}; },
+  statement:(v)=>`Treat the Moon's orbit as a circle of radius ${N(v.rkm,"km")} about Earth's center. Using GM_E = 3.986 × 10¹⁴ m³/s², find the Moon's orbital speed and its orbital period.`,
+  given:(v)=>[["r",`${fmt(v.rkm)} km`],["GM_E","3.986 × 10¹⁴ m³/s²"],["Orbit","circular (r constant)"]],
+  find:["Orbital speed","Period (days)"],
+  method:"Circular orbit, so r is constant: ṙ = r̈ = 0. Gravity is the only force and points toward Earth, so use ΣF_r = m(r̈ − rθ̇²) to find θ̇, then v = rθ̇.",
+  answers:(v,r)=>[
+    {label:"Orbital speed", unit:"m/s", val:r.vel},
+    {label:"Period", unit:"days", val:r.Td}],
+  steps(v,r){ return [
+    {t:"Radial equation", eq:T`\sum F_r=m(\ddot r-r\dot\theta^2)\;\Rightarrow\;-\frac{GM_Em}{r^2}=m(0-r\omega^2)\;\Rightarrow\;\omega=\sqrt{\frac{GM_E}{r^3}}`},
+    {t:"Speed is only transverse", eq:T`v=\dot r\,\hat e_r+r\omega\,\hat e_\theta=r\omega\;\Rightarrow\;v=\sqrt{\frac{GM_E}{r}}`},
+    {t:"Plug in (meters)", eq:T`v=\sqrt{\frac{3.986\times10^{14}}{${fx(r.r)}}}=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Period", eq:T`T=\frac{2\pi r}{v}=\frac{2\pi(${fx(r.r)})}{${fmt(r.vel)}}=${fx(r.Td*86400)}\ \text{s}=${fmt(r.Td)}\ \text{days}`}
+  ];},
+  takeaway:"The mass of the orbiting body cancels, so the same formula works for the Moon or a small satellite. The real sidereal month is about 27.3 days.",
+  plot(v,r){ return {xl:"x (km)", yl:"y (km)", series:[{pts:circ(6371),alt:true},{pts:circ(v.rkm)}], mark:[v.rkm,0], equal:true, cap:"Earth (orange) and the Moon's orbit, to scale."}; }
+},
+
+{
+  id:"leo", topic:H1, name:"Satellite in Low Orbit", tag:"v = √(μ/r)",
+  kind:"Newton's 2nd law (polar), gravitation",
+  original:{ hkm:300 },
+  randomize(){ return { hkm:pick(200,2000,50) }; },
+  solve(v){ const r=REARTH+v.hkm*1000, vel=Math.sqrt(MU/r), Tm=2*Math.PI*r/vel/60; return {r,vel,Tm}; },
+  statement:(v)=>`A satellite is in a circular orbit ${N(v.hkm,"km")} above Earth's surface. Using R_E = 6371 km and μ_E = GM_E = 3.986 × 10¹⁴ m³/s², find its orbital speed and its period.`,
+  given:(v)=>[["Altitude h",`${fmt(v.hkm)} km`],["R_E","6.371 × 10⁶ m"],["μ_E","3.986 × 10¹⁴ m³/s²"],["Orbit","circular"]],
+  find:["Orbital speed","Period (minutes)"],
+  method:"Circular orbit, so ṙ = r̈ = 0. Use ΣF_r = m(r̈ − rω²) with the gravitational force μ_E m/r² pointing toward Earth. Remember r is measured from Earth's center.",
+  answers:(v,r)=>[
+    {label:"Orbital speed", unit:"m/s", val:r.vel},
+    {label:"Period", unit:"min", val:r.Tm}],
+  steps(v,r){ return [
+    {t:"Orbit radius from Earth's center", eq:T`r=R_E+h=6.371\times10^{6}+${fx(v.hkm*1000)}=${fx(r.r)}\ \text{m}`},
+    {t:"Radial equation", eq:T`-\frac{\mu_Em}{r^2}=m(-r\omega^2)\;\Rightarrow\;\omega=\sqrt{\frac{\mu_E}{r^3}}`},
+    {t:"Speed", eq:T`v_\theta=r\omega=\sqrt{\frac{\mu_E}{r}}=\sqrt{\frac{3.986\times10^{14}}{${fx(r.r)}}}=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Period", eq:T`T=\frac{2\pi r}{v}=${fmt(r.Tm*60)}\ \text{s}=${fmt(r.Tm)}\ \text{min}`}
+  ];},
+  takeaway:"Higher orbits are slower. At about 400 km (the ISS) the period is roughly 92 minutes.",
+  plot(v,r){ return {xl:"x (km)", yl:"y (km)", series:[{pts:circ(6371),alt:true},{pts:circ(r.r/1000)}], mark:[r.r/1000,0], equal:true, cap:"Earth (orange) and the satellite's orbit, to scale."}; }
+},
+
+/* ================= WORK & ENERGY ================= */
+{
+  id:"push", topic:H2, name:"Constant Transverse Push", tag:"U = F_θ rΔθ",
+  kind:"Work–energy (polar)",
+  original:{ m:3, r:2, F:6, deg:90 },
+  randomize(){ return { m:pick(1,6,0.5), r:pick(1,4,0.5), F:pick(2,20,1), deg:pick(45,360,45) }; },
+  solve(v){ const dth=v.deg*D2R, U=v.F*v.r*dth, vel=Math.sqrt(2*U/v.m); return {dth,U,vel,w:vel/v.r}; },
+  statement:(v)=>`A ${N(v.m,"kg")} particle moves on a smooth circular path of radius ${N(v.r,"m")} in a horizontal plane. It starts from rest and is pushed by a constant transverse force F_θ = ${N(v.F,"N")}. Find its speed after it has swept through ${N(v.deg,"°")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["r",`${fmt(v.r)} m (constant)`],["F_θ",`${fmt(v.F)} N (constant)`],["Sweep Δθ",`${fmt(v.deg)}°`],["v₁","0"]],
+  find:["Speed v₂","Angular speed ω₂"],
+  method:"Two positions and you need a speed, so use work–energy. Only F_θ does work: the path's normal force is radial and the weight is perpendicular to the horizontal plane. The work is F_θ times the arc length s = rΔθ.",
+  answers:(v,r)=>[
+    {label:"Speed v₂", unit:"m/s", val:r.vel},
+    {label:"Angular speed ω₂", unit:"rad/s", val:r.w}],
+  steps(v,r){ return [
+    {t:"Work done by F_θ", eq:T`U_{1\to2}=\int F_\theta\,ds=F_\theta\,r\,\Delta\theta=${fmt(v.F)}(${fmt(v.r)})(${fmt(r.dth)})=${fmt(r.U)}\ \text{J}`},
+    {t:"Work–energy", eq:T`U_{1\to2}=\tfrac12 mv_2^2-0\;\Rightarrow\;${fmt(r.U)}=\tfrac12(${fmt(v.m)})v_2^2`},
+    {t:"Speed", eq:T`v_2=\sqrt{\frac{2(${fmt(r.U)})}{${fmt(v.m)}}}=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Angular speed (ṙ = 0)", eq:T`v=r\omega\;\Rightarrow\;\omega_2=\frac{${fmt(r.vel)}}{${fmt(v.r)}}=${fmt(r.w)}\ \text{rad/s}`}
+  ];},
+  takeaway:"ω is in rad/s and v = rω is in m/s. Keeping those units straight is an easy way to catch mistakes.",
+  plot(v,r){ const arc=[]; for(let i=0;i<=60;i++){const a=r.dth*i/60; arc.push([v.r*Math.cos(a),v.r*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:circ(v.r)},{pts:arc,alt:true}], mark:[v.r*Math.cos(r.dth),v.r*Math.sin(r.dth)], mark2:[v.r,0], equal:true, cap:"The path to scale. The particle starts at the orange dot and sweeps the orange arc."}; }
+},
+
+{
+  id:"central", topic:H2, name:"Central Force", tag:"F_r = −k/r²",
+  kind:"Work–energy (polar)",
+  original:{ m:1, k:10, r1:2, v1:5, r2:5 },
+  randomize(){ return resample(()=>{ const r1=pick(1,3,0.5); return { m:pick(0.5,3,0.5), k:pick(5,30,5), r1, v1:pick(3,8,1), r2:+(r1+pick(1,5,0.5)).toFixed(1) }; }, v=>{const q=v.v1*v.v1+(2/v.m)*v.k*(1/v.r2-1/v.r1); return q>1;}); },
+  solve(v){ const U=v.k*(1/v.r2-1/v.r1), v2=Math.sqrt(v.v1*v.v1+2*U/v.m); return {U,v2}; },
+  statement:(v)=>`A ${N(v.m,"kg")} particle moves in a plane under a central force F_r = −${N(v.k)}/r² N (r in meters), directed toward a fixed point O. At r = ${N(v.r1,"m")} it moves radially outward at ${N(v.v1,"m/s")}. Neglecting gravity, find its speed when r = ${N(v.r2,"m")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["F_r",`−${fmt(v.k)}/r² N`],["r₁, v₁",`${fmt(v.r1)} m, ${fmt(v.v1)} m/s outward`],["r₂",`${fmt(v.r2)} m`]],
+  find:["Speed at r₂"],
+  method:"Two positions, need a speed, and the force depends on position, so use work–energy. The force is radial, so only the radial displacement does work: U = ∫F_r dr.",
+  answers:(v,r)=>[{label:"Speed at r₂", unit:"m/s", val:r.v2}],
+  steps(v,r){ return [
+    {t:"Work done by the central force", eq:T`U_{1\to2}=\int_{${fmt(v.r1)}}^{${fmt(v.r2)}}-\frac{${fmt(v.k)}}{r^2}\,dr=${fmt(v.k)}\Big[\frac1r\Big]_{${fmt(v.r1)}}^{${fmt(v.r2)}}=${fmt(v.k)}\Big(\frac1{${fmt(v.r2)}}-\frac1{${fmt(v.r1)}}\Big)=${fmt(r.U)}\ \text{J}`},
+    {t:"Work–energy", eq:T`U_{1\to2}=\tfrac12 m(v_2^2-v_1^2)\;\Rightarrow\;${fmt(r.U)}=\tfrac12(${fmt(v.m)})(v_2^2-${fmt(v.v1)}^2)`},
+    {t:"Solve", eq:T`v_2=\sqrt{${fmt(v.v1*v.v1)}+\frac{2(${fmt(r.U)})}{${fmt(v.m)}}}=${fmt(r.v2)}\ \text{m/s}`}
+  ];},
+  takeaway:"The force pulls inward while the particle moves outward, so the work is negative and the particle slows down.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const rr=v.r1+(v.r2-v.r1)*i/80; pts.push([rr,Math.sqrt(Math.max(0,v.v1*v.v1+(2/v.m)*v.k*(1/rr-1/v.r1)))]);} return {xl:"r (m)", yl:"v (m/s)", series:[{pts}], mark:[v.r2,r.v2], xmin:v.r1, cap:"Speed vs. distance from O as the particle moves outward."}; }
+},
+
+{
+  id:"springcollar", topic:H2, name:"Frictionless Collar & Spring", tag:"U_s along the bar",
+  kind:"Work–energy (polar)",
+  original:{ m:2, k:30, s0:0.25, r1:0.4, v1:1.5, r2:0.55 },
+  randomize(){ return resample(()=>{ const s0=pick(0.15,0.35,0.05), r1=+(s0+pick(0.05,0.25,0.05)).toFixed(2); return { m:pick(1,4,0.5), k:pick(10,60,5), s0, r1, v1:pick(1,3,0.5), r2:+(r1+pick(0.05,0.3,0.05)).toFixed(2) }; }, v=>{const d1=v.r1-v.s0,d2=v.r2-v.s0; return v.v1*v.v1-(v.k/v.m)*(d2*d2-d1*d1)>0.1;}); },
+  solve(v){ const d1=v.r1-v.s0, d2=v.r2-v.s0, U=-0.5*v.k*(d2*d2-d1*d1), v2=Math.sqrt(v.v1*v.v1+2*U/v.m); return {d1,d2,U,v2}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar slides on a smooth horizontal bar that is not rotating (ω = 0). A spring (k = ${N(v.k,"N/m")}, unstretched length ${N(v.s0,"m")}) connects the collar to the pivot O. At r = ${N(v.r1,"m")} the collar moves outward at ${N(v.v1,"m/s")}. Find its speed at r = ${N(v.r2,"m")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["k",`${fmt(v.k)} N/m`],["Unstretched length s₀",`${fmt(v.s0)} m`],["r₁, ṙ₁",`${fmt(v.r1)} m, ${fmt(v.v1)} m/s`],["r₂",`${fmt(v.r2)} m`],["ω","0"]],
+  find:["Stretch at r₁ and r₂","Speed at r₂"],
+  method:"Two positions and the force depends on position, so use work–energy. The spring's stretch is r − s₀, not r. The bar is horizontal and smooth, so only the spring does work.",
+  answers:(v,r)=>[
+    {label:"Stretch at r₂", unit:"m", val:r.d2},
+    {label:"Speed at r₂", unit:"m/s", val:r.v2}],
+  steps(v,r){ return [
+    {t:"Spring stretch at each position", eq:T`\delta_1=r_1-s_0=${fmt(v.r1)}-${fmt(v.s0)}=${fmt(r.d1)}\ \text{m},\qquad \delta_2=${fmt(v.r2)}-${fmt(v.s0)}=${fmt(r.d2)}\ \text{m}`},
+    {t:"Work done by the spring", eq:T`U_{1\to2}=-\tfrac12 k(\delta_2^2-\delta_1^2)=-\tfrac12(${fmt(v.k)})\big(${fmt(r.d2)}^2-${fmt(r.d1)}^2\big)=${fmt(r.U)}\ \text{J}`},
+    {t:"Work–energy", eq:T`${fmt(r.U)}=\tfrac12(${fmt(v.m)})(v_2^2-${fmt(v.v1)}^2)\;\Rightarrow\;v_2=${fmt(r.v2)}\ \text{m/s}`,
+      note:"With ω = 0, all of the velocity is radial: v = ṙ."}
+  ];},
+  takeaway:"Measure the spring's stretch from its unstretched length. Using r directly is the most common mistake in this kind of problem.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const rr=v.r1+(v.r2-v.r1)*i/80, d=rr-v.s0; pts.push([rr,Math.sqrt(Math.max(0,v.v1*v.v1-(v.k/v.m)*(d*d-r.d1*r.d1)))]);} return {xl:"r (m)", yl:"ṙ (m/s)", series:[{pts}], mark:[v.r2,r.v2], xmin:v.r1, cap:"Collar speed vs. position as the spring stretches."}; }
+},
+
+{
+  id:"escape", topic:H2, name:"Escape Velocity", tag:"T₁ + U = T_∞",
+  kind:"Work–energy, gravitation",
+  original:{ hkm:500 },
+  randomize(){ return { hkm:pick(0,2000,50) }; },
+  solve(v){ const r=REARTH+v.hkm*1000, ve=Math.sqrt(2*MU/r); return {r,ve,vc:Math.sqrt(MU/r)}; },
+  statement:(v)=>`A spacecraft is ${N(v.hkm,"km")} above Earth's surface (R_E = 6371 km). Find the minimum speed it needs there to escape Earth's gravity without further propulsion. Use GM_E = 3.986 × 10¹⁴ m³/s².`,
+  given:(v)=>[["r = R_E + h",`${sci(REARTH+v.hkm*1000)} m`],["GM_E","3.986 × 10¹⁴ m³/s²"],["Final state","r → ∞, v → 0"]],
+  find:["Escape speed"],
+  method:"Moving from one position (r) to another (r → ∞), so use work–energy. Gravity is conservative, so mechanical energy is conserved. The minimum speed is the one that leaves the spacecraft with zero speed as r → ∞.",
+  answers:(v,r)=>[{label:"Escape speed", unit:"m/s", val:r.ve}],
+  steps(v,r){ return [
+    {t:"Work done by gravity from r to ∞", eq:T`U_{1\to\infty}=\int_r^{\infty}-\frac{GM_Em}{s^2}\,ds=-\frac{GM_Em}{r}`},
+    {t:"Work–energy with v∞ = 0", eq:T`T_1+U_{1\to\infty}=T_\infty\;\Rightarrow\;\tfrac12 mv^2-\frac{GM_Em}{r}=0`},
+    {t:"Solve", eq:T`v_{esc}=\sqrt{\frac{2GM_E}{r}}=\sqrt{\frac{2(3.986\times10^{14})}{${fx(r.r)}}}=${fmt(r.ve)}\ \text{m/s}`}
+  ];},
+  takeaway:(v,r)=>`Escape speed is √2 times the circular-orbit speed at the same radius (${fmt(r.vc,4)} m/s here). Gravity is an external force, so linear momentum is not conserved; energy is conserved because gravity is conservative.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const h=5000*i/80; pts.push([h, Math.sqrt(2*MU/(REARTH+h*1000))]);} return {xl:"altitude (km)", yl:"v_esc (m/s)", series:[{pts}], mark:[v.hkm,r.ve], cap:"Escape speed vs. starting altitude. The dot is the altitude asked."}; }
+},
+
+/* ================= IMPULSE & MOMENTUM ================= */
+{
+  id:"shortforce", topic:H3, name:"Force Acts for a Short Time", tag:"J_r and J_θ",
+  kind:"Impulse and momentum (polar)",
+  original:{ m:3, r:1, rd1:1, w1:2, Fr:-15, Ft:30, dt:0.2 },
+  randomize(){ return { m:pick(1,5,0.5), r:pick(0.5,2,0.25), rd1:pick(-2,2,0.5), w1:pick(1,4,0.5), Fr:pick(-30,30,5), Ft:pick(5,40,5), dt:pick(0.1,0.4,0.05) }; },
+  solve(v){ const rd2=v.rd1+v.Fr*v.dt/v.m, vt2=v.r*v.w1+v.Ft*v.dt/v.m, w2=vt2/v.r, sp=Math.hypot(rd2,vt2); return {rd2,vt2,w2,sp}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar on a rotating arm is at r = ${N(v.r,"m")} with ṙ = ${N(v.rd1,"m/s")} and θ̇ = ${N(v.w1,"rad/s")}. A force F = ${N(v.Fr)} ê_r + ${N(v.Ft)} ê_θ N then acts on it for ${N(v.dt,"s")}. Treating the force as brief (r and the directions of ê_r, ê_θ essentially unchanged while it acts), find ṙ, θ̇, and the speed right after.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["r",`${fmt(v.r)} m (≈ constant during the impulse)`],["ṙ₁, θ̇₁",`${fmt(v.rd1)} m/s, ${fmt(v.w1)} rad/s`],["F",`⟨${fmt(v.Fr)}, ${fmt(v.Ft)}⟩ N in (ê_r, ê_θ)`],["Δt",`${fmt(v.dt)} s`]],
+  find:["ṙ₂","θ̇₂","Speed |v₂|"],
+  method:"You need velocity after a force acts over a known time, so use impulse and momentum, component by component in ê_r and ê_θ. Standard short-duration assumption: r₂ ≈ r₁ during the impulse.",
+  answers:(v,r)=>[
+    {label:"ṙ₂", unit:"m/s", val:r.rd2, scale:r.sp},
+    {label:"θ̇₂", unit:"rad/s", val:r.w2},
+    {label:"Speed |v₂|", unit:"m/s", val:r.sp}],
+  steps(v,r){ return [
+    {t:"Impulse–momentum", eq:T`\int\vec F\,dt=m(\vec v_2-\vec v_1),\qquad \vec v=\dot r\,\hat e_r+r\dot\theta\,\hat e_\theta`},
+    {t:"Impulse", eq:T`\vec J=(${fmt(v.Fr)}\,\hat e_r+${fmt(v.Ft)}\,\hat e_\theta)(${fmt(v.dt)})=${fmt(v.Fr*v.dt)}\,\hat e_r+${fmt(v.Ft*v.dt)}\,\hat e_\theta\ \text{N·s}`},
+    {t:"ê_r component", eq:T`${fmt(v.Fr*v.dt)}=${fmt(v.m)}(\dot r_2-${P(v.rd1)})\;\Rightarrow\;\dot r_2=${fmt(r.rd2)}\ \text{m/s}`},
+    {t:"ê_θ component", eq:T`${fmt(v.Ft*v.dt)}=${fmt(v.m)}\big(${fmt(v.r)}\dot\theta_2-${fmt(v.r)}(${fmt(v.w1)})\big)\;\Rightarrow\;\dot\theta_2=${fmt(r.w2)}\ \text{rad/s}`},
+    {t:"Speed", eq:T`|\vec v_2|=\sqrt{\dot r_2^2+(r\dot\theta_2)^2}=\sqrt{(${fmt(r.rd2)})^2+(${fmt(r.vt2)})^2}=${fmt(r.sp)}\ \text{m/s}`}
+  ];},
+  takeaway:"This is an approximation: ê_r and ê_θ rotate as the arm turns, so the shorter the force acts, the better it works.",
+  plot(v,r){ return {xl:"v_r (m/s)", yl:"v_θ (m/s)", series:[{pts:[[0,0],[v.rd1,v.r*v.w1]],alt:true},{pts:[[0,0],[r.rd2,r.vt2]]}], mark:[r.rd2,r.vt2], mark2:[v.rd1,v.r*v.w1], equal:true, cap:"Velocity before (orange) and after (blue) the impulse, in (ê_r, ê_θ) components."}; }
+},
+
+{
+  id:"radialimp", topic:H3, name:"Radial Force Impulse", tag:"J_r = mΔṙ",
+  kind:"Impulse and momentum (polar)",
+  original:{ m:1, r1:0.8, rd1:-2, w:4, F:8, dt:0.5 },
+  randomize(){ return { m:pick(0.5,3,0.5), r1:pick(0.5,1.5,0.1), rd1:pick(-3,-1,0.5), w:pick(2,6,1), F:pick(2,15,1), dt:pick(0.2,1,0.1) }; },
+  solve(v){ const rd2=v.rd1+v.F*v.dt/v.m; return {rd2, J:v.F*v.dt}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar on a rotating arm is at r = ${N(v.r1,"m")}, moving inward with ṙ = ${N(v.rd1,"m/s")} while θ̇ = ${N(v.w,"rad/s")}. A constant radial force of ${N(v.F,"N")} outward then acts on it for ${N(v.dt,"s")}. Find the collar's radial velocity ṙ afterward.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["r₁",`${fmt(v.r1)} m`],["ṙ₁",`${fmt(v.rd1)} m/s (inward)`],["θ̇₁",`${fmt(v.w)} rad/s`],["F_r",`${fmt(v.F)} N outward for ${fmt(v.dt)} s`]],
+  find:["ṙ₂"],
+  method:"Velocity after a force acts for a known time, so use impulse and momentum in the radial direction: ∫F_r dt = m(ṙ₂ − ṙ₁), treating the force as short so the radial direction doesn't turn much.",
+  answers:(v,r)=>[{label:"ṙ₂", unit:"m/s", val:r.rd2, scale:Math.max(Math.abs(v.rd1),Math.abs(r.rd2))}],
+  steps(v,r){ return [
+    {t:"Radial impulse–momentum", eq:T`\int_0^{${fmt(v.dt)}}F_r\,dt=m(\dot r_2-\dot r_1)`},
+    {t:"Plug in", eq:T`${fmt(v.F)}(${fmt(v.dt)})=${fmt(v.m)}\big(\dot r_2-(${fmt(v.rd1)})\big)`},
+    {t:"Solve", eq:T`\dot r_2=${fmt(v.rd1)}+\frac{${fmt(r.J)}}{${fmt(v.m)}}=${fmt(r.rd2)}\ \text{m/s}`,
+      note: r.rd2>0 ? "Positive: the radial impulse reversed the motion from inward to outward." : (r.rd2<0 ? "Still negative: the collar is still moving inward, just more slowly." : "")}
+  ];},
+  takeaway:"A radial force exerts no moment about O, so it can't change the angular momentum mr²θ̇. θ̇ stays the same only if r barely changes during the impulse; if r changes, θ̇ changes to keep r²θ̇ constant.",
+  plot(v,r){ return {xl:"t (s)", yl:"ṙ (m/s)", series:[{pts:[[0,v.rd1],[v.dt,r.rd2]]}], mark:[v.dt,r.rd2], mark2:[0,v.rd1], cap:"Radial velocity during the impulse (constant force gives a straight line)."}; }
+},
+
+{
+  id:"tangimp", topic:H3, name:"Tangential Force on a Collar", tag:"J_θ = mΔv_θ",
+  kind:"Impulse and momentum (polar)",
+  original:{ m:2, r:0.5, F:20, dt:0.3 },
+  randomize(){ return { m:pick(1,5,0.5), r:pick(0.3,1,0.1), F:pick(5,40,5), dt:pick(0.1,0.6,0.1) }; },
+  solve(v){ const vt=v.F*v.dt/v.m; return {vt, w:vt/v.r}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar at rest at r = ${N(v.r,"m")} on an arm is pushed by a transverse force F_θ = ${N(v.F,"N")} for ${N(v.dt,"s")}. Find its velocity afterward and the arm's resulting angular velocity.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["r",`${fmt(v.r)} m`],["v₁","0"],["F_θ",`${fmt(v.F)} N for ${fmt(v.dt)} s`]],
+  find:["v_θ after","θ̇ after"],
+  method:"Velocity after a force acts for a known time, so use impulse and momentum in the ê_θ direction.",
+  answers:(v,r)=>[
+    {label:"v_θ", unit:"m/s", val:r.vt},
+    {label:"θ̇", unit:"rad/s", val:r.w}],
+  steps(v,r){ return [
+    {t:"Transverse impulse–momentum", eq:T`\int_0^{${fmt(v.dt)}}F_\theta\,dt=m(v_{\theta2}-0)`},
+    {t:"Solve", eq:T`${fmt(v.F)}(${fmt(v.dt)})=${fmt(v.m)}\,v_{\theta2}\;\Rightarrow\;v_{\theta2}=${fmt(r.vt)}\ \text{m/s}\;\Rightarrow\;\vec v=${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`},
+    {t:"Angular velocity", eq:T`v_\theta=r\dot\theta\;\Rightarrow\;\dot\theta=\frac{${fmt(r.vt)}}{${fmt(v.r)}}=${fmt(r.w)}\ \text{rad/s}`}
+  ];},
+  takeaway:"A transverse force does exert a moment about O (rF_θ), so it changes the angular momentum: rF_θΔt = m r v_θ.",
+  plot(v,r){ return {xl:"t (s)", yl:"v_θ (m/s)", series:[{pts:[[0,0],[v.dt,r.vt]]}], mark:[v.dt,r.vt], cap:"Transverse velocity while the force acts."}; }
+}
+
+];
+
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
+const $ = (s)=>document.querySelector(s);
+const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
+
+function renderNav(){
+  const topics=[...new Set(PROBLEMS.map(p=>p.topic))];
+  $("#nav").innerHTML = topics.map(tp=>`<div class="topic"><h2>${tp}</h2><ul>${
+    PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
+  }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
+  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+}
+
+function select(id){
+  state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
+  try{ localStorage.setItem("dpl-last-kinetics-polar", id); }catch(e){}
+  renderNav(); renderSheet(); window.scrollTo({top:0});
+}
+function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
+function original(){ state.vars={...cur().original}; state.isOriginal=true; state.shown=0; renderSheet(); }
+
+function renderSheet(){
+  const p=cur(), v=state.vars, r=p.solve(v), ans=p.answers(v,r);
+  const steps=p.steps(v,r);
+  $("#sheet").innerHTML = `
+    <div class="phead">
+      <div><div class="eyebrow">${p.kind} · ${p.tag}</div><h2>${p.name}</h2></div>
+      <div class="controls">
+        <button class="btn primary" id="new" type="button">New numbers</button>
+        <button class="btn" id="orig" type="button">Class example</button>
+      </div>
+    </div>
+    <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
+    <p class="statement">${p.statement(v,r)}</p>
+    <div class="cols">
+      <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
+      <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="method"><b>Method.</b> ${p.method}</p>
+
+    <form class="answers" id="ansform" autocomplete="off">
+      <h3>Your answers</h3>
+      ${ans.map((a,i)=>`<div class="arow">
+        <label for="a${i}">${a.label}</label>
+        <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
+        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+      <div class="checkbar">
+        <button class="btn primary" type="submit">Check answers</button>
+        <button class="btn" type="button" id="next">Show next step</button>
+        <button class="btn" type="button" id="all">Show full solution</button>
+        <span class="hint">Correct within 1%.</span>
+      </div>
+    </form>
+    <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
+
+  $("#new").onclick=fresh; $("#orig").onclick=original;
+  $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
+  $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  if(state.shown) drawSolution(p,v,r,ans,steps);
+}
+
+function check(a,i){
+  const raw=$("#a"+i).value.trim().replace(/,/g,""), chip=$("#c"+i);
+  if(raw===""){ chip.className="chip idle"; chip.textContent="enter a value"; return; }
+  const x=parseFloat(raw);
+  if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
+  const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
+  else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
+  else { chip.className="chip bad"; chip.textContent="not yet"; }
+}
+
+function drawSolution(p,v,r,ans,steps){
+  const sol=$("#sol"); sol.hidden=false;
+  const done = state.shown>=steps.length;
+  const tk = typeof p.takeaway==="function" ? p.takeaway(v,r) : p.takeaway;
+  sol.innerHTML = `<h3>Worked solution</h3>
+    <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
+    ${done ? `
+      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
+      <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
+      : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
+  if(done) drawPlot(p.plot(v,r));
+}
+
+function drawPlot(P){
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const all=P.series.flatMap(s=>s.pts);
+  let x0=P.xmin??Math.min(0,...all.map(p=>p[0])), x1=Math.max(...all.map(p=>p[0]));
+  let y0=Math.min(0,...all.map(p=>p[1])), y1=Math.max(...all.map(p=>p[1]));
+  const padY=(y1-y0)*0.08||1; y1+=padY; if(y0<0) y0-=padY;
+  const L=58,R=16,Tp=12,B=40, pw=W-L-R, ph=H-Tp-B;
+  let sx=pw/(x1-x0), sy=ph/(y1-y0);
+  if(P.equal){ const s=Math.min(sx,sy); sx=sy=s; const cx=(x0+x1)/2, cy=(y0+y1)/2; x0=cx-pw/(2*s); y0=cy-ph/(2*s); }
+  const X=(x)=>L+(x-x0)*sx, Y=(y)=>Tp+ph-(y-y0)*sy;
+  const nice=(span)=>{const r=span/5, m=Math.pow(10,Math.floor(Math.log10(r))), f=r/m; return (f<1.5?1:f<3.5?2:f<7.5?5:10)*m;};
+  c.font="12px "+col("--mono"); c.lineWidth=1;
+  const xs=nice(P.equal?(pw/sx):(x1-x0)), ys=nice(P.equal?(ph/sy):(y1-y0));
+  const xEnd=x0+pw/sx, yEnd=y0+ph/sy;
+  c.strokeStyle=col("--line"); c.fillStyle=col("--muted");
+  c.textAlign="center"; c.textBaseline="top";
+  for(let x=Math.ceil(x0/xs)*xs; x<=xEnd+1e-9; x+=xs){ c.beginPath(); c.moveTo(X(x),Tp); c.lineTo(X(x),Tp+ph); c.stroke(); c.fillText(fmt(x,3),X(x),Tp+ph+6); }
+  c.textAlign="right"; c.textBaseline="middle";
+  for(let y=Math.ceil(y0/ys)*ys; y<=yEnd+1e-9; y+=ys){ c.beginPath(); c.moveTo(L,Y(y)); c.lineTo(L+pw,Y(y)); c.stroke(); c.fillText(fmt(y,3),L-6,Y(y)); }
+  c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
+  c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
+  c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
+  if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
+}
+
+window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
+
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-kinetics-polar"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+state.id=start; state.vars={...cur().original};
+renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
+</script>
+</body></html>

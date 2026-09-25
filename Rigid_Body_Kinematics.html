@@ -1,0 +1,537 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rigid Body Kinematics · Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --hl:#fbe7a1; --hl-ink:#3d2f00;
+  --good:#1f7a4d; --good-soft:#e1f3e9; --warn:#9a6200; --warn-soft:#fbf0dc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --plot-2:#c2571a;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+    --hl:#4a3f17; --hl-ink:#fbe7a1;
+    --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+    --plot-2:#f0a070;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  --hl:#4a3f17; --hl-ink:#fbe7a1;
+  --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+  --plot-2:#f0a070;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;padding-block:28px 20px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+.back{display:inline-block;font:600 .9rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top p{margin:0;color:var(--muted);font-size:.95rem;max-width:52ch}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:18px}
+.topic h2{font-family:var(--display);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.topic button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent}
+.topic button:hover{background:var(--surface)}
+.topic button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.topic button[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+.topic .pname{font-weight:600}
+.topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.topic button{grid-template-columns:1fr;gap:1px}
+.topic .ptag{white-space:normal}
+.soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
+main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.phead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 .95rem/1 var(--body);padding:10px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.statement{font-size:1.08rem;max-width:68ch;margin:0}
+.num{font-family:var(--mono);font-size:.92em;background:var(--hl);color:var(--hl-ink);padding:0 .3em;border-radius:3px;white-space:nowrap}
+.variant{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface-2)}
+.box h3{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.box ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.box li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.box li .v{font-family:var(--mono);font-size:.92rem}
+.method{font-size:.95rem;color:var(--muted);margin:0}
+.method b{color:var(--ink)}
+
+.answers h3{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;font-weight:600}
+.arow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(120px,1fr) 11rem;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.arow label{font-weight:600}
+.arow .inp{display:flex;align-items:center;gap:6px}
+.arow input{width:100%;min-width:0;font:1rem var(--mono);padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.arow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.arow .unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap;min-width:4.2em}
+.chip{font:600 .8rem/1 var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.idle{color:var(--muted)}
+.checkbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+
+.solution{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.solution h3{font-family:var(--display);font-size:1.3rem;margin:0;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:4px 10px}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center;font-size:.8rem}
+.step-title{font-weight:600;align-self:center}
+.step-body{grid-column:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+.eq{overflow-x:auto;padding:6px 0;font-size:1.12rem}
+.eq math{font-size:1.12em}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.final{display:flex;flex-wrap:wrap;gap:10px}
+.final .ans{border:2px solid var(--accent);border-radius:8px;padding:10px 14px;background:var(--accent-soft)}
+.final .ans .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--display);font-weight:600}
+.final .ans .val{font-family:var(--mono);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plotwrap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2)}
+.plotwrap figcaption{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+canvas{display:block;width:100%;height:260px}
+.takeaway{border-left:3px solid var(--hl);background:var(--surface-2);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.95rem;margin:0}
+
+@media (max-width:780px){
+  .layout{grid-template-columns:1fr}
+  nav.problems{position:static}
+  .topic ul{flex-direction:row;flex-wrap:wrap}
+  .topic li{flex:1 1 150px}
+  .soon{display:none}
+  .arow{grid-template-columns:1fr auto}
+  .arow label{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .solution{animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div><a class="back" href="./">&larr; All topics</a><h1>Rigid Body Kinematics</h1></div>
+    <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
+  </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: rigid-body kinematics</summary>
+    <div class="cgrid">
+      <div><h4>Fixed-axis rotation</h4><div class="ceq" data-tex="v=r\omega,\quad a_t=r\alpha,\quad a_n=r\omega^2,\quad \alpha=\frac{d\omega}{dt}=\omega\frac{d\omega}{d\theta}"></div><p>Gears in mesh: r_Aω_A = r_Bω_B (no slip).</p></div>
+      <div><h4>Relative velocity</h4><div class="ceq" data-tex="\vec v_B=\vec v_A+\vec\omega\times\vec r_{B/A}"></div><p>r_B/A points from A to B. For CW rotation, ω = −ω k̂.</p></div>
+      <div><h4>Instantaneous center</h4><p>Where lines perpendicular to two known velocity directions cross. v = ω r_IC for any point. A rolling wheel's IC is its contact point. <b>Use it for velocities only.</b></p></div>
+      <div><h4>Relative acceleration</h4><div class="ceq" data-tex="\vec a_B=\vec a_A+\vec\alpha\times\vec r_{B/A}-\omega^2\vec r_{B/A}"></div><p>Solve all velocities first; the ω² terms need them.</p></div>
+      <div><h4>Cross products</h4><div class="ceq" data-tex="\hat k\times\hat i=\hat j,\qquad \hat k\times\hat j=-\hat i"></div></div>
+      <div><h4>Rolling without slipping</h4><div class="ceq" data-tex="v_G=r\omega,\quad a_{G,t}=r\alpha"></div><p>On a curved path, the center also has a_n = v_G²/ρ.</p></div>
+    </div>
+  </details>
+  <div class="layout">
+    <nav class="problems" id="nav" aria-label="Problems"></nav>
+    <main class="sheet" id="sheet" aria-live="polite"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const T = String.raw;
+const g = 9.81;
+function pick(min, max, step){ const n = Math.round((max-min)/step); return +(min + step*Math.floor(Math.random()*(n+1))).toFixed(6); }
+function fmt(x, sig=4){ if(!isFinite(x)) return "—"; if(Math.abs(x) < 1e-12) return "0"; return String(Number(x.toPrecision(sig))); }
+function sgn(x, sig=4){ return (x < 0 ? " - " : " + ") + fmt(Math.abs(x), sig); }   // signed term for equations
+function tex(s, display=true){
+  if(window.katex){ try{ return katex.renderToString(s,{output:"mathml",displayMode:display,throwOnError:false}); }catch(e){} }
+  return '<code>'+s.replace(/</g,"&lt;")+'</code>';
+}
+function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&nbsp;"+unit:""}</span>`; }
+
+/* =====================================================================
+   PROBLEM BANK
+   To add a problem, copy one object below and edit:
+     id, topic, name, tag, original (the numbers from your notes),
+     randomize() -> new givens, solve(v) -> computed values,
+     statement, given, find, method, answers, steps, plot, takeaway
+   ===================================================================== */
+const P = (x,s=4)=> x<0 ? `(${fx(x,s)})` : fx(x,s);
+const D2R = Math.PI/180;
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function big(x){ return x!==0 && (Math.abs(x)>=1e6 || Math.abs(x)<1e-3); }
+function parts(x,s){ let e=Math.floor(Math.log10(Math.abs(x))), m=Number((x/Math.pow(10,e)).toPrecision(s)); if(Math.abs(m)>=10){m/=10;e++;} return [m,e]; }
+function sci(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m} × 10${String(e).split("").map(c=>SUP[c]).join("")}`; }   // plain text
+function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m}\\times10^{${e}}`; }                                           // TeX
+function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
+function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
+
+
+const K1="Fixed-Axis Rotation", K2="Relative Velocity & IC", K3="Relative Acceleration";
+const ccw=(x)=> Math.abs(x)<1e-9 ? "" : (x>0 ? "CCW" : "CW");
+
+const PROBLEMS = [
+
+/* ================= FIXED AXIS ================= */
+{
+  id:"hook", topic:K1, name:"Gear & Hook", tag:"α(t), no slip",
+  kind:"Rotation about a fixed axis",
+  original:{ c:0.2, t:10, rA:50, rB:200, rD:100 },
+  randomize(){ return { c:pick(0.1,0.5,0.05), t:pick(4,12,1), rA:pick(30,80,10), rB:pick(150,300,25), rD:pick(60,140,10) }; },
+  solve(v){ const wA=v.c*v.t*v.t/2, wB=v.rA*wA/v.rB, vH=v.rD*wB; return {wA,wB,vH}; },
+  statement:(v)=>`Gear A (radius ${N(v.rA,"mm")}) drives gear B (radius ${N(v.rB,"mm")}). A drum of radius ${N(v.rD,"mm")} is welded to gear B, and the hook's rope winds onto the drum. Gear A starts from rest with angular acceleration α_A = ${N(v.c)}t rad/s² (t in seconds). Find the hook's speed at t = ${N(v.t,"s")}.`,
+  given:(v)=>[["α_A",`${fmt(v.c)}t rad/s², from rest`],["r_A, r_B",`${fmt(v.rA)} mm, ${fmt(v.rB)} mm`],["Drum r_D",`${fmt(v.rD)} mm (on gear B)`],["t",`${fmt(v.t)} s`]],
+  find:["ω_A at t","ω_B at t","Hook speed v_H"],
+  method:"Integrate α_A = dω_A/dt to get ω_A. No slip at the contact point P gives r_Aω_A = r_Bω_B. The drum is welded to B, so ω_D = ω_B and the rope speed is v_H = r_Dω_B.",
+  answers:(v,r)=>[
+    {label:"ω_A", unit:"rad/s", val:r.wA},
+    {label:"ω_B", unit:"rad/s", val:r.wB},
+    {label:"Hook speed v_H", unit:"mm/s", val:r.vH}],
+  steps(v,r){ return [
+    {t:"Integrate α_A (starts from rest)", eq:T`\int_0^{t}${fmt(v.c)}t\,dt=\int_0^{\omega_A}d\omega_A\;\Rightarrow\;\omega_A=\frac{${fmt(v.c)}}{2}t^2=\frac{${fmt(v.c)}}{2}(${fmt(v.t)})^2=${fmt(r.wA)}\ \text{rad/s}`},
+    {t:"No slip at P", eq:T`r_A\omega_A=r_B\omega_B\;\Rightarrow\;\omega_B=\frac{${fmt(v.rA)}}{${fmt(v.rB)}}(${fmt(r.wA)})=${fmt(r.wB)}\ \text{rad/s}`},
+    {t:"Hook speed (drum turns with B)", eq:T`v_H=r_D\,\omega_B=${fmt(v.rD)}(${fmt(r.wB)})=${fmt(r.vH)}\ \text{mm/s}=${fmt(r.vH/1000)}\ \text{m/s}`}
+  ];},
+  takeaway:(v,r)=>`Gear B turns ${fmt(v.rB/v.rA,3)} times slower than A because it is ${fmt(v.rB/v.rA,3)} times bigger. The contact point has the same speed on both gears.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=v.t*1.2*i/60; pts.push([t, v.rD*v.rA/v.rB*v.c*t*t/2]);} return {xl:"t (s)", yl:"v_H (mm/s)", series:[{pts}], mark:[v.t,r.vH], cap:"Hook speed vs. time. It grows like t² because ω_A does."}; }
+},
+
+/* ================= VELOCITY ================= */
+{
+  id:"slidebar", topic:K2, name:"Sliding Bar", tag:"relative velocity & IC",
+  kind:"General plane motion: velocity",
+  original:{ L:10, vB:2, th:60 },
+  randomize(){ return { L:pick(2,12,1), vB:pick(0.5,5,0.5), th:pick(20,75,5) }; },
+  solve(v){ const th=v.th*D2R, w=v.vB/(v.L*Math.sin(th)), vA=-w*v.L*Math.cos(th); return {w,vA,yIC:v.L*Math.sin(th)}; },
+  statement:(v)=>`Bar AB (length ${N(v.L,"m")}) slides with end A on a vertical wall and end B on the floor. When the bar makes θ = ${N(v.th,"°")} with the floor, B moves to the right at ${N(v.vB,"m/s")}. Find the bar's angular velocity using (1) relative velocity and (2) the instantaneous center, and find the velocity of A.`,
+  given:(v)=>[["L",`${fmt(v.L)} m`],["θ (bar to floor)",`${fmt(v.th)}°`],["v_B",`${fmt(v.vB)} m/s →`],["Constraints","A moves vertically, B horizontally"]],
+  find:["ω_AB","v_A"],
+  method:"Method 1: v_A = v_B + ω × r_A/B, knowing v_A is vertical. Method 2: the instantaneous center is where lines perpendicular to v_A and v_B cross, directly above B at the height of A.",
+  answers:(v,r)=>[
+    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w},
+    {label:"v_A (up +)", unit:"m/s", val:r.vA}],
+  steps(v,r){ const c=`\\cos${fmt(v.th)}^\\circ`, s=`\\sin${fmt(v.th)}^\\circ`; return [
+    {t:"Method 1: relative velocity", eq:T`v_A\hat j=${fmt(v.vB)}\hat i+\omega\hat k\times(-${fmt(v.L)}${c}\,\hat i+${fmt(v.L)}${s}\,\hat j)=${fmt(v.vB)}\hat i-${fmt(v.L*Math.cos(v.th*D2R))}\omega\hat j-${fmt(v.L*Math.sin(v.th*D2R))}\omega\hat i`},
+    {t:"î component (v_A has no x part)", eq:T`0=${fmt(v.vB)}-${fmt(r.yIC)}\,\omega\;\Rightarrow\;\omega=${fmt(r.w)}\ \text{rad/s (CCW)}`},
+    {t:"ĵ component gives v_A", eq:T`v_A=-${fmt(v.L*Math.cos(v.th*D2R))}(${fmt(r.w)})=${fmt(r.vA)}\ \text{m/s (down)}`},
+    {t:"Method 2: instantaneous center", eq:T`\vec v_B=\omega\hat k\times\vec r_{B/IC}=\omega\hat k\times(-${fmt(r.yIC)}\,\hat j)=${fmt(r.yIC)}\,\omega\,\hat i\;\Rightarrow\;\omega=\frac{${fmt(v.vB)}}{${fmt(r.yIC)}}=${fmt(r.w)}\ \text{rad/s}\ \checkmark`}
+  ];},
+  takeaway:"Both methods give the same ω. The IC method is faster once you can find the IC; relative velocity works every time.",
+  plot(v,r){ const th=v.th*D2R, Bx=v.L*Math.cos(th), Ay=v.L*Math.sin(th); return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,Ay],[Bx,0]]},{pts:[[0,Ay],[Bx,Ay],[Bx,0]],alt:true}], mark:[Bx,Ay], equal:true, cap:"The bar to scale. Orange lines are perpendicular to v_A and v_B; they meet at the instantaneous center (dot)."}; }
+},
+
+{
+  id:"rack", topic:K2, name:"Linkage Driving a Rack", tag:"4 bodies, v_R",
+  kind:"General plane motion: velocity",
+  original:{ w:10, bx:6, by:12, cx:16, cy:2, rD:6 },
+  randomize(){ return { w:pick(5,15,1), bx:pick(4,8,1), by:pick(10,14,1), cx:pick(12,18,1), cy:pick(1,4,1), rD:pick(4,8,1) }; },
+  solve(v){ const w=-v.w, vBx=-w*v.by, vBy=w*v.bx, rx=v.cx, ry=-v.cy, dx=-6, dy=10;
+    // vC = vB + wBC(-ry, rx) = wCD(-dy, dx)
+    const A=[[-ry, dy],[rx, -dx]], b=[-vBx, -vBy]; const det=A[0][0]*A[1][1]-A[0][1]*A[1][0]; const wBC=(b[0]*A[1][1]-A[0][1]*b[1])/det, wCD=(A[0][0]*b[1]-b[0]*A[1][0])/det;
+    return {vBx,vBy,wBC,wCD,vR:v.rD*wCD}; },
+  statement:(v)=>`Crank AB rotates clockwise at ${N(v.w,"rad/s")} about A. Relative to A, pin B is at (${N(v.bx)}, ${N(v.by)}) in. Link BC runs ${N(v.cx,"in")} to the right and ${N(v.cy,"in")} down to C. Bar CD connects C to the center D of a gear, 6 in right of and 10 in below C; CD and the gear turn together about D. The gear (radius ${N(v.rD,"in")}) drives a vertical rack at its rightmost point P without slipping. Find ω_BC, ω_CD, and the rack velocity.`,
+  given:(v)=>[["ω_AB",`${fmt(v.w)} rad/s CW`],["r_B/A",`(${fmt(v.bx)}, ${fmt(v.by)}) in`],["r_C/B",`(${fmt(v.cx)}, −${fmt(v.cy)}) in`],["r_C/D","(−6, 10) in"],["Gear radius",`${fmt(v.rD)} in`]],
+  find:["ω_BC","ω_CD","v_R (up +)"],
+  method:"AB and CD rotate about fixed pins; BC is in general plane motion. Write v_C two ways, v_C = v_B + ω_BC × r_C/B and v_C = ω_CD × r_C/D, and match components. The rack moves with the gear's contact point: v_R = r_D ω_CD.",
+  answers:(v,r)=>[
+    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
+    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
+    {label:"v_R (up +)", unit:"in/s", val:r.vR}],
+  steps(v,r){ return [
+    {t:"AB (clockwise, so ω = −k̂)", eq:T`\vec v_B=-${fmt(v.w)}\hat k\times(${fmt(v.bx)}\hat i+${fmt(v.by)}\hat j)=${fmt(r.vBx)}\,\hat i${sgn(r.vBy)}\,\hat j\ \text{in/s}`},
+    {t:"BC: v_C from B", eq:T`\vec v_C=\vec v_B+\omega_{BC}\hat k\times(${fmt(v.cx)}\hat i-${fmt(v.cy)}\hat j)=(${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC})\hat i+(${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC})\hat j\quad(1)`,
+      note:"Use r_C/B, the vector from B to C."},
+    {t:"CD: v_C from D", eq:T`\vec v_C=\omega_{CD}\hat k\times(-6\hat i+10\hat j)=-10\omega_{CD}\,\hat i-6\omega_{CD}\,\hat j\quad(2)`},
+    {t:"Match components of (1) and (2)", eq:T`${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC}=-10\omega_{CD},\qquad ${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC}=-6\omega_{CD}`},
+    {t:"Solve", eq:T`\omega_{BC}=${fmt(r.wBC)}\ \text{rad/s},\qquad \omega_{CD}=${fmt(r.wCD)}\ \text{rad/s}`},
+    {t:"Rack velocity (no slip at P)", eq:T`\vec v_R=\vec v_P=\omega_{CD}\hat k\times ${fmt(v.rD)}\hat i=${fmt(r.vR)}\,\hat j\ \text{in/s}`}
+  ];},
+  takeaway:(v,r)=>`BC turns ${ccw(r.wBC)}, the gear turns ${ccw(r.wCD)}, and the rack moves ${r.vR<0?"down":"up"} at ${fmt(Math.abs(r.vR),3)} in/s (${fmt(Math.abs(r.vR)/12,3)} ft/s).`,
+  plot(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], D=[C[0]+6,C[1]-10]; const g=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; g.push([D[0]+v.rD*Math.cos(a), D[1]+v.rD*Math.sin(a)]);} return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:[C,D],alt:true},{pts:g},{pts:[[D[0]+v.rD,D[1]-12],[D[0]+v.rD,D[1]+12]],alt:true}], mark:[D[0]+v.rD,D[1]], mark2:[0,0], equal:true, cap:"Mechanism to scale: AB, CD and the rack (orange), BC and the gear (blue). The blue dot is the contact point P."}; }
+},
+
+/* ================= ACCELERATION ================= */
+{
+  id:"fourbar", topic:K3, name:"Four-Bar Linkage", tag:"α_BC, α_CD",
+  kind:"General plane motion: acceleration",
+  original:{ w:10, a:-300, h:2, b:2, c:2 },
+  randomize(){ return { w:pick(4,15,1), a:pick(-400,400,50), h:pick(1,3,0.5), b:pick(1,3,0.5), c:pick(1,3,0.5) }; },
+  solve(v){ const w3=v.w, w2=-v.w*v.c/v.b, a3=(v.a*v.h + w2*w2*v.b + v.w*v.w*v.c)/v.h, a2=-a3*v.c/v.b; return {w2,w3,a2,a3,aBx:-v.a*v.h,aBy:-v.w*v.w*v.h}; },
+  statement:(v)=>`In a four-bar linkage, crank AB (${N(v.h,"ft")}, vertical) rotates about A with ω_AB = ${N(v.w,"rad/s")} CCW and α_AB = ${N(v.a,"rad/s²")} (CCW positive). Link BC (${N(v.b,"ft")}) is horizontal. Bar CD connects C to the fixed pin D, which is at A's level, ${N(v.c,"ft")} to the right of C. Find the angular velocities and angular accelerations of BC and CD.`,
+  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["AB (vertical)",`${fmt(v.h)} ft`],["BC (horizontal)",`${fmt(v.b)} ft`],["r_C/D",`(−${fmt(v.c)}, ${fmt(v.h)}) ft`]],
+  find:["ω_BC, ω_CD","α_BC","α_CD"],
+  method:"Velocities first, then accelerations. Write v_C and a_C two ways, through B (bar BC) and from D (bar CD), and match the î and ĵ components each time.",
+  answers:(v,r)=>[
+    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.w2},
+    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.w3},
+    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.a2},
+    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.a3}],
+  steps(v,r){ return [
+    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times ${fmt(v.h)}\hat j=-${fmt(v.w*v.h)}\,\hat i`},
+    {t:"v_C two ways", eq:T`-${fmt(v.w*v.h)}\hat i+${fmt(v.b)}\omega_{BC}\hat j=\omega_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=-${fmt(v.h)}\omega_{CD}\hat i-${fmt(v.c)}\omega_{CD}\hat j`},
+    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.w3)},\qquad \omega_{BC}=-\frac{${fmt(v.c)}}{${fmt(v.b)}}\omega_{CD}=${fmt(r.w2)}\ \text{rad/s}`},
+    {t:"Acceleration of B", eq:T`\vec a_B=\alpha_{AB}\hat k\times\vec r_{B/A}-\omega_{AB}^2\vec r_{B/A}=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j\ \text{ft/s}^2`},
+    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times ${fmt(v.b)}\hat i-\omega_{BC}^2(${fmt(v.b)}\hat i)=(${fmt(r.aBx)}-${fmt(r.w2*r.w2*v.b)})\hat i+(${fmt(r.aBy)}+${fmt(v.b)}\alpha_{BC})\hat j`},
+    {t:"a_C from D", eq:T`\vec a_C=\alpha_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)-\omega_{CD}^2(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=(-${fmt(v.h)}\alpha_{CD}+${fmt(r.w3*r.w3*v.c)})\hat i+(-${fmt(v.c)}\alpha_{CD}-${fmt(r.w3*r.w3*v.h)})\hat j`},
+    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.a3)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.a2)}\ \text{rad/s}^2`}
+  ];},
+  takeaway:(v,r)=>`α_BC is ${ccw(r.a2)} and α_CD is ${ccw(r.a3)}. Always solve the velocities first: the ω² terms in the acceleration equations need them.`,
+  plot(v,r){ return {xl:"x (ft)", yl:"y (ft)", series:[{pts:[[0,0],[0,v.h]],alt:true},{pts:[[0,v.h],[v.b,v.h]]},{pts:[[v.b,v.h],[v.b+v.c,0]],alt:true}], mark:[v.b+v.c,0], mark2:[0,0], equal:true, cap:"The linkage to scale: AB and CD (orange), BC (blue). Fixed pins at A and D."}; }
+},
+
+{
+  id:"flywheel", topic:K3, name:"Flywheel Linkage", tag:"3 bodies",
+  kind:"General plane motion: acceleration",
+  original:{ R:0.3, w0:6, L:1.5, l:0.6, th:60 },
+  randomize(){ return { R:pick(0.2,0.5,0.05), w0:pick(3,10,1), L:pick(1,2,0.25), l:pick(0.4,0.8,0.1), th:pick(40,75,5) }; },
+  solve(v){ const th=v.th*D2R, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th), w=-v.w0, vB=w*v.R; // vB = w k x (0,-R) = (wR, 0)
+    const wCD=vB/(-cy), wBC=wCD*cx/v.L;
+    const aB=v.w0*v.w0*v.R; // +j
+    const aCD=(v.L*wBC*wBC - wCD*wCD*cx)/cy;  // i: -L wBC^2 = -cy aCD - wCD^2 cx
+    const aBC=(cx*aCD - wCD*wCD*cy - aB)/v.L;
+    return {cx,cy,vB,wCD,wBC,aB,aCD,aBC}; },
+  statement:(v)=>`A flywheel of radius ${N(v.R,"m")} turns clockwise at a constant ${N(v.w0,"rad/s")}. Link BC (${N(v.L,"m")}) is pinned to the flywheel at its lowest point B and is horizontal at this instant. Bar CD (${N(v.l,"m")}) is pinned to the ground at D and makes ${N(v.th,"°")} with the horizontal, with C up and to the right of D. Find the angular velocities and angular accelerations of BC and CD.`,
+  given:(v)=>[["Flywheel",`r = ${fmt(v.R)} m, ${fmt(v.w0)} rad/s CW, α = 0`],["BC",`${fmt(v.L)} m, horizontal`],["CD",`${fmt(v.l)} m at ${fmt(v.th)}°`],["r_B/O",`(0, −${fmt(v.R)}) m`]],
+  find:["ω_BC, ω_CD","α_BC","α_CD"],
+  method:"OB and CD rotate about fixed points; BC is in general plane motion. Match v_C from B and from D to get ω's, then match a_C from B and from D to get α's.",
+  answers:(v,r)=>[
+    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
+    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
+    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
+    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.aCD}],
+  steps(v,r){ return [
+    {t:"Velocity of B", eq:T`\vec v_B=-${fmt(v.w0)}\hat k\times(-${fmt(v.R)}\hat j)=${fmt(r.vB)}\,\hat i\ \text{m/s}`},
+    {t:"v_C two ways", eq:T`${fmt(r.vB)}\hat i+\omega_{BC}\hat k\times ${fmt(v.L)}\hat i=\omega_{CD}\hat k\times(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)\;\Rightarrow\;${fmt(r.vB)}\hat i+${fmt(v.L)}\omega_{BC}\hat j=-${fmt(r.cy)}\omega_{CD}\hat i+${fmt(r.cx)}\omega_{CD}\hat j`,
+      note:"k̂ × î = +ĵ, so the BC term is +Lω_BC ĵ."},
+    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.wCD)}\ (${ccw(r.wCD)}),\qquad \omega_{BC}=${fmt(r.wBC)}\ (${ccw(r.wBC)})\ \text{rad/s}`},
+    {t:"Acceleration of B (constant ω)", eq:T`\vec a_B=-\omega_0^2\vec r_{B/O}=${fmt(r.aB)}\,\hat j\ \text{m/s}^2`},
+    {t:"a_C two ways", eq:T`${fmt(r.aB)}\hat j+${fmt(v.L)}\alpha_{BC}\hat j-${fmt(r.wBC*r.wBC*v.L)}\hat i=\alpha_{CD}(-${fmt(r.cy)}\hat i+${fmt(r.cx)}\hat j)-${fmt(r.wCD*r.wCD)}(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)`},
+    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.aCD)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.aBC)}\ \text{rad/s}^2`}
+  ];},
+  takeaway:(v,r)=>`CD turns ${ccw(r.wCD)} with α_CD ${ccw(r.aCD)}: ${Math.sign(r.wCD)!==Math.sign(r.aCD)?"opposite signs, so CD is slowing down":"same signs, so CD is speeding up"}. Even though the flywheel turns at constant speed, the links still have angular acceleration.`,
+  plot(v,r){ const O=[0,0], B=[0,-v.R], C=[v.L,-v.R], D=[C[0]-r.cx, C[1]-r.cy]; const f=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; f.push([v.R*Math.cos(a), v.R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:f,alt:true},{pts:[B,C]},{pts:[C,D],alt:true}], mark:D, mark2:O, equal:true, cap:"Flywheel and CD (orange), BC (blue), to scale. Orange dot: O; blue dot: D."}; }
+},
+
+{
+  id:"piston", topic:K3, name:"Linear Acceleration of a Piston", tag:"slider-crank",
+  kind:"General plane motion: acceleration",
+  original:{ w1:10, a1:5, p:3, q:4, L:13 },
+  randomize(){ return { w1:pick(5,15,1), a1:pick(-10,10,1), p:pick(2,5,1), q:pick(2,6,1), L:pick(10,18,1) }; },
+  solve(v){ const w=-v.w1, rx=Math.sqrt(v.L*v.L-v.q*v.q), ry=-v.q;
+    const vAx=-w*v.q, vAy=w*(-v.p); // w k x (-p, q) = w(-q, -p)
+    const w2=-vAy/rx; const vB=vAx - w2*ry;
+    const aAx=-v.a1*v.q - w*w*(-v.p), aAy=v.a1*(-v.p) - w*w*v.q;
+    const a2=-(aAy - w2*w2*ry)/rx; const aB=aAx - a2*ry - w2*w2*rx;
+    return {rx,ry,vAx,vAy,w2,vB,aAx,aAy,a2,aB}; },
+  statement:(v)=>`In a slider-crank, crank OA rotates about O with ω = ${N(v.w1,"rad/s")} clockwise and α = ${N(v.a1,"rad/s²")} (CCW positive). At the instant shown, A is at (−${N(v.p)}, ${N(v.q)}) in relative to O. Connecting rod AB is ${N(v.L,"in")} long, and piston B slides on the horizontal line through O. Find ω_AB, α_AB, and the piston's acceleration.`,
+  given:(v)=>[["ω_OA",`${fmt(v.w1)} rad/s CW`],["α_OA",`${fmt(v.a1)} rad/s² (CCW +)`],["r_A/O",`(−${fmt(v.p)}, ${fmt(v.q)}) in`],["AB",`${fmt(v.L)} in`],["B","moves horizontally"]],
+  find:["ω_AB","α_AB","a_B"],
+  method:"Get v_A and a_A from the crank. Then v_B = v_A + ω_AB × r_B/A and a_B = a_A + α_AB × r_B/A − ω_AB² r_B/A, using the fact that B only moves horizontally (the ĵ components are zero).",
+  answers:(v,r)=>[
+    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w2},
+    {label:"α_AB (CCW +)", unit:"rad/s²", val:r.a2},
+    {label:"a_B (right +)", unit:"in/s²", val:r.aB}],
+  steps(v,r){ return [
+    {t:"Geometry of AB", eq:T`\vec r_{B/A}=\sqrt{${fmt(v.L)}^2-${fmt(v.q)}^2}\,\hat i-${fmt(v.q)}\hat j=${fmt(r.rx)}\,\hat i-${fmt(v.q)}\,\hat j\ \text{in}`},
+    {t:"Crank: v_A and a_A (ω = −k̂ for CW)", eq:T`\vec v_A=${fmt(r.vAx)}\hat i${sgn(r.vAy)}\hat j,\qquad \vec a_A=\alpha\hat k\times\vec r_{A/O}-\omega^2\vec r_{A/O}=${fmt(r.aAx)}\hat i${sgn(r.aAy)}\hat j\ \text{in/s}^2`},
+    {t:"Velocity: ĵ component of v_B is zero", eq:T`0=${fmt(r.vAy)}+${fmt(r.rx)}\,\omega_{AB}\;\Rightarrow\;\omega_{AB}=${fmt(r.w2)}\ \text{rad/s}`},
+    {t:"Acceleration: ĵ component of a_B is zero", eq:T`0=${fmt(r.aAy)}+${fmt(r.rx)}\alpha_{AB}+${fmt(r.w2*r.w2*v.q)}\;\Rightarrow\;\alpha_{AB}=${fmt(r.a2)}\ \text{rad/s}^2`},
+    {t:"î component gives the piston's acceleration", eq:T`a_B=${fmt(r.aAx)}+${fmt(v.q)}\alpha_{AB}-${fmt(r.w2*r.w2)}(${fmt(r.rx)})=${fmt(r.aB)}\ \text{in/s}^2`}
+  ];},
+  takeaway:"Keep √(L² − q²) unrounded (not 12.4): the small difference changes a_B in the third significant figure.",
+  plot(v,r){ const A=[-v.p,v.q], B=[-v.p+r.rx,0]; return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],A],alt:true},{pts:[A,B]},{pts:[[B[0]-1.5,0],[B[0]+1.5,0]],alt:true}], mark:B, mark2:[0,0], equal:true, cap:"Slider-crank to scale: crank OA (orange), rod AB (blue), piston at B (blue dot)."}; }
+},
+
+{
+  id:"diskroll", topic:K3, name:"Disk Rolling on a Curved Surface", tag:"IC ≠ zero acceleration",
+  kind:"General plane motion: acceleration",
+  original:{ w:10, a:20, r:1 },
+  randomize(){ return { w:pick(4,15,1), a:pick(-40,40,5), r:pick(0.5,1.5,0.25) }; },
+  solve(v){ const vBx=2*v.w, vBy=v.w, wBC=-v.w/3, wd=-vBx/v.r; const aBx=2*v.a-v.w*v.w, aBy=v.a+2*v.w*v.w; const aCx=aBx-3*wBC*wBC, an=vBx*vBx/2; const aBC=(an-aBy)/3, ad=-aCx/v.r; return {vBx,vBy,wBC,wd,aBx,aBy,aCx,an,aBC,ad}; },
+  statement:(v)=>`Bar AB rotates about A at ${N(v.w,"rad/s")} CCW with angular acceleration ${N(v.a,"rad/s²")} (CCW positive). B is 1 m right of and 2 m below A. Bar BC (3 m) is horizontal and pinned to the center C of a disk of radius ${N(v.r,"m")}, which rolls without slipping inside a circular surface. C moves on a circle of radius 2 m and is at the bottom of that circle at this instant. Find the angular velocities and angular accelerations of BC and the disk.`,
+  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["r_B/A","(1, −2) m"],["BC","3 m, horizontal"],["Disk radius",`${fmt(v.r)} m`],["Path of C","circle, ρ = 2 m, C at the bottom"]],
+  find:["ω_BC, ω_disk","α_BC","α_disk"],
+  method:"Velocities: the disk rolls, so its IC is the contact point, giving v_C = ω_disk × r_C/IC. Accelerations: the contact point is not an acceleration IC. Instead, C moves on a known circular path, so a_C = a_t ê_t + (v_C²/ρ) ê_n, with a_t = α_disk r.",
+  answers:(v,r)=>[
+    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
+    {label:"ω_disk (CCW +)", unit:"rad/s", val:r.wd},
+    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
+    {label:"α_disk (CCW +)", unit:"rad/s²", val:r.ad}],
+  steps(v,r){ return [
+    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times(\hat i-2\hat j)=${fmt(r.vBx)}\,\hat i+${fmt(r.vBy)}\,\hat j\ \text{m/s}`},
+    {t:"v_C through B, and from the disk's IC", eq:T`\vec v_C=${fmt(r.vBx)}\hat i+(${fmt(r.vBy)}+3\omega_{BC})\hat j=\omega_{disk}\hat k\times ${fmt(v.r)}\hat j=-${fmt(v.r)}\omega_{disk}\,\hat i`},
+    {t:"Solve", eq:T`\omega_{BC}=-\frac{${fmt(r.vBy)}}{3}=${fmt(r.wBC)},\qquad \omega_{disk}=-\frac{${fmt(r.vBx)}}{${fmt(v.r)}}=${fmt(r.wd)}\ \text{rad/s}`},
+    {t:"Acceleration of B", eq:T`\vec a_B=${fmt(v.a)}\hat k\times(\hat i-2\hat j)-${fmt(v.w*v.w)}(\hat i-2\hat j)=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j`},
+    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times3\hat i-\omega_{BC}^2(3\hat i)=${fmt(r.aCx)}\,\hat i+(${fmt(r.aBy)}+3\alpha_{BC})\,\hat j`},
+    {t:"a_C from C's circular path", eq:T`\vec a_C=-\alpha_{disk}r\,\hat i+\frac{v_C^2}{\rho}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+\frac{${fmt(r.vBx)}^2}{2}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+${fmt(r.an)}\,\hat j`},
+    {t:"Match components", eq:T`\alpha_{disk}=-\frac{${fmt(r.aCx)}}{${fmt(v.r)}}=${fmt(r.ad)},\qquad \alpha_{BC}=\frac{${fmt(r.an)}-${fmt(r.aBy)}}{3}=${fmt(r.aBC)}\ \text{rad/s}^2`}
+  ];},
+  takeaway:(v,r)=>`The disk turns ${ccw(r.wd)}${Math.abs(r.ad)>1e-9?` and α_disk is ${ccw(r.ad)}, so it is ${Math.sign(r.ad)===Math.sign(r.wd)?"speeding up":"slowing down"}`:""}. The contact point has zero velocity but not zero acceleration, which is why the IC can't be used for accelerations.`,
+  plot(v,r){ const B=[1,-2], C=[4,-2]; const d=[],s=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; d.push([C[0]+v.r*Math.cos(a), C[1]+v.r*Math.sin(a)]);} const R=2+v.r; for(let i=0;i<=60;i++){const a=-Math.PI*0.95+Math.PI*0.6*i/60; s.push([4+R*Math.cos(a), R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:d},{pts:s,alt:true}], mark:[4,-2-v.r], mark2:[0,0], equal:true, cap:"To scale: AB (orange), BC and the disk (blue), the circular surface (orange). The blue dot is the contact point."}; }
+}
+
+];
+
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
+const $ = (s)=>document.querySelector(s);
+const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
+
+function renderNav(){
+  const topics=[...new Set(PROBLEMS.map(p=>p.topic))];
+  $("#nav").innerHTML = topics.map(tp=>`<div class="topic"><h2>${tp}</h2><ul>${
+    PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
+  }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
+  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+}
+
+function select(id){
+  state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
+  try{ localStorage.setItem("dpl-last-rigid-kinematics", id); }catch(e){}
+  renderNav(); renderSheet(); window.scrollTo({top:0});
+}
+function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
+function original(){ state.vars={...cur().original}; state.isOriginal=true; state.shown=0; renderSheet(); }
+
+function renderSheet(){
+  const p=cur(), v=state.vars, r=p.solve(v), ans=p.answers(v,r);
+  const steps=p.steps(v,r);
+  $("#sheet").innerHTML = `
+    <div class="phead">
+      <div><div class="eyebrow">${p.kind} · ${p.tag}</div><h2>${p.name}</h2></div>
+      <div class="controls">
+        <button class="btn primary" id="new" type="button">New numbers</button>
+        <button class="btn" id="orig" type="button">Class example</button>
+      </div>
+    </div>
+    <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
+    <p class="statement">${p.statement(v,r)}</p>
+    <div class="cols">
+      <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
+      <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="method"><b>Method.</b> ${p.method}</p>
+
+    <form class="answers" id="ansform" autocomplete="off">
+      <h3>Your answers</h3>
+      ${ans.map((a,i)=>`<div class="arow">
+        <label for="a${i}">${a.label}</label>
+        <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
+        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+      <div class="checkbar">
+        <button class="btn primary" type="submit">Check answers</button>
+        <button class="btn" type="button" id="next">Show next step</button>
+        <button class="btn" type="button" id="all">Show full solution</button>
+        <span class="hint">Correct within 1%.</span>
+      </div>
+    </form>
+    <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
+
+  $("#new").onclick=fresh; $("#orig").onclick=original;
+  $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
+  $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  if(state.shown) drawSolution(p,v,r,ans,steps);
+}
+
+function check(a,i){
+  const raw=$("#a"+i).value.trim().replace(/,/g,""), chip=$("#c"+i);
+  if(raw===""){ chip.className="chip idle"; chip.textContent="enter a value"; return; }
+  const x=parseFloat(raw);
+  if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
+  const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
+  else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
+  else { chip.className="chip bad"; chip.textContent="not yet"; }
+}
+
+function drawSolution(p,v,r,ans,steps){
+  const sol=$("#sol"); sol.hidden=false;
+  const done = state.shown>=steps.length;
+  const tk = typeof p.takeaway==="function" ? p.takeaway(v,r) : p.takeaway;
+  sol.innerHTML = `<h3>Worked solution</h3>
+    <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
+    ${done ? `
+      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
+      <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
+      : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
+  if(done) drawPlot(p.plot(v,r));
+}
+
+function drawPlot(P){
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const all=P.series.flatMap(s=>s.pts);
+  let x0=P.xmin??Math.min(0,...all.map(p=>p[0])), x1=Math.max(...all.map(p=>p[0]));
+  let y0=Math.min(0,...all.map(p=>p[1])), y1=Math.max(...all.map(p=>p[1]));
+  const padY=(y1-y0)*0.08||1; y1+=padY; if(y0<0) y0-=padY;
+  const L=58,R=16,Tp=12,B=40, pw=W-L-R, ph=H-Tp-B;
+  let sx=pw/(x1-x0), sy=ph/(y1-y0);
+  if(P.equal){ const s=Math.min(sx,sy); sx=sy=s; const cx=(x0+x1)/2, cy=(y0+y1)/2; x0=cx-pw/(2*s); y0=cy-ph/(2*s); }
+  const X=(x)=>L+(x-x0)*sx, Y=(y)=>Tp+ph-(y-y0)*sy;
+  const nice=(span)=>{const r=span/5, m=Math.pow(10,Math.floor(Math.log10(r))), f=r/m; return (f<1.5?1:f<3.5?2:f<7.5?5:10)*m;};
+  c.font="12px "+col("--mono"); c.lineWidth=1;
+  const xs=nice(P.equal?(pw/sx):(x1-x0)), ys=nice(P.equal?(ph/sy):(y1-y0));
+  const xEnd=x0+pw/sx, yEnd=y0+ph/sy;
+  c.strokeStyle=col("--line"); c.fillStyle=col("--muted");
+  c.textAlign="center"; c.textBaseline="top";
+  for(let x=Math.ceil(x0/xs)*xs; x<=xEnd+1e-9; x+=xs){ c.beginPath(); c.moveTo(X(x),Tp); c.lineTo(X(x),Tp+ph); c.stroke(); c.fillText(fmt(x,3),X(x),Tp+ph+6); }
+  c.textAlign="right"; c.textBaseline="middle";
+  for(let y=Math.ceil(y0/ys)*ys; y<=yEnd+1e-9; y+=ys){ c.beginPath(); c.moveTo(L,Y(y)); c.lineTo(L+pw,Y(y)); c.stroke(); c.fillText(fmt(y,3),L-6,Y(y)); }
+  c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
+  c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
+  c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
+  if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
+}
+
+window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
+
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-rigid-kinematics"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+state.id=start; state.vars={...cur().original};
+renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
+</script>
+</body></html>
