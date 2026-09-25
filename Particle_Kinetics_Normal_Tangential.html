@@ -1,0 +1,510 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Particle Kinetics N–T · Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --hl:#fbe7a1; --hl-ink:#3d2f00;
+  --good:#1f7a4d; --good-soft:#e1f3e9; --warn:#9a6200; --warn-soft:#fbf0dc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --plot-2:#c2571a;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+    --hl:#4a3f17; --hl-ink:#fbe7a1;
+    --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+    --plot-2:#f0a070;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  --hl:#4a3f17; --hl-ink:#fbe7a1;
+  --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+  --plot-2:#f0a070;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;padding-block:28px 20px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+.back{display:inline-block;font:600 .9rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top p{margin:0;color:var(--muted);font-size:.95rem;max-width:52ch}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:18px}
+.topic h2{font-family:var(--display);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.topic button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent}
+.topic button:hover{background:var(--surface)}
+.topic button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.topic button[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+.topic .pname{font-weight:600}
+.topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.topic button{grid-template-columns:1fr;gap:1px}
+.topic .ptag{white-space:normal}
+.soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
+main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.phead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 .95rem/1 var(--body);padding:10px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.statement{font-size:1.08rem;max-width:68ch;margin:0}
+.num{font-family:var(--mono);font-size:.92em;background:var(--hl);color:var(--hl-ink);padding:0 .3em;border-radius:3px;white-space:nowrap}
+.variant{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface-2)}
+.box h3{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.box ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.box li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.box li .v{font-family:var(--mono);font-size:.92rem}
+.method{font-size:.95rem;color:var(--muted);margin:0}
+.method b{color:var(--ink)}
+
+.answers h3{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;font-weight:600}
+.arow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(120px,1fr) 11rem;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.arow label{font-weight:600}
+.arow .inp{display:flex;align-items:center;gap:6px}
+.arow input{width:100%;min-width:0;font:1rem var(--mono);padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.arow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.arow .unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap;min-width:4.2em}
+.chip{font:600 .8rem/1 var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.idle{color:var(--muted)}
+.checkbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+
+.solution{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.solution h3{font-family:var(--display);font-size:1.3rem;margin:0;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:4px 10px}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center;font-size:.8rem}
+.step-title{font-weight:600;align-self:center}
+.step-body{grid-column:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+.eq{overflow-x:auto;padding:6px 0;font-size:1.12rem}
+.eq math{font-size:1.12em}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.final{display:flex;flex-wrap:wrap;gap:10px}
+.final .ans{border:2px solid var(--accent);border-radius:8px;padding:10px 14px;background:var(--accent-soft)}
+.final .ans .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--display);font-weight:600}
+.final .ans .val{font-family:var(--mono);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plotwrap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2)}
+.plotwrap figcaption{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+canvas{display:block;width:100%;height:260px}
+.takeaway{border-left:3px solid var(--hl);background:var(--surface-2);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.95rem;margin:0}
+
+@media (max-width:780px){
+  .layout{grid-template-columns:1fr}
+  nav.problems{position:static}
+  .topic ul{flex-direction:row;flex-wrap:wrap}
+  .topic li{flex:1 1 150px}
+  .soon{display:none}
+  .arow{grid-template-columns:1fr auto}
+  .arow label{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .solution{animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinetics: Normal–Tangential</h1></div>
+    <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
+  </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: kinetics in normal–tangential coordinates</summary>
+    <div class="cgrid">
+      <div><h4>Equations of motion</h4><div class="ceq" data-tex="\sum F_t=m\frac{dv}{dt},\qquad \sum F_n=m\frac{v^2}{\rho},\qquad \sum F_b=0"></div><p>ê_n always points toward the center of curvature.</p></div>
+      <div><h4>When to use n–t</h4><p>The <b>path is known</b> (a circle, a curve, a loop). Constant speed still means a_n = v²/ρ ≠ 0.</p></div>
+      <div><h4>Energy + Newton</h4><p>Two positions: get v from work–energy first (forces normal to the path, like tension or N, do no work), then use ΣF_n = mv²/ρ for the force.</p></div>
+      <div><h4>Tangential with a chain rule</h4><div class="ceq" data-tex="a_t=\frac{dv}{dt}=v\frac{dv}{ds}"></div><p>Use v dv/ds when the distance along the path is known.</p></div>
+      <div><h4>Banked curve</h4><div class="ceq" data-tex="\frac{v^2}{\rho g}=\frac{\sin\beta\pm\mu_s\cos\beta}{\cos\beta\mp\mu_s\sin\beta}"></div><p>Upper signs: about to slide up (v_max). Lower signs: about to slide down (v_min).</p></div>
+      <div><h4>Top of a loop</h4><div class="ceq" data-tex="N+mg=m\frac{v^2}{R},\qquad N\ge0\Rightarrow v\ge\sqrt{gR}"></div></div>
+    </div>
+  </details>
+  <div class="layout">
+    <nav class="problems" id="nav" aria-label="Problems"></nav>
+    <main class="sheet" id="sheet" aria-live="polite"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const T = String.raw;
+const g = 9.81;
+function pick(min, max, step){ const n = Math.round((max-min)/step); return +(min + step*Math.floor(Math.random()*(n+1))).toFixed(6); }
+function fmt(x, sig=4){ if(!isFinite(x)) return "—"; if(Math.abs(x) < 1e-12) return "0"; return String(Number(x.toPrecision(sig))); }
+function sgn(x, sig=4){ return (x < 0 ? " - " : " + ") + fmt(Math.abs(x), sig); }   // signed term for equations
+function tex(s, display=true){
+  if(window.katex){ try{ return katex.renderToString(s,{output:"mathml",displayMode:display,throwOnError:false}); }catch(e){} }
+  return '<code>'+s.replace(/</g,"&lt;")+'</code>';
+}
+function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&nbsp;"+unit:""}</span>`; }
+
+/* =====================================================================
+   PROBLEM BANK
+   To add a problem, copy one object below and edit:
+     id, topic, name, tag, original (the numbers from your notes),
+     randomize() -> new givens, solve(v) -> computed values,
+     statement, given, find, method, answers, steps, plot, takeaway
+   ===================================================================== */
+const P = (x,s=4)=> x<0 ? `(${fx(x,s)})` : fx(x,s);
+const D2R = Math.PI/180;
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function big(x){ return x!==0 && (Math.abs(x)>=1e6 || Math.abs(x)<1e-3); }
+function parts(x,s){ let e=Math.floor(Math.log10(Math.abs(x))), m=Number((x/Math.pow(10,e)).toPrecision(s)); if(Math.abs(m)>=10){m/=10;e++;} return [m,e]; }
+function sci(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m} × 10${String(e).split("").map(c=>SUP[c]).join("")}`; }   // plain text
+function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m}\\times10^{${e}}`; }                                           // TeX
+function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
+function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
+
+
+const G1="Newton's 2nd Law in n–t", G2="Energy + Newton in n–t", G3="Impulse in n–t";
+
+const PROBLEMS = [
+
+/* ---------- Vertical pole: conical pendulum ---------- */
+{
+  id:"pole", topic:G1, name:"Vertical Pole", tag:"conical pendulum",
+  kind:"Newton's 2nd law (n–t–b)",
+  original:{ m:1, th:30, L:4 },
+  randomize(){ return { m:pick(0.5,3,0.5), th:pick(15,60,5), L:pick(2,8,1) }; },
+  solve(v){ const g=32.2, th=v.th*D2R, W=v.m*g, T=W/Math.cos(th), rho=v.L*Math.sin(th), vel=Math.sqrt(T*Math.sin(th)*rho/v.m); return {W,T,rho,vel}; },
+  statement:(v)=>`A ${N(v.m,"slug")} ball hangs from the top of a vertical pole on a ${N(v.L,"ft")} string. It moves in a horizontal circle around the pole at constant speed, with the string at ${N(v.th,"°")} from the vertical. Find the tension in the string, the radius of the circle, and the ball's speed.`,
+  given:(v)=>[["m",`${fmt(v.m)} slug`],["L",`${fmt(v.L)} ft`],["θ (from vertical)",`${fmt(v.th)}°`],["Motion","horizontal circle, constant speed"]],
+  find:["Tension T","Radius ρ","Speed v"],
+  method:"Known circular path, so use n–t–b axes: ê_n points horizontally toward the pole and ê_b points up. The motion is in a horizontal plane, so ΣF_b = 0 gives T; ΣF_n = mv²/ρ gives v.",
+  answers:(v,r)=>[
+    {label:"Tension T", unit:"lbf", val:r.T},
+    {label:"Radius ρ", unit:"ft", val:r.rho},
+    {label:"Speed v", unit:"ft/s", val:r.vel}],
+  steps(v,r){ return [
+    {t:"Vertical (binormal): no vertical motion", eq:T`\sum F_b=0\;\Rightarrow\;T\cos${fmt(v.th)}^\circ-mg=0\;\Rightarrow\;T=\frac{${fmt(v.m)}(32.2)}{\cos${fmt(v.th)}^\circ}=${fmt(r.T)}\ \text{lbf}`},
+    {t:"Radius of the circle from geometry", eq:T`\rho=L\sin\theta=${fmt(v.L)}\sin${fmt(v.th)}^\circ=${fmt(r.rho)}\ \text{ft}`},
+    {t:"Normal direction (toward the pole)", eq:T`\sum F_n=m\frac{v^2}{\rho}\;\Rightarrow\;T\sin${fmt(v.th)}^\circ=${fmt(v.m)}\frac{v^2}{${fmt(r.rho)}}`},
+    {t:"Solve for v", eq:T`v=\sqrt{\frac{${fmt(r.T)}\sin${fmt(v.th)}^\circ\,(${fmt(r.rho)})}{${fmt(v.m)}}}=${fmt(r.vel)}\ \text{ft/s}`}
+  ];},
+  takeaway:"In US units, 1 slug × 32.2 ft/s² = 32.2 lbf, so tension comes out in lbf. Combining the two equations gives v² = gL sin θ tan θ, which doesn't depend on the mass.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=100;i++){const a=2*Math.PI*i/100; pts.push([r.rho*Math.cos(a), r.rho*Math.sin(a)]);} return {xl:"x (ft)", yl:"y (ft)", series:[{pts},{pts:[[0,0],[r.rho,0]],alt:true}], mark:[r.rho,0], equal:true, cap:"Top view: the ball's circular path around the pole (to scale). Orange is ρ."}; }
+},
+
+/* ---------- Boat turning at constant speed ---------- */
+{
+  id:"boat", topic:G1, name:"Boat in a Turn", tag:"constant speed",
+  kind:"Newton's 2nd law (n–t)",
+  original:{ W:1200, v:20, R:40 },
+  randomize(){ return { W:pick(600,3000,100), v:pick(10,40,2), R:pick(20,100,5) }; },
+  solve(v){ const m=v.W/32.2, an=v.v*v.v/v.R, Fn=m*an; return {m,an,Fn}; },
+  statement:(v)=>`A ${N(v.W,"lbf")} boat travels around a circular path of radius ${N(v.R,"ft")} at a constant speed of ${N(v.v,"ft/s")}. Find the resultant tangential and normal forces acting on the boat.`,
+  given:(v)=>[["W",`${fmt(v.W)} lbf`],["v",`${fmt(v.v)} ft/s (constant)`],["ρ",`${fmt(v.R)} ft`]],
+  find:["Normal acceleration","ΣF_n","ΣF_t"],
+  method:"Known circular path, so use n–t. Constant speed means dv/dt = 0, so a_t = 0. The only acceleration is v²/ρ toward the center.",
+  answers:(v,r)=>[
+    {label:"Normal acceleration a_n", unit:"ft/s²", val:r.an},
+    {label:"ΣF_n (toward center)", unit:"lbf", val:r.Fn},
+    {label:"ΣF_t", unit:"lbf", val:0, scale:r.Fn}],
+  steps(v,r){ return [
+    {t:"Acceleration in n–t", eq:T`\vec a=\frac{dv}{dt}\hat e_t+\frac{v^2}{\rho}\hat e_n=0\,\hat e_t+\frac{${fmt(v.v)}^2}{${fmt(v.R)}}\hat e_n=${fmt(r.an)}\,\hat e_n\ \text{ft/s}^2`},
+    {t:"Mass", eq:T`m=\frac{W}{g}=\frac{${fmt(v.W)}}{32.2}=${fmt(r.m)}\ \text{slug}`},
+    {t:"Normal direction", eq:T`\sum F_n=ma_n=${fmt(r.m)}(${fmt(r.an)})=${fmt(r.Fn)}\ \text{lbf toward the center}`},
+    {t:"Tangential direction", eq:T`\sum F_t=ma_t=m\frac{dv}{dt}=0`}
+  ];},
+  takeaway:"W is in lbf and g in ft/s², so the force comes out in lbf. Constant speed does not mean zero acceleration: the direction of the velocity changes, which takes a net force toward the center.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=100;i++){const a=2*Math.PI*i/100; pts.push([v.R*Math.cos(a), v.R*Math.sin(a)]);} return {xl:"x (ft)", yl:"y (ft)", series:[{pts},{pts:[[v.R,0],[v.R*0.55,0]],alt:true}], mark:[v.R,0], equal:true, cap:"Boat's path to scale. Orange shows the direction of ΣF_n, toward the center."}; }
+},
+
+/* ---------- Banked freeway off-ramp ---------- */
+{
+  id:"ramp", topic:G1, name:"Banked Off-Ramp", tag:"max speed, μ_s",
+  kind:"Newton's 2nd law (n–t–b)",
+  original:{ rho:60, beta:10, mu:0.45 },
+  randomize(){ return { rho:pick(40,150,10), beta:pick(5,20,1), mu:pick(0.2,0.7,0.05) }; },
+  solve(v){ const g=9.81, b=v.beta*D2R, c=Math.cos(b), s=Math.sin(b), num=v.mu*c+s, den=c-v.mu*s, vmax=Math.sqrt(v.rho*g*num/den), v0=Math.sqrt(v.rho*g*Math.tan(b)); return {c,s,num,den,vmax,v0}; },
+  statement:(v)=>`A freeway off-ramp is a circular curve of radius ${N(v.rho,"m")} banked at β = ${N(v.beta,"°")}. The coefficient of static friction between the tires and the road is μ_s = ${N(v.mu)}. Find the maximum constant speed a car can have without sliding up the bank.`,
+  given:(v)=>[["ρ",`${fmt(v.rho)} m`],["β",`${fmt(v.beta)}°`],["μ_s",`${fmt(v.mu)}`],["a_t","0 (constant speed)"]],
+  find:["Maximum speed v_max"],
+  method:"At the maximum speed the car is about to slide up the bank, so static friction is at its limit (f = μ_sN) and acts down the bank. Use ΣF_n = mv²/ρ (horizontal, toward the center) and ΣF_b = 0 (vertical), then eliminate N and m.",
+  answers:(v,r)=>[{label:"Maximum speed", unit:"m/s", val:r.vmax}],
+  steps(v,r){ return [
+    {t:"Normal direction (horizontal, toward center)", eq:T`\sum F_n=m\frac{v^2}{\rho}\;\Rightarrow\;N\sin\beta+\mu_sN\cos\beta=m\frac{v^2}{\rho}\quad(1)`},
+    {t:"Vertical: no vertical acceleration", eq:T`\sum F_b=0\;\Rightarrow\;N\cos\beta-\mu_sN\sin\beta-mg=0\quad(2)`,
+      note:"Friction points down the bank, so its vertical component points down."},
+    {t:"Divide (1) by (2): N and m cancel", eq:T`\frac{v^2}{\rho g}=\frac{\mu_s\cos\beta+\sin\beta}{\cos\beta-\mu_s\sin\beta}`},
+    {t:"Plug in", eq:T`v^2=${fmt(v.rho)}(9.81)\frac{${fmt(v.mu)}\cos${fmt(v.beta)}^\circ+\sin${fmt(v.beta)}^\circ}{\cos${fmt(v.beta)}^\circ-${fmt(v.mu)}\sin${fmt(v.beta)}^\circ}=${fmt(v.rho*9.81)}\cdot\frac{${fmt(r.num)}}{${fmt(r.den)}}\;\Rightarrow\;v_{max}=${fmt(r.vmax)}\ \text{m/s}`}
+  ];},
+  takeaway:(v,r)=>`With no friction at all, the car could only take this curve at √(ρg tan β) = ${fmt(r.v0,3)} m/s. Friction is what lets it go faster (up to ${fmt(r.vmax,3)} m/s). The answer doesn't depend on the car's mass.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const mu=i/60; const vv=Math.sqrt(v.rho*9.81*(mu*r.c+r.s)/(r.c-mu*r.s)); pts.push([mu,vv]);} return {xl:"μ_s", yl:"v_max (m/s)", series:[{pts}], mark:[v.mu,r.vmax], cap:"Maximum speed vs. coefficient of static friction for this curve. The dot is the given μ_s."}; }
+},
+
+/* ---------- Released ball (pendulum) ---------- */
+{
+  id:"ball", topic:G2, name:"Released Ball", tag:"W–E then ΣF_n",
+  kind:"Work–energy + Newton (n–t)",
+  original:{ L:1.5, m:2, phi:40 },
+  randomize(){ return { L:pick(0.5,2.5,0.1), m:pick(0.5,5,0.5), phi:pick(15,90,5) }; },
+  solve(v){ const g=9.81, s=Math.sin(v.phi*D2R), h=v.L*s, vel=Math.sqrt(2*g*h), T=v.m*g*s+v.m*vel*vel/v.L; return {s,h,vel,T}; },
+  statement:(v)=>`A ${N(v.m,"kg")} ball on a ${N(v.L,"m")} string is released from rest with the string horizontal. Find the ball's speed and the tension in the string when the string has swung ${N(v.phi,"°")} below the horizontal.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["L = ρ",`${fmt(v.L)} m`],["Start","at rest, string horizontal"],["Angle below horizontal",`${fmt(v.phi)}°`]],
+  find:["Speed v","Tension T"],
+  method:"Two positions and you need a speed, so use work–energy first. Tension is always normal to the path, so it does no work; only gravity does. Then plug v into ΣF_n = mv²/ρ to get T.",
+  answers:(v,r)=>[
+    {label:"Speed v", unit:"m/s", val:r.vel},
+    {label:"Tension T", unit:"N", val:r.T}],
+  steps(v,r){ return [
+    {t:"Height dropped", eq:T`h=L\sin${fmt(v.phi)}^\circ=${fmt(v.L)}\sin${fmt(v.phi)}^\circ=${fmt(r.h)}\ \text{m}`},
+    {t:"Work–energy (tension does no work)", eq:T`mgh=\tfrac12 mv^2\;\Rightarrow\;${fmt(v.m)}(9.81)(${fmt(r.h)})=\tfrac12(${fmt(v.m)})v^2\;\Rightarrow\;v=${fmt(r.vel)}\ \text{m/s}`,
+      note:"Gravity does positive work because the ball moves down."},
+    {t:"ΣF_n toward the pivot", eq:T`T-mg\sin${fmt(v.phi)}^\circ=m\frac{v^2}{L}`,
+      note:"The component of the weight along the string is mg sin(angle below horizontal), pointing away from the pivot."},
+    {t:"Solve for T", eq:T`T=${fmt(v.m)}(9.81)\sin${fmt(v.phi)}^\circ+${fmt(v.m)}\frac{${fmt(r.vel)}^2}{${fmt(v.L)}}=${fmt(r.T)}\ \text{N}`}
+  ];},
+  takeaway:(v,r)=>`Substituting v² = 2gL sin φ gives T = 3mg sin φ, which doesn't depend on L. At the bottom (φ = 90°) the tension is 3mg = ${fmt(3*v.m*9.81,3)} N.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=90;i++){const p=i*D2R; pts.push([i, 3*v.m*9.81*Math.sin(p)]);} return {xl:"angle below horizontal (°)", yl:"T (N)", series:[{pts}], mark:[v.phi,r.T], cap:"Tension vs. angle as the ball swings down. The dot is the angle asked."}; }
+},
+
+/* ---------- Stunt driver in a vertical loop ---------- */
+{
+  id:"loop", topic:G2, name:"Stunt Driver Loop", tag:"apex, N + mg",
+  kind:"Work–energy + Newton (n–t)",
+  original:{ R:5, v0:25, m:70 },
+  randomize(){ return resample(()=>({ R:pick(3,8,0.5), v0:pick(18,35,1), m:pick(50,100,5) }), v=>v.v0*v.v0-4*9.81*v.R>9.81*v.R*1.1); },
+  solve(v){ const g=9.81, va2=v.v0*v.v0-2*g*2*v.R, va=Math.sqrt(va2), Nn=v.m*va2/v.R-v.m*g; return {va2,va,Nn,vmin:Math.sqrt(g*v.R)}; },
+  statement:(v)=>`A stunt driver enters a vertical circular loop of radius ${N(v.R,"m")} at ${N(v.v0,"m/s")}. The driver and car have a combined mass of ${N(v.m,"kg")}. Neglecting friction and treating the car as a particle, find the speed at the top of the loop and the normal force the track exerts there.`,
+  given:(v)=>[["ρ = R",`${fmt(v.R)} m`],["Height to apex",`2R = ${fmt(2*v.R)} m`],["v₀ (bottom)",`${fmt(v.v0)} m/s`],["m",`${fmt(v.m)} kg`]],
+  find:["Speed at the apex","Normal force at the apex"],
+  method:"Two positions, so use work–energy to get the speed at the top. Then apply ΣF_n = mv²/ρ at the top, where the center of the loop is below the car, so both N and the weight point toward the center.",
+  answers:(v,r)=>[
+    {label:"Speed at apex", unit:"m/s", val:r.va},
+    {label:"Normal force at apex", unit:"N", val:r.Nn}],
+  steps(v,r){ return [
+    {t:"Work–energy from bottom to top", eq:T`-mg(2R)=\tfrac12 m(v_a^2-v_0^2)\;\Rightarrow\;v_a^2=${fmt(v.v0)}^2-2(9.81)(${fmt(2*v.R)})=${fmt(r.va2)}`},
+    {t:"Speed at the apex", eq:T`v_a=${fmt(r.va)}\ \text{m/s}`},
+    {t:"ΣF_n at the apex (ê_n points down, toward the center)", eq:T`N+mg=m\frac{v_a^2}{R}`,
+      note:"The track is above the car at the top, so N pushes down on it, in the same direction as the weight."},
+    {t:"Solve for N", eq:T`N=${fmt(v.m)}\frac{${fmt(r.va2)}}{${fmt(v.R)}}-${fmt(v.m)}(9.81)=${fmt(r.Nn)}\ \text{N}`}
+  ];},
+  takeaway:(v,r)=>`The car stays on the track as long as N ≥ 0, which needs v_a ≥ √(gR) = ${fmt(r.vmin,3)} m/s at the top. Here v_a = ${fmt(r.va,3)} m/s, so it makes it with room to spare.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=100;i++){const a=2*Math.PI*i/100; pts.push([v.R*Math.sin(a), v.R-v.R*Math.cos(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[-2.5*v.R,0],[0,0]],alt:true}], mark:[0,2*v.R], mark2:[0,0], equal:true, cap:"The loop to scale. Orange is the approach; the car enters at the orange dot and the blue dot is the apex."}; }
+},
+
+/* ---------- Sun-powered car on an oval track ---------- */
+{
+  id:"sun", topic:G2, name:"Sun-Powered Car", tag:"a_t const, then a_n",
+  kind:"Newton (n–t) + kinematics",
+  original:{ m:100, Ft:60, Ls:200, rho:50 },
+  randomize(){ return { m:pick(80,200,10), Ft:pick(30,120,10), Ls:pick(100,300,25), rho:pick(30,80,5) }; },
+  solve(v){ const at=v.Ft/v.m, s=v.Ls+v.rho*Math.PI/2, v2=2*at*s, vel=Math.sqrt(v2), Fn=v.m*v2/v.rho; return {at,s,v2,vel,Fn}; },
+  statement:(v)=>`A ${N(v.m,"kg")} solar-powered car starts from rest at A on an oval track and is driven by a constant tangential force of ${N(v.Ft,"N")}. From A it travels along a ${N(v.Ls,"m")} straightaway and then a quarter of a circular end of radius ${N(v.rho,"m")} to reach B. Find the car's speed at B and the normal force on it there.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["F_t",`${fmt(v.Ft)} N (constant)`],["Straight A → curve",`${fmt(v.Ls)} m`],["ρ of curve",`${fmt(v.rho)} m`],["v_A","0"]],
+  find:["Speed at B","ΣF_n at B"],
+  method:"ΣF_t = ma_t gives a constant a_t. Speed depends on the distance traveled, so use a_t = v dv/ds with s = straight length + ρθ. Then ΣF_n = mv²/ρ at B.",
+  answers:(v,r)=>[
+    {label:"Speed at B", unit:"m/s", val:r.vel},
+    {label:"ΣF_n at B", unit:"N", val:r.Fn}],
+  steps(v,r){ return [
+    {t:"Tangential direction", eq:T`\sum F_t=ma_t\;\Rightarrow\;${fmt(v.Ft)}=${fmt(v.m)}\,a_t\;\Rightarrow\;a_t=${fmt(r.at)}\ \text{m/s}^2`},
+    {t:"Distance along the track to B", eq:T`s=${fmt(v.Ls)}+\rho\theta=${fmt(v.Ls)}+${fmt(v.rho)}\big(\tfrac{\pi}{2}\big)=${fmt(r.s)}\ \text{m}`},
+    {t:"a_t = v dv/ds (chain rule)", eq:T`\int_0^{${fmt(r.s)}}${fmt(r.at)}\,ds=\int_0^{v}v\,dv\;\Rightarrow\;${fmt(r.at)}(${fmt(r.s)})=\frac{v^2}{2}\;\Rightarrow\;v_B=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Normal direction at B", eq:T`\sum F_n=m\frac{v_B^2}{\rho}=${fmt(v.m)}\frac{(${fmt(r.vel)})^2}{${fmt(v.rho)}}=${fmt(r.Fn)}\ \text{N}`}
+  ];},
+  takeaway:"a_t is the same on the straight and on the curve, so the speed only depends on total distance. The normal force switches on only when the path starts to curve.",
+  plot(v,r){ const s=[[0,0],[v.Ls,0]], arc=[]; for(let i=0;i<=40;i++){const a=-Math.PI/2+Math.PI/2*i/40; arc.push([v.Ls+v.rho*Math.cos(a), v.rho+v.rho*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:s},{pts:arc,alt:true}], mark:[v.Ls+v.rho,v.rho], mark2:[0,0], equal:true, cap:"Path from A (orange dot) along the straight (blue) and quarter curve (orange) to B (blue dot), to scale."}; }
+},
+
+/* ---------- Roller coaster: tangential impulse ---------- */
+{
+  id:"coaster", topic:G3, name:"Roller Coaster Brakes", tag:"J_t = mΔv",
+  kind:"Impulse and momentum (tangential)",
+  original:{ m:500, v1:20, J:600, t:3 },
+  randomize(){ return resample(()=>({ m:pick(300,1200,50), v1:pick(10,35,1), J:pick(200,2000,50), t:pick(1,6,0.5) }), v=>v.v1-v.J/v.m>1); },
+  solve(v){ const v2=v.v1-v.J/v.m, F=-v.J/v.t; return {v2,F}; },
+  statement:(v)=>`A ${N(v.m,"kg")} roller coaster car moving at ${N(v.v1,"m/s")} passes through a braking section. Over ${N(v.t,"s")} the resultant tangential impulse on the car is −${N(v.J,"N·s")}. Find its new speed and the average tangential force during braking.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["v₁",`${fmt(v.v1)} m/s`],["J_t",`−${fmt(v.J)} N·s`],["Δt",`${fmt(v.t)} s`]],
+  find:["New speed v₂","Average tangential force"],
+  method:"Speed changes only through the tangential component, so use the tangential impulse: J_t = m(v₂ − v₁). The normal forces change the direction of motion but not the speed.",
+  answers:(v,r)=>[
+    {label:"New speed v₂", unit:"m/s", val:r.v2},
+    {label:"Average F_t", unit:"N", val:r.F}],
+  steps(v,r){ return [
+    {t:"Tangential impulse–momentum", eq:T`J_t=m\,\Delta v_t=m(v_2-v_1)`},
+    {t:"Solve for v₂", eq:T`-${fmt(v.J)}=${fmt(v.m)}(v_2-${fmt(v.v1)})\;\Rightarrow\;v_2=${fmt(v.v1)}-\frac{${fmt(v.J)}}{${fmt(v.m)}}=${fmt(r.v2)}\ \text{m/s}`},
+    {t:"Average tangential force", eq:T`F_{t,avg}=\frac{J_t}{\Delta t}=\frac{-${fmt(v.J)}}{${fmt(v.t)}}=${fmt(r.F)}\ \text{N}`,
+      note:"Negative means the force opposes the motion (braking)."}
+  ];},
+  takeaway:"In n–t coordinates, only tangential forces change the speed. This lets you use impulse along the path even when the track curves.",
+  plot(v,r){ return {xl:"t (s)", yl:"v (m/s)", series:[{pts:[[0,v.v1],[v.t,r.v2]]}], mark:[v.t,r.v2], mark2:[0,v.v1], cap:"Speed through the braking section, assuming a constant braking force."}; }
+}
+
+];
+
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
+const $ = (s)=>document.querySelector(s);
+const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
+
+function renderNav(){
+  const topics=[...new Set(PROBLEMS.map(p=>p.topic))];
+  $("#nav").innerHTML = topics.map(tp=>`<div class="topic"><h2>${tp}</h2><ul>${
+    PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
+  }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
+  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+}
+
+function select(id){
+  state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
+  try{ localStorage.setItem("dpl-last-kinetics-nt", id); }catch(e){}
+  renderNav(); renderSheet(); window.scrollTo({top:0});
+}
+function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
+function original(){ state.vars={...cur().original}; state.isOriginal=true; state.shown=0; renderSheet(); }
+
+function renderSheet(){
+  const p=cur(), v=state.vars, r=p.solve(v), ans=p.answers(v,r);
+  const steps=p.steps(v,r);
+  $("#sheet").innerHTML = `
+    <div class="phead">
+      <div><div class="eyebrow">${p.kind} · ${p.tag}</div><h2>${p.name}</h2></div>
+      <div class="controls">
+        <button class="btn primary" id="new" type="button">New numbers</button>
+        <button class="btn" id="orig" type="button">Class example</button>
+      </div>
+    </div>
+    <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
+    <p class="statement">${p.statement(v,r)}</p>
+    <div class="cols">
+      <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
+      <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="method"><b>Method.</b> ${p.method}</p>
+
+    <form class="answers" id="ansform" autocomplete="off">
+      <h3>Your answers</h3>
+      ${ans.map((a,i)=>`<div class="arow">
+        <label for="a${i}">${a.label}</label>
+        <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
+        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+      <div class="checkbar">
+        <button class="btn primary" type="submit">Check answers</button>
+        <button class="btn" type="button" id="next">Show next step</button>
+        <button class="btn" type="button" id="all">Show full solution</button>
+        <span class="hint">Correct within 1%.</span>
+      </div>
+    </form>
+    <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
+
+  $("#new").onclick=fresh; $("#orig").onclick=original;
+  $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
+  $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  if(state.shown) drawSolution(p,v,r,ans,steps);
+}
+
+function check(a,i){
+  const raw=$("#a"+i).value.trim().replace(/,/g,""), chip=$("#c"+i);
+  if(raw===""){ chip.className="chip idle"; chip.textContent="enter a value"; return; }
+  const x=parseFloat(raw);
+  if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
+  const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
+  else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
+  else { chip.className="chip bad"; chip.textContent="not yet"; }
+}
+
+function drawSolution(p,v,r,ans,steps){
+  const sol=$("#sol"); sol.hidden=false;
+  const done = state.shown>=steps.length;
+  const tk = typeof p.takeaway==="function" ? p.takeaway(v,r) : p.takeaway;
+  sol.innerHTML = `<h3>Worked solution</h3>
+    <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
+    ${done ? `
+      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
+      <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
+      : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
+  if(done) drawPlot(p.plot(v,r));
+}
+
+function drawPlot(P){
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const all=P.series.flatMap(s=>s.pts);
+  let x0=P.xmin??Math.min(0,...all.map(p=>p[0])), x1=Math.max(...all.map(p=>p[0]));
+  let y0=Math.min(0,...all.map(p=>p[1])), y1=Math.max(...all.map(p=>p[1]));
+  const padY=(y1-y0)*0.08||1; y1+=padY; if(y0<0) y0-=padY;
+  const L=58,R=16,Tp=12,B=40, pw=W-L-R, ph=H-Tp-B;
+  let sx=pw/(x1-x0), sy=ph/(y1-y0);
+  if(P.equal){ const s=Math.min(sx,sy); sx=sy=s; const cx=(x0+x1)/2, cy=(y0+y1)/2; x0=cx-pw/(2*s); y0=cy-ph/(2*s); }
+  const X=(x)=>L+(x-x0)*sx, Y=(y)=>Tp+ph-(y-y0)*sy;
+  const nice=(span)=>{const r=span/5, m=Math.pow(10,Math.floor(Math.log10(r))), f=r/m; return (f<1.5?1:f<3.5?2:f<7.5?5:10)*m;};
+  c.font="12px "+col("--mono"); c.lineWidth=1;
+  const xs=nice(P.equal?(pw/sx):(x1-x0)), ys=nice(P.equal?(ph/sy):(y1-y0));
+  const xEnd=x0+pw/sx, yEnd=y0+ph/sy;
+  c.strokeStyle=col("--line"); c.fillStyle=col("--muted");
+  c.textAlign="center"; c.textBaseline="top";
+  for(let x=Math.ceil(x0/xs)*xs; x<=xEnd+1e-9; x+=xs){ c.beginPath(); c.moveTo(X(x),Tp); c.lineTo(X(x),Tp+ph); c.stroke(); c.fillText(fmt(x,3),X(x),Tp+ph+6); }
+  c.textAlign="right"; c.textBaseline="middle";
+  for(let y=Math.ceil(y0/ys)*ys; y<=yEnd+1e-9; y+=ys){ c.beginPath(); c.moveTo(L,Y(y)); c.lineTo(L+pw,Y(y)); c.stroke(); c.fillText(fmt(y,3),L-6,Y(y)); }
+  c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
+  c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
+  c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
+  if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
+}
+
+window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
+
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-kinetics-nt"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+state.id=start; state.vars={...cur().original};
+renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
+</script>
+</body></html>
