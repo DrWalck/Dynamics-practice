@@ -1,0 +1,106 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1000px;margin:0 auto}
+header{padding-block:40px 24px;border-bottom:2px solid var(--ink);margin-bottom:28px;display:flex;flex-direction:column;gap:10px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,5vw,3.2rem);line-height:1;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:62ch;font-size:1.05rem}
+.how{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0;padding:0;list-style:none;font-size:.95rem}
+.how li{display:flex;gap:8px;align-items:baseline}
+.how b{font-family:var(--mono);font-size:.8rem;color:var(--accent)}
+section h2{font-family:var(--display);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+a.topic{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;color:inherit;text-decoration:none;transition:border-color .15s, transform .15s}
+a.topic:hover{border-color:var(--accent)}
+@media (prefers-reduced-motion:no-preference){ a.topic:hover{transform:translateY(-2px)} }
+a.topic:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topic .eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.78rem;font-weight:600;color:var(--accent)}
+.topic h3{font-family:var(--display);font-weight:700;font-size:1.6rem;line-height:1.05;margin:0;text-wrap:balance}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:10px}
+.topic li{display:flex;justify-content:space-between;gap:12px;font-size:.95rem}
+.topic li span:last-child{font-family:var(--mono);font-size:.75rem;color:var(--muted);white-space:nowrap}
+.go{margin-top:auto;align-self:flex-start;font-weight:600;background:var(--accent);color:var(--accent-ink);padding:9px 14px;border-radius:6px}
+.soon{margin-top:20px;color:var(--muted);font-size:.95rem}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <h1>Dynamics Practice</h1>
+    <p>Pick a topic to practice. Every problem gives you new numbers each time, so you can work it as many times as you like.</p>
+    <ul class="how">
+      <li><b>1</b> Work the problem on paper</li>
+      <li><b>2</b> Check your answer</li>
+      <li><b>3</b> Open the worked solution</li>
+    </ul>
+  </header>
+
+  <section>
+    <h2>Topics</h2>
+    <div class="grid" id="topics"></div>
+    <p class="soon">More topics will be added during the semester.</p>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   TOPIC LIST — to add a topic, upload its .html file to the repo
+   and add one entry below (file name must match exactly).
+   ============================================================ */
+const TOPICS = [
+  {
+    file: "Particle_Kinematics_Cartesian.html",
+    group: "Particle kinematics",
+    title: "Cartesian Coordinates",
+    problems: [
+      ["Private Plane", "a = const"],
+      ["Scotch Yoke", "a(t)"],
+      ["Parachute", "a(v)"],
+      ["Gas Gun", "a(s)"],
+      ["Survey Plane Drop", "2-D projectile"]
+    ]
+  }
+];
+
+document.getElementById("topics").innerHTML = TOPICS.map(t => `
+  <a class="topic" href="${t.file}">
+    <span class="eyebrow">${t.group} · ${t.problems.length} problems</span>
+    <h3>${t.title}</h3>
+    <ul>${t.problems.map(([n,tag]) => `<li><span>${n}</span><span>${tag}</span></li>`).join("")}</ul>
+    <span class="go">Start practicing &rarr;</span>
+  </a>`).join("");
+</script>
+</body></html>
