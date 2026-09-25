@@ -1,0 +1,685 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Particle Kinetics · Dynamics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
+<style>
+:root{
+  --bg:#eef1f5; --grid:rgba(29,79,145,.06); --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#16202c; --muted:#5a6878; --line:#d5dce5;
+  --accent:#1d4f91; --accent-ink:#ffffff; --accent-soft:#e3ecf8;
+  --hl:#fbe7a1; --hl-ink:#3d2f00;
+  --good:#1f7a4d; --good-soft:#e1f3e9; --warn:#9a6200; --warn-soft:#fbf0dc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --plot-2:#c2571a;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+    --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+    --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+    --hl:#4a3f17; --hl-ink:#fbe7a1;
+    --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+    --plot-2:#f0a070;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --grid:rgba(127,176,240,.05); --surface:#161e28; --surface-2:#1c2632;
+  --ink:#e6ebf1; --muted:#9aa7b6; --line:#2a3644;
+  --accent:#7fb0f0; --accent-ink:#0e131a; --accent-soft:#1f3350;
+  --hl:#4a3f17; --hl-ink:#fbe7a1;
+  --good:#5cc58e; --good-soft:#15301f; --warn:#e0a84a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1a18;
+  --plot-2:#f0a070;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-inline:16px; padding-block:0 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;padding-block:28px 20px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+.back{display:inline-block;font:600 .9rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top p{margin:0;color:var(--muted);font-size:.95rem;max-width:52ch}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+nav.problems{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:18px}
+.topic h2{font-family:var(--display);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.topic ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.topic button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent}
+.topic button:hover{background:var(--surface)}
+.topic button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.topic button[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+.topic .pname{font-weight:600}
+.topic .ptag{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.topic button{grid-template-columns:1fr;gap:1px}
+.topic .ptag{white-space:normal}
+.soon{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.concepts{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+.concepts summary{cursor:pointer;padding:14px 18px;font-family:var(--display);font-weight:600;font-size:1.1rem}
+.concepts summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:0 18px 18px}
+.cgrid h4{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 6px;font-weight:600}
+.cgrid p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+.ceq{overflow-x:auto;font-size:1.05rem}
+main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:24px;min-width:0}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;font-weight:600;color:var(--accent)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.phead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 .95rem/1 var(--body);padding:10px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.statement{font-size:1.08rem;max-width:68ch;margin:0}
+.num{font-family:var(--mono);font-size:.92em;background:var(--hl);color:var(--hl-ink);padding:0 .3em;border-radius:3px;white-space:nowrap}
+.variant{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface-2)}
+.box h3{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.box ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.box li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.box li .v{font-family:var(--mono);font-size:.92rem}
+.method{font-size:.95rem;color:var(--muted);margin:0}
+.method b{color:var(--ink)}
+
+.answers h3{font-family:var(--display);font-size:1.15rem;margin:0 0 10px;font-weight:600}
+.arow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(120px,1fr) 11rem;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.arow label{font-weight:600}
+.arow .inp{display:flex;align-items:center;gap:6px}
+.arow input{width:100%;min-width:0;font:1rem var(--mono);padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.arow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.arow .unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap;min-width:4.2em}
+.chip{font:600 .8rem/1 var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.idle{color:var(--muted)}
+.checkbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+
+.solution{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.solution h3{font-family:var(--display);font-size:1.3rem;margin:0;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:4px 10px}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center;font-size:.8rem}
+.step-title{font-weight:600;align-self:center}
+.step-body{grid-column:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+.eq{overflow-x:auto;padding:6px 0;font-size:1.12rem}
+.eq math{font-size:1.12em}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.final{display:flex;flex-wrap:wrap;gap:10px}
+.final .ans{border:2px solid var(--accent);border-radius:8px;padding:10px 14px;background:var(--accent-soft)}
+.final .ans .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--display);font-weight:600}
+.final .ans .val{font-family:var(--mono);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plotwrap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2)}
+.plotwrap figcaption{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+canvas{display:block;width:100%;height:260px}
+.takeaway{border-left:3px solid var(--hl);background:var(--surface-2);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.95rem;margin:0}
+
+@media (max-width:780px){
+  .layout{grid-template-columns:1fr}
+  nav.problems{position:static}
+  .topic ul{flex-direction:row;flex-wrap:wrap}
+  .topic li{flex:1 1 150px}
+  .soon{display:none}
+  .arow{grid-template-columns:1fr auto}
+  .arow label{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .solution{animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div><a class="back" href="./">&larr; All topics</a><h1>Particle Kinetics: Cartesian</h1></div>
+    <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
+  </header>
+  <details class="concepts" id="concepts">
+    <summary>Key equations: particle kinetics</summary>
+    <div class="cgrid">
+      <div><h4>Which method?</h4><p><b>Forces → acceleration:</b> Newton's 2nd law.<br><b>Speed between two positions:</b> work &amp; energy.<br><b>Velocity between two times:</b> impulse &amp; momentum.<br><b>Collisions:</b> conservation of momentum.</p></div>
+      <div><h4>Newton's 2nd law</h4><div class="ceq" data-tex="\sum\vec F=m\vec a,\qquad \sum F_x=ma_x,\ \ \sum F_y=ma_y"></div><p>Align an axis with the acceleration when you can.</p></div>
+      <div><h4>Work &amp; energy</h4><div class="ceq" data-tex="T_1+\sum U_{1\to2}=T_2,\qquad -\Delta V=\Delta T"></div><div class="ceq" data-tex="U_s=-\tfrac12 k(s_2^2-s_1^2),\quad U_g=-mg\,\Delta y"></div></div>
+      <div><h4>Impulse &amp; momentum</h4><div class="ceq" data-tex="\int_{t_1}^{t_2}\sum\vec F\,dt=m\vec v_2-m\vec v_1"></div><p>1 N·s = 1 kg·m/s. Mass crossing a boundary: ΣF = ṁ Δv.</p></div>
+      <div><h4>Conservation &amp; impact</h4><div class="ceq" data-tex="m_Av_A+m_Bv_B=m_Av_A'+m_Bv_B'"></div><p>Coupled cars: e = 0 (perfectly inelastic, maximum energy loss).</p></div>
+      <div><h4>Angular momentum</h4><div class="ceq" data-tex="\vec H_O=\vec r\times m\vec v,\qquad H_O=mr^2\omega\ \ (v=r\omega)"></div></div>
+    </div>
+  </details>
+  <div class="layout">
+    <nav class="problems" id="nav" aria-label="Problems"></nav>
+    <main class="sheet" id="sheet" aria-live="polite"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const T = String.raw;
+const g = 9.81;
+function pick(min, max, step){ const n = Math.round((max-min)/step); return +(min + step*Math.floor(Math.random()*(n+1))).toFixed(6); }
+function fmt(x, sig=4){ if(!isFinite(x)) return "—"; if(Math.abs(x) < 1e-12) return "0"; return String(Number(x.toPrecision(sig))); }
+function sgn(x, sig=4){ return (x < 0 ? " - " : " + ") + fmt(Math.abs(x), sig); }   // signed term for equations
+function tex(s, display=true){
+  if(window.katex){ try{ return katex.renderToString(s,{output:"mathml",displayMode:display,throwOnError:false}); }catch(e){} }
+  return '<code>'+s.replace(/</g,"&lt;")+'</code>';
+}
+function N(x, unit="", sig=4){ return `<span class="num">${fmt(x,sig)}${unit?"&nbsp;"+unit:""}</span>`; }
+
+/* =====================================================================
+   PROBLEM BANK
+   To add a problem, copy one object below and edit:
+     id, topic, name, tag, original (the numbers from your notes),
+     randomize() -> new givens, solve(v) -> computed values,
+     statement, given, find, method, answers, steps, plot, takeaway
+   ===================================================================== */
+const P = (x,s=4)=> x<0 ? `(${fx(x,s)})` : fx(x,s);
+const D2R = Math.PI/180;
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function big(x){ return x!==0 && (Math.abs(x)>=1e6 || Math.abs(x)<1e-3); }
+function parts(x,s){ let e=Math.floor(Math.log10(Math.abs(x))), m=Number((x/Math.pow(10,e)).toPrecision(s)); if(Math.abs(m)>=10){m/=10;e++;} return [m,e]; }
+function sci(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m} × 10${String(e).split("").map(c=>SUP[c]).join("")}`; }   // plain text
+function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return `${m}\\times10^{${e}}`; }                                           // TeX
+function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
+function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
+
+const T_NEWTON="Newton's 2nd Law", T_WE="Work & Energy", T_IM="Impulse & Momentum";
+
+const PROBLEMS = [
+
+/* ================= NEWTON'S SECOND LAW ================= */
+
+/* ---------- Model rocket: constant thrust, then coast ---------- */
+{
+  id:"rocket", topic:T_NEWTON, name:"Model Rocket", tag:"ΣF = ma, 2 stages",
+  kind:"Newton's 2nd law + kinematics",
+  original:{ oz:0.5, T:0.9, tb:0.3 },
+  randomize(){ return { oz:pick(0.3,1.0,0.1), T:pick(0.5,2.0,0.1), tb:pick(0.2,0.6,0.1) }; },
+  solve(v){ const g=32.2, W=v.oz/16, m=W/g, a=(v.T-W)/m, vb=a*v.tb, hb=0.5*a*v.tb*v.tb, tc=vb/g, h2=vb*vb/(2*g); return {g,W,m,a,vb,hb,tc,h2,hmax:hb+h2,ttop:v.tb+tc}; },
+  statement:(v)=>`A ${N(v.oz,"oz")} model rocket is launched straight up. Its engine produces a constant thrust of ${N(v.T,"lbf")} for ${N(v.tb,"s")}, and then the rocket coasts. Neglecting air resistance and the change in mass, find the acceleration during the burn, the speed at burnout, the maximum height, and the time to reach it.`,
+  given:(v)=>[["Mass",`${fmt(v.oz)} oz`],["Thrust T",`${fmt(v.T)} lbf (constant)`],["Burn time",`${fmt(v.tb)} s`],["g","32.2 ft/s²"]],
+  find:["Acceleration during burn","Burnout speed","Max height","Time to max height"],
+  method:"Stage 1 (burn): constant force, so ΣF = ma gives a constant acceleration; then use kinematics. Stage 2 (coast): only gravity acts, a = −g, starting from the burnout height and speed.",
+  answers:(v,r)=>[
+    {label:"Acceleration (burn)", unit:"ft/s²", val:r.a},
+    {label:"Burnout speed", unit:"ft/s", val:r.vb},
+    {label:"Max height", unit:"ft", val:r.hmax},
+    {label:"Time to max height", unit:"s", val:r.ttop}],
+  steps(v,r){ return [
+    {t:"Convert mass to slugs", eq:T`m=${fmt(v.oz)}\ \text{oz}\cdot\frac{1\ \text{lbm}}{16\ \text{oz}}\cdot\frac{1\ \text{slug}}{32.2\ \text{lbm}}=${fx(r.m)}\ \text{slug},\qquad W=mg=${fmt(r.W)}\ \text{lbf}`},
+    {t:"Stage 1: ΣF_y = ma_y", eq:T`T-mg=ma\;\Rightarrow\;${fmt(v.T)}-${fmt(r.W)}=(${fx(r.m)})\,a\;\Rightarrow\;a=${fmt(r.a)}\ \text{ft/s}^2`,
+      note:"Constant force gives constant acceleration from t = 0 until burnout."},
+    {t:"Burnout speed and height", eq:T`v_b=a t_b=${fmt(r.a)}(${fmt(v.tb)})=${fmt(r.vb)}\ \text{ft/s},\qquad h_b=\tfrac12 a t_b^2=${fmt(r.hb)}\ \text{ft}`},
+    {t:"Stage 2: coast with a = −g until v = 0", eq:T`0=v_b-g\,t_c\;\Rightarrow\;t_c=\frac{${fmt(r.vb)}}{32.2}=${fmt(r.tc)}\ \text{s},\qquad t_{top}=${fmt(v.tb)}+${fmt(r.tc)}=${fmt(r.ttop)}\ \text{s}`},
+    {t:"Coast height and maximum height", eq:T`h_2=\frac{v_b^2}{2g}=\frac{${fmt(r.vb)}^2}{2(32.2)}=${fmt(r.h2)}\ \text{ft},\qquad h_{max}=h_b+h_2=${fmt(r.hmax)}\ \text{ft}`,
+      note:"v² = v₀² + 2aΔh measures height from the start of stage 2, so add the burnout height."}
+  ];},
+  takeaway:"Split the flight at the instant the force changes. Each stage has constant acceleration, and the end state of stage 1 is the start state of stage 2.",
+  plot(v,r){ const pts=[]; const Tt=r.ttop*1.05; for(let i=0;i<=120;i++){const t=Tt*i/120; const h=t<=v.tb?0.5*r.a*t*t:r.hb+r.vb*(t-v.tb)-0.5*r.g*(t-v.tb)**2; pts.push([t,h]);} return {xl:"t (s)", yl:"h (ft)", series:[{pts}], mark:[r.ttop,r.hmax], mark2:[v.tb,r.hb], cap:"Height vs. time. Orange dot: burnout; blue dot: maximum height."}; }
+},
+
+/* ---------- Sliding box on an incline with friction ---------- */
+{
+  id:"box", topic:T_NEWTON, name:"Sliding Box with Friction", tag:"incline, μ_k",
+  kind:"Newton's 2nd law",
+  original:{ m:14, mu:0.1, F:20, th:20, t:2 },
+  randomize(){ return resample(()=>({ m:pick(8,25,1), mu:pick(0.05,0.25,0.05), F:pick(10,40,5), th:pick(15,35,5), t:pick(1,5,0.5) }), v=>this.solve(v).a>0.3); },
+  solve(v){ const g=9.81, W=v.m*g, th=v.th*D2R, Nn=W*Math.cos(th)+v.F*Math.sin(th), f=v.mu*Nn, a=(W*Math.sin(th)-v.F*Math.cos(th)-f)/v.m; return {W,Nn,f,a,vel:a*v.t}; },
+  statement:(v)=>`A ${N(v.m,"kg")} box is released from rest on a ${N(v.th,"°")} incline while a constant horizontal force of ${N(v.F,"N")} pushes on it toward the slope. The coefficient of kinetic friction is μ_k = ${N(v.mu)}. Assuming the box slides down the incline, find the normal force, its acceleration, and its speed after ${N(v.t,"s")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["θ",`${fmt(v.th)}°`],["F (horizontal)",`${fmt(v.F)} N`],["μ_k",`${fmt(v.mu)}`],["v₀","0"]],
+  find:["Normal force N","Acceleration a","Speed at t"],
+  method:"Constant forces, so use ΣF = ma. Align x with the incline (positive down the slope) so the acceleration is in one direction; the y equation (a_y = 0) gives the normal force. Then use kinematics for v.",
+  answers:(v,r)=>[
+    {label:"Normal force N", unit:"N", val:r.Nn},
+    {label:"Acceleration a", unit:"m/s²", val:r.a},
+    {label:"Speed at t", unit:"m/s", val:r.vel}],
+  steps(v,r){ return [
+    {t:"Weight", eq:T`W=mg=${fmt(v.m)}(9.81)=${fmt(r.W)}\ \text{N},\qquad f=\mu_kN=${fmt(v.mu)}N`},
+    {t:"ΣF_y = 0 (perpendicular to the incline)", eq:T`N-W\cos${fmt(v.th)}^\circ-F\sin${fmt(v.th)}^\circ=0\;\Rightarrow\;N=${fmt(r.W)}\cos${fmt(v.th)}^\circ+${fmt(v.F)}\sin${fmt(v.th)}^\circ=${fmt(r.Nn)}\ \text{N}`},
+    {t:"ΣF_x = ma (down the incline)", eq:T`W\sin${fmt(v.th)}^\circ-F\cos${fmt(v.th)}^\circ-\mu_kN=ma`},
+    {t:"Solve for a", eq:T`${fmt(r.W*Math.sin(v.th*D2R))}-${fmt(v.F*Math.cos(v.th*D2R))}-${fmt(r.f)}=${fmt(v.m)}\,a\;\Rightarrow\;a=${fmt(r.a)}\ \text{m/s}^2`,
+      note:"a > 0, so the assumption that the box slides down the incline is correct."},
+    {t:"Speed from kinematics", eq:T`a=\frac{dv}{dt}\;\Rightarrow\;v=at=${fmt(r.a)}(${fmt(v.t)})=${fmt(r.vel)}\ \text{m/s down the incline}`}
+  ];},
+  takeaway:"The horizontal push does two things: its component along the slope opposes the motion, and its component into the slope increases N, which increases friction.",
+  plot(v,r){ const pts=[[0,0],[v.t*1.2, r.a*v.t*1.2]]; return {xl:"t (s)", yl:"v (m/s)", series:[{pts}], mark:[v.t,r.vel], cap:"Speed vs. time. Constant net force gives a straight line; the dot marks the time asked."}; }
+},
+
+/* ---------- Space shuttle payload: mass vs. weight ---------- */
+{
+  id:"payload", topic:T_NEWTON, name:"Space Shuttle Payload", tag:"mass vs. weight",
+  kind:"Newton's law of gravitation",
+  original:{ W:100, hmi:200 },
+  randomize(){ return { W:pick(50,500,10), hmi:pick(100,400,25) }; },
+  solve(v){ const RE=6367000, h=v.hmi*1609.34, mslug=v.W/32.2, mkg=v.W*0.453592, gh=9.81*Math.pow(RE/(RE+h),2), Wh=mkg*gh; return {RE,h,mslug,mkg,gh,Wh,Whlb:Wh/4.44822}; },
+  statement:(v)=>`A payload weighs ${N(v.W,"lb")} on Earth's surface at 45° north latitude. Find (a) its mass, (b) its weight when it is held at rest ${N(v.hmi,"mi")} above the surface, and (c) its apparent weight when it is in orbit at that altitude. Use R_E = 6367 km and g₀ = 9.81 m/s².`,
+  given:(v)=>[["W (surface)",`${fmt(v.W)} lb`],["Altitude h",`${fmt(v.hmi)} mi`],["R_E at 45° N","6367 km"],["g₀","9.81 m/s² (32.2 ft/s²)"]],
+  find:["Mass (slug)","Weight at altitude (N)"],
+  method:"Mass doesn't change with location; weight does. W = mg on the surface gives m. Gravity falls off as 1/r², so g_h = g₀ (R_E/(R_E + h))².",
+  answers:(v,r)=>[
+    {label:"Mass", unit:"slug", val:r.mslug},
+    {label:"Weight at altitude", unit:"N", val:r.Wh}],
+  steps(v,r){ return [
+    {t:"(a) Mass from surface weight", eq:T`m=\frac{W}{g}=\frac{${fmt(v.W)}\ \text{lb}}{32.2\ \text{ft/s}^2}=${fmt(r.mslug)}\ \text{slug}\quad(=${fmt(r.mkg)}\ \text{kg})`},
+    {t:"Where g comes from", eq:T`mg=\frac{GMm}{r^2}\;\Rightarrow\;g=\frac{GM}{r^2}=\frac{(6.674\times10^{-11})(5.972\times10^{24})}{(6.367\times10^{6})^2}\approx9.83\ \text{m/s}^2`,
+      note:"G is the universal gravitational constant, M is Earth's mass, and r is the distance between centers of mass."},
+    {t:"(b) Gravity at altitude", eq:T`h=${fmt(v.hmi)}\ \text{mi}=${fx(r.h)}\ \text{m},\qquad g_h=9.81\Big(\frac{6367000}{6367000+${fmt(r.h,6)}}\Big)^2=${fmt(r.gh)}\ \text{m/s}^2`},
+    {t:"Weight at altitude (held at rest)", eq:T`W_h=mg_h=${fmt(r.mkg)}(${fmt(r.gh)})=${fmt(r.Wh)}\ \text{N}\quad(=${fmt(r.Whlb)}\ \text{lb})`},
+    {t:"(c) In orbit", eq:T`W_{apparent}=0`,
+      note:`Gravity still pulls on the payload with ${fmt(r.Wh,3)} N, but the payload and the shuttle are both in free fall, so a scale inside would read zero.`}
+  ];},
+  takeaway:"Mass is the same everywhere; weight depends on where you are. At a few hundred miles up, gravity is still about 90% as strong as on the surface.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const hm=500*i/80, g=9.81*Math.pow(r.RE/(r.RE+hm*1609.34),2); pts.push([hm, r.mkg*g]);} return {xl:"altitude (mi)", yl:"weight (N)", series:[{pts}], mark:[v.hmi,r.Wh], cap:"Weight vs. altitude for this payload (held at rest). The dot marks the altitude asked."}; }
+},
+
+/* ---------- Comparison: Newton vs impulse for a projectile ---------- */
+{
+  id:"compare", topic:T_NEWTON, name:"Comparison: Newton vs. Impulse", tag:"same answer, 2 ways",
+  kind:"Newton's 2nd law and impulse–momentum",
+  original:{ m:20, v0:20, th:60, t:3 },
+  randomize(){ return { m:pick(5,40,5), v0:pick(10,40,5), th:pick(20,75,5), t:pick(1,5,0.5) }; },
+  solve(v){ const g=9.81, th=v.th*D2R, vx=v.v0*Math.cos(th), vy0=v.v0*Math.sin(th), vy=vy0-g*v.t, J=-v.m*g*v.t; return {vx,vy0,vy,J}; },
+  statement:(v)=>`A ${N(v.m,"kg")} projectile is launched at ${N(v.v0,"m/s")} at ${N(v.th,"°")} above the horizontal. Neglecting air resistance, find its velocity at t = ${N(v.t,"s")} using (a) Newton's second law and (b) impulse and momentum. (c) What impulse does its weight apply from t = 0 to that time?`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["v₀",`${fmt(v.v0)} m/s`],["θ₀",`${fmt(v.th)}°`],["t",`${fmt(v.t)} s`]],
+  find:["v_x and v_y at t","Impulse of the weight"],
+  method:"Projectile motion, so use Cartesian coordinates. (a) ΣF = ma gives a_x = 0 and a_y = −g, then integrate. (b) ∫ΣF dt = mΔv gives the same result in one step.",
+  answers:(v,r)=>[
+    {label:"v_x at t", unit:"m/s", val:r.vx, scale:Math.hypot(r.vx,r.vy)},
+    {label:"v_y at t", unit:"m/s", val:r.vy, scale:Math.hypot(r.vx,r.vy)},
+    {label:"Impulse of weight (y)", unit:"N·s", val:r.J}],
+  steps(v,r){ return [
+    {t:"(a) Newton: ΣF = ma in each direction", eq:T`\sum F_x=0\Rightarrow a_x=0,\qquad \sum F_y=-mg\Rightarrow a_y=-g`},
+    {t:"Integrate a = dv/dt", eq:T`v_x=v_0\cos${fmt(v.th)}^\circ=${fmt(r.vx)},\qquad v_y=v_0\sin${fmt(v.th)}^\circ-g t=${fmt(r.vy0)}-9.81(${fmt(v.t)})=${fmt(r.vy)}\ \text{m/s}`},
+    {t:"(b) Impulse–momentum", eq:T`\int_0^{${fmt(v.t)}}\sum\vec F\,dt=m(\vec v_2-\vec v_1)\;\Rightarrow\;-mg(${fmt(v.t)})\,\hat j=${fmt(v.m)}\big[\vec v_2-\langle ${fmt(r.vx)},\,${fmt(r.vy0)}\rangle\big]`},
+    {t:"Solve", eq:T`\vec v_2=\langle ${fmt(r.vx)},\ ${fmt(r.vy0)}-${fmt(9.81*v.t)}\rangle=${fmt(r.vx)}\,\hat i${sgn(r.vy)}\,\hat j\ \text{m/s}`},
+    {t:"(c) Impulse of the weight", eq:T`\vec J=\int_0^{${fmt(v.t)}}(-mg)\,\hat j\,dt=-${fmt(v.m)}(9.81)(${fmt(v.t)})\,\hat j=${fmt(r.J)}\,\hat j\ \text{N·s}`,
+      note:"Check: this equals m(v_y2 − v_y1). Weight only acts in y, so it doesn't change v_x."}
+  ];},
+  takeaway:"Newton's law gives accelerations you then integrate; impulse–momentum does the time integral up front. When you know two times and want a velocity, impulse–momentum is usually faster.",
+  plot(v,r){ const pts=[]; const Tt=v.t*1.2; for(let i=0;i<=80;i++){const t=Tt*i/80; pts.push([r.vx*t, r.vy0*t-4.905*t*t]);} return {xl:"x (m)", yl:"y (m)", series:[{pts}], mark:[r.vx*v.t, r.vy0*v.t-4.905*v.t*v.t], equal:true, cap:"Trajectory (to scale). The dot marks the projectile at time t."}; }
+},
+
+/* ================= WORK & ENERGY ================= */
+
+/* ---------- Collar and spring, 1-D: maximum speed ---------- */
+{
+  id:"collar1d", topic:T_WE, name:"Collar & Spring: Max Speed", tag:"d(v²)/ds = 0",
+  kind:"Work–energy",
+  original:{ m:4, k:100, v1:1 },
+  randomize(){ return { m:pick(2,8,0.5), k:pick(50,300,10), v1:pick(0.5,3,0.5) }; },
+  solve(v){ const g=9.81, A=v.k/v.m, B=2*g, s=v.m*g/v.k, vmax=Math.sqrt(v.v1*v.v1+B*s-A*s*s); return {A,B,s,vmax}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar slides without friction on a vertical rod. It is attached to a spring (k = ${N(v.k,"N/m")}) that is unstretched at position 1, where the collar is moving down at ${N(v.v1,"m/s")}. Find the position s (measured down from 1) where the collar reaches its maximum speed, and that speed.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["k",`${fmt(v.k)} N/m`],["v₁",`${fmt(v.v1)} m/s down`],["Spring","unstretched at 1"]],
+  find:["Position s of max speed","Maximum speed"],
+  method:"Speed between two positions, so use work–energy: −ΔU = ΔT. That gives v² as a function of s. Max speed is where dv/dt = 0; with no time in the problem, use a = v dv/ds, so set d(v²)/ds = 0.",
+  answers:(v,r)=>[
+    {label:"Position s", unit:"m", val:r.s},
+    {label:"Max speed", unit:"m/s", val:r.vmax}],
+  steps(v,r){ return [
+    {t:"Potential energy (s positive down)", eq:T`U=U_s+U_g=\tfrac12 ks^2-mgs=${fmt(v.k/2)}s^2-${fmt(v.m*9.81)}s`},
+    {t:"Work–energy", eq:T`-\Delta U=\Delta T\;\Rightarrow\;-${fmt(v.k/2)}s^2+${fmt(v.m*9.81)}s=\tfrac12(${fmt(v.m)})v^2-\tfrac12(${fmt(v.m)})(${fmt(v.v1)})^2`},
+    {t:"Speed as a function of position", eq:T`v^2=-${fmt(r.A)}s^2+${fmt(r.B)}s+${fmt(v.v1*v.v1)}\quad(1)`},
+    {t:"Max speed: a = v dv/ds = 0", eq:T`\frac{d(v^2)}{ds}=-${fmt(2*r.A)}s+${fmt(r.B)}=0\;\Rightarrow\;s=\frac{${fmt(r.B)}}{${fmt(2*r.A)}}=${fmt(r.s)}\ \text{m}`,
+      note:"This is also where the spring force equals the weight, ks = mg."},
+    {t:"Plug into (1)", eq:T`v_{max}^2=-${fmt(r.A)}(${fmt(r.s)})^2+${fmt(r.B)}(${fmt(r.s)})+${fmt(v.v1*v.v1)}\;\Rightarrow\;v_{max}=${fmt(r.vmax)}\ \text{m/s}`}
+  ];},
+  takeaway:"The collar speeds up while the weight is larger than the spring force and slows down after. Max speed happens exactly where the net force (and so the acceleration) is zero.",
+  plot(v,r){ const pts=[]; const sm=(r.B+Math.sqrt(r.B*r.B+4*r.A*v.v1*v.v1))/(2*r.A); for(let i=0;i<=100;i++){const s=sm*i/100; pts.push([s, Math.sqrt(Math.max(0,v.v1*v.v1+r.B*s-r.A*s*s))]);} return {xl:"s (m, down)", yl:"v (m/s)", series:[{pts}], mark:[r.s,r.vmax], cap:"Speed vs. position until the collar momentarily stops. The dot marks the maximum speed."}; }
+},
+
+/* ---------- Collar and spring, 2-D geometry ---------- */
+{
+  id:"collar2d", topic:T_WE, name:"Collar & Spring: 2-D", tag:"U_s + U_g",
+  kind:"Work–energy",
+  original:{ m:4, k:6000, L:0.2, h:0.25 },
+  randomize(){ return { m:pick(2,8,0.5), k:pick(2000,8000,500), L:pick(0.15,0.3,0.05), h:pick(0.15,0.35,0.05) }; },
+  solve(v){ const s1=Math.hypot(v.L,v.h), d=s1-v.L, Us=0.5*v.k*d*d, Ug=v.m*9.81*v.h, v2=Math.sqrt(2*(Us+Ug)/v.m); return {s1,d,Us,Ug,v2}; },
+  statement:(v)=>`A ${N(v.m,"kg")} collar is released from rest at P₁ and slides without friction down a vertical rod to P₂, a drop of ${N(v.h,"m")}. A spring (k = ${N(v.k/1000,"kN/m")}) connects the collar to a fixed point ${N(v.L,"m")} horizontally from P₂, and the spring is unstretched when the collar is at P₂. Find the speed of the collar at P₂.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["k",`${fmt(v.k/1000)} kN/m`],["Drop P₁→P₂",`${fmt(v.h)} m`],["Horizontal distance",`${fmt(v.L)} m (unstretched length)`],["v₁","0"]],
+  find:["Spring stretch at P₁","Speed at P₂"],
+  method:"Speed between two positions, so use work–energy. Use geometry to find the spring's stretch at P₁; it is zero at P₂. Gravity does positive work as the collar drops.",
+  answers:(v,r)=>[
+    {label:"Stretch at P₁", unit:"m", val:r.d},
+    {label:"Speed at P₂", unit:"m/s", val:r.v2}],
+  steps(v,r){ return [
+    {t:"Spring length and stretch at P₁", eq:T`s_1=\sqrt{${fmt(v.L)}^2+${fmt(v.h)}^2}=${fmt(r.s1)}\ \text{m},\qquad \delta=${fmt(r.s1)}-${fmt(v.L)}=${fmt(r.d)}\ \text{m}`},
+    {t:"Energy released by the spring", eq:T`\tfrac12 k\delta^2=\tfrac12(${fmt(v.k)})(${fmt(r.d)})^2=${fmt(r.Us)}\ \text{J}`},
+    {t:"Energy released by gravity", eq:T`mgh=${fmt(v.m)}(9.81)(${fmt(v.h)})=${fmt(r.Ug)}\ \text{J}`},
+    {t:"Work–energy: −ΔU = ΔT", eq:T`${fmt(r.Us)}+${fmt(r.Ug)}=\tfrac12(${fmt(v.m)})v_2^2\;\Rightarrow\;v_2=${fmt(r.v2)}\ \text{m/s}`,
+      note:"Both potentials decrease from P₁ to P₂, so both add to the kinetic energy."}
+  ];},
+  takeaway:"Only the change in spring length matters, not the path the collar takes. Get the stretch at each end from geometry and the rest is bookkeeping.",
+  plot(v,r){ return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],[0,v.h]]},{pts:[[-v.L,0],[0,v.h]],alt:true}], mark:[0,v.h], mark2:[-v.L,0], equal:true, cap:"Geometry to scale. Blue: the rod from P₂ (bottom) to P₁ (top); orange: the spring at P₁, anchored at the orange dot."}; }
+},
+
+/* ---------- Satellite: parking orbit to higher orbit ---------- */
+{
+  id:"orbit", topic:T_WE, name:"Satellite Orbit Transfer", tag:"gravity ∝ 1/r²",
+  kind:"Work–energy",
+  original:{ m:900, Rp:6700, Rg:42222 },
+  randomize(){ return { m:pick(500,2000,100), Rp:pick(6600,7200,100), Rg:pick(20000,42000,1000) }; },
+  solve(v){ const g=9.81, RE=6370e3, Rp=v.Rp*1e3, Rg=v.Rg*1e3, K=v.m*g*RE*RE, U=K*(1/Rg-1/Rp), Tp=0.5*K/Rp, Tg=0.5*K/Rg, W=(Tg-Tp)-U; return {K,U,Tp,Tg,W,vp:Math.sqrt(g*RE*RE/Rp),vg:Math.sqrt(g*RE*RE/Rg)}; },
+  statement:(v)=>`A ${N(v.m,"kg")} satellite is moved from a circular parking orbit of radius ${N(v.Rp,"km")} to a circular orbit of radius ${N(v.Rg,"km")} (both measured from Earth's center). Find the work done by gravity during the transfer and the work the rocket must do. Use R_E = 6370 km and g = 9.81 m/s².`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["R_park",`${fmt(v.Rp)} km`],["R_final",`${fmt(v.Rg)} km`],["R_E","6370 km"],["Circular orbit speed","v = √(g R_E² / r)"]],
+  find:["Work by gravity","Work by the rocket"],
+  method:"Work–energy from one orbit to the other. Gravity is conservative with F = −mgR_E²/r², so integrate it for U. The rocket's work is non-conservative: T₁ + U_grav + W_rocket = T₂.",
+  answers:(v,r)=>[
+    {label:"Work by gravity", unit:"J", val:r.U},
+    {label:"Work by rocket", unit:"J", val:r.W}],
+  steps(v,r){ return [
+    {t:"Work by gravity", eq:T`U_{grav}=\int_{R_p}^{R_f}\Big(-\frac{mgR_E^2}{r^2}\Big)dr=mgR_E^2\Big(\frac1{R_f}-\frac1{R_p}\Big)`},
+    {t:"Plug in (meters)", eq:T`U_{grav}=${fmt(v.m)}(9.81)(6.37\times10^{6})^2\Big(\frac{1}{${fx(v.Rg*1e3)}}-\frac{1}{${fx(v.Rp*1e3)}}\Big)=${fx(r.U)}\ \text{J}`},
+    {t:"Kinetic energy in each circular orbit", eq:T`T=\tfrac12 mv^2=\tfrac12 m\frac{gR_E^2}{r}\;\Rightarrow\;T_p=${fx(r.Tp)}\ \text{J},\quad T_f=${fx(r.Tg)}\ \text{J}`},
+    {t:"Work–energy with the rocket", eq:T`T_p+U_{grav}+W_{rocket}=T_f\;\Rightarrow\;W_{rocket}=(T_f-T_p)-U_{grav}`},
+    {t:"Solve", eq:T`W_{rocket}=(${fx(r.Tg)}-${fx(r.Tp)})-(${fx(r.U)})=${fx(r.W)}\ \text{J}`}
+  ];},
+  takeaway:(v,r)=>`The satellite actually slows down (from ${fmt(r.vp/1000,3)} to ${fmt(r.vg/1000,3)} km/s), yet the rocket must still do positive work, because climbing against gravity costs more than the kinetic energy it loses.`,
+  plot(v,r){ const c=(R)=>{const p=[];for(let i=0;i<=120;i++){const a=2*Math.PI*i/120;p.push([R*Math.cos(a),R*Math.sin(a)]);}return p;}; return {xl:"x (km)", yl:"y (km)", series:[{pts:c(6370),alt:true},{pts:c(v.Rp)},{pts:c(v.Rg)}], mark:[v.Rp,0], mark2:[v.Rg,0], equal:true, cap:"Earth (orange) with the parking orbit and final orbit, to scale."}; }
+},
+
+/* ================= IMPULSE & MOMENTUM ================= */
+
+/* ---------- Simple impulse & momentum, 3-D ---------- */
+{
+  id:"imp3d", topic:T_IM, name:"Simple Impulse & Momentum", tag:"3-D, F(t)",
+  kind:"Linear impulse and momentum",
+  original:{ m:15, vx:2, vy:3, vz:-5, a:2, b:3, c:7, d:5, e:3, f:7, t:4 },
+  randomize(){ return { m:pick(5,30,1), vx:pick(-5,5,1), vy:pick(-5,5,1), vz:pick(-5,5,1), a:pick(1,3,1), b:pick(1,4,1), c:pick(2,10,1), d:pick(2,8,1), e:pick(1,5,1), f:pick(2,10,1), t:pick(2,6,1) }; },
+  solve(v){ const t=v.t, Jx=v.a*t**3/3-v.b*t*t/2+v.c*t, Jy=v.d*t*t/2, Jz=v.e*t*t/2+v.f*t; const wx=(Jx+v.m*v.vx)/v.m, wy=(Jy+v.m*v.vy)/v.m, wz=(Jz+v.m*v.vz)/v.m; return {Jx,Jy,Jz,wx,wy,wz,S:Math.hypot(wx,wy,wz)}; },
+  statement:(v)=>`A ${N(v.m,"kg")} body has velocity ⟨${N(v.vx)}, ${N(v.vy)}, ${N(v.vz)}⟩ m/s at t = 0. The resultant force on it is F = (${fmt(v.a)}t² − ${fmt(v.b)}t + ${fmt(v.c)}) î + ${fmt(v.d)}t ĵ + (${fmt(v.e)}t + ${fmt(v.f)}) k̂ N, with t in seconds. Find its velocity at t = ${N(v.t,"s")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["v₁",`⟨${fmt(v.vx)}, ${fmt(v.vy)}, ${fmt(v.vz)}⟩ m/s`],["F(t)","see statement (N)"],["t₁, t₂",`0, ${fmt(v.t)} s`]],
+  find:["v_x, v_y, v_z at t₂"],
+  method:"Two times and a force that depends on time, and you want a velocity, so use linear impulse and momentum: ∫ΣF dt = m(v₂ − v₁), one component at a time.",
+  answers:(v,r)=>[
+    {label:"v_x", unit:"m/s", val:r.wx, scale:r.S},
+    {label:"v_y", unit:"m/s", val:r.wy, scale:r.S},
+    {label:"v_z", unit:"m/s", val:r.wz, scale:r.S}],
+  steps(v,r){ return [
+    {t:"Impulse–momentum", eq:T`\int_0^{t}\sum\vec F\,dt=m\vec v_2-m\vec v_1`},
+    {t:"Integrate each component", eq:T`\int\vec F\,dt=\Big(\tfrac{${fmt(v.a)}}{3}t^3-\tfrac{${fmt(v.b)}}{2}t^2+${fmt(v.c)}t\Big)\hat i+\tfrac{${fmt(v.d)}}{2}t^2\,\hat j+\Big(\tfrac{${fmt(v.e)}}{2}t^2+${fmt(v.f)}t\Big)\hat k`},
+    {t:"Evaluate at t₂", eq:T`\vec J=${fmt(r.Jx)}\,\hat i+${fmt(r.Jy)}\,\hat j+${fmt(r.Jz)}\,\hat k\ \text{N·s}`},
+    {t:"Initial momentum", eq:T`m\vec v_1=${fmt(v.m)}\langle ${fmt(v.vx)},${fmt(v.vy)},${fmt(v.vz)}\rangle=\langle ${fmt(v.m*v.vx)},${fmt(v.m*v.vy)},${fmt(v.m*v.vz)}\rangle`},
+    {t:"Solve for v₂", eq:T`${fmt(v.m)}\vec v_2=\langle ${fmt(r.Jx+v.m*v.vx)},\,${fmt(r.Jy+v.m*v.vy)},\,${fmt(r.Jz+v.m*v.vz)}\rangle\;\Rightarrow\;\vec v_2=${fmt(r.wx)}\,\hat i${sgn(r.wy)}\,\hat j${sgn(r.wz)}\,\hat k\ \text{m/s}`}
+  ];},
+  takeaway:"Each direction is independent: the x-impulse only changes x-momentum, and so on. Evaluate the integrals carefully; the t³ term is the easiest place to slip.",
+  plot(v,r){ const p=(f)=>{const a=[];for(let i=0;i<=60;i++){const t=v.t*i/60;a.push([t,f(t)]);}return a;}; return {xl:"t (s)", yl:"F (N)", series:[{pts:p(t=>v.a*t*t-v.b*t+v.c)},{pts:p(t=>v.d*t),alt:true}], cap:"F_x (blue) and F_y (orange) vs. time. The impulse in each direction is the area under its curve."}; }
+},
+
+/* ---------- Airplane: thrust increases linearly ---------- */
+{
+  id:"plane", topic:T_IM, name:"Airplane Takeoff Thrust", tag:"F(t) linear",
+  kind:"Linear impulse and momentum",
+  original:{ m:14200, F1:22, F2:112, T:5, vt:46 },
+  randomize(){ const m=pick(8000,20000,200), F1=pick(10,40,2), F2=pick(60,150,5), T=pick(3,8,1); const k=(F2-F1)*1000/T, v2=(0.5*k*T*T+F1*1000*T)/m; return { m, F1, F2, T, vt:Math.round(v2*pick(1.3,2.2,0.1)) }; },
+  solve(v){ const k=(v.F2-v.F1)*1000/v.T, F0=v.F1*1000, J=0.5*k*v.T**2+F0*v.T, v2=J/v.m, A=k/2, B=F0, C=-v.m*v.vt, t=(-B+Math.sqrt(B*B-4*A*C))/(2*A); return {k,F0,J,v2,A,B,C,t}; },
+  statement:(v)=>`A ${N(v.m,"kg")} airplane starts from rest on the runway. Its engine thrust increases at a constant rate from ${N(v.F1,"kN")} at t = 0 to ${N(v.F2,"kN")} at t = ${N(v.T,"s")}, and keeps increasing at that rate. Neglecting drag and rolling resistance, find (a) the linear impulse on the plane over the first ${fmt(v.T)} s and its speed at that time, and (b) the time when it reaches ${N(v.vt,"m/s")}.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["F₁ at t = 0",`${fmt(v.F1)} kN`],["F₂ at t = "+fmt(v.T)+" s",`${fmt(v.F2)} kN`],["v₁","0"],["Target speed",`${fmt(v.vt)} m/s`]],
+  find:["Impulse over 0 → t₂","Speed at t₂","Time to target speed"],
+  method:"Thrust changes with time, so impulse and momentum relate time to velocity. First write the force as a function of time from the two data points.",
+  answers:(v,r)=>[
+    {label:"Impulse (0 → t₂)", unit:"N·s", val:r.J},
+    {label:"Speed at t₂", unit:"m/s", val:r.v2},
+    {label:"Time to target speed", unit:"s", val:r.t}],
+  steps(v,r){ return [
+    {t:"Force as a function of time", eq:T`F(t)=${fmt(r.F0)}+\frac{${fmt(v.F2*1000)}-${fmt(r.F0)}}{${fmt(v.T)}}\,t=${fmt(r.k)}t+${fmt(r.F0)}\ \text{N}`},
+    {t:"(a) Impulse over the first interval", eq:T`J=\int_0^{${fmt(v.T)}}(${fmt(r.k)}t+${fmt(r.F0)})\,dt=\frac{${fmt(r.k)}}{2}(${fmt(v.T)})^2+${fmt(r.F0)}(${fmt(v.T)})=${fx(r.J)}\ \text{N·s}`},
+    {t:"Speed at t₂", eq:T`J=m(v_2-0)\;\Rightarrow\;v_2=\frac{${fx(r.J)}}{${fmt(v.m)}}=${fmt(r.v2)}\ \text{m/s}`},
+    {t:"(b) Impulse up to an unknown time t", eq:T`${fmt(r.A)}t^2+${fmt(r.B)}t=${fmt(v.m)}(${fmt(v.vt)})\;\Rightarrow\;${fmt(r.A)}t^2+${fmt(r.B)}t-${fmt(-r.C,6)}=0`},
+    {t:"Quadratic formula (positive root)", eq:T`t=\frac{-${fmt(r.B)}+\sqrt{${fmt(r.B)}^2-4(${fmt(r.A)})(${fmt(r.C,6)})}}{2(${fmt(r.A)})}=${fmt(r.t)}\ \text{s}`}
+  ];},
+  takeaway:"N·s and kg·m/s are the same unit, so impulse equals the change in momentum directly. The time comes from a quadratic because the impulse grows with t².",
+  plot(v,r){ const pts=[]; const Tt=Math.max(r.t,v.T)*1.15; for(let i=0;i<=80;i++){const t=Tt*i/80; pts.push([t,(0.5*r.k*t*t+r.F0*t)/v.m]);} return {xl:"t (s)", yl:"v (m/s)", series:[{pts}], mark:[r.t,v.vt], mark2:[v.T,r.v2], cap:"Speed vs. time. Orange dot: speed at t₂; blue dot: the target speed."}; }
+},
+
+/* ---------- Cathode ray tube: impulse from a time-varying field ---------- */
+{
+  id:"crt", topic:T_IM, name:"Cathode-Ray Tube", tag:"F(t) = −eE sin ωt",
+  kind:"Linear impulse and momentum",
+  original:{ v:2.2, E0:15, w:2, L:30 },
+  randomize(){ return { v:pick(1.5,3.0,0.1), E0:pick(5,25,1), w:pick(1,4,0.5), L:pick(20,50,5) }; },
+  solve(v){ const m=9.11e-31, e=1.6e-19, vx=v.v*1e7, E0=v.E0*1e3, w=v.w*1e9, L=v.L/1000, t=L/vx, wt=w*t, F0=e*E0, J=(F0/w)*(Math.cos(wt)-1), vy=J/m; return {m,e,vx,E0,w,L,t,wt,F0,J,vy}; },
+  statement:(v)=>`An electron (m = 9.11 × 10⁻³¹ kg, e = 1.6 × 10⁻¹⁹ C) enters the space between two deflecting plates moving horizontally at ${Ns(v.v*1e7,"m/s")}. Between the plates it feels a vertical force F = −eE ĵ, where E = ${N(v.E0)} sin(ωt) kN/C and ω = ${Ns(v.w*1e9,"rad/s")}. The plates are ${N(v.L,"mm")} long. Find the time the electron spends between the plates, the impulse the field gives it, and its vertical velocity as it leaves. Gravity is negligible.`,
+  given:(v)=>[["m, e","9.11 × 10⁻³¹ kg, 1.6 × 10⁻¹⁹ C"],["v_x",`${sci(v.v*1e7)} m/s (constant)`],["E(t)",`${fmt(v.E0)} sin(ωt) kN/C`],["ω",`${sci(v.w*1e9)} rad/s`],["Plate length",`${fmt(v.L)} mm`]],
+  find:["Time between plates","Impulse J_y","Exit v_y"],
+  method:"The force depends on time, so use impulse and momentum. The force is vertical only, so v_x is constant and gives the time between the plates. Enter very large or small answers like 2.3e-24.",
+  answers:(v,r)=>[
+    {label:"Time between plates", unit:"s", val:r.t},
+    {label:"Impulse J_y", unit:"N·s", val:r.J},
+    {label:"Exit v_y", unit:"m/s", val:r.vy}],
+  steps(v,r){ return [
+    {t:"Time between the plates (v_x constant)", eq:T`t=\frac{L}{v_x}=\frac{${fmt(r.L)}}{${fx(r.vx)}}=${fx(r.t)}\ \text{s},\qquad \omega t=${fmt(r.wt)}\ \text{rad}`},
+    {t:"Force amplitude", eq:T`eE_0=(1.6\times10^{-19})(${fx(r.E0)})=${fx(r.F0)}\ \text{N}\;\Rightarrow\;\vec F=-${fx(r.F0)}\sin(\omega t)\,\hat j`,
+      note:"E is in kN/C, so multiply by 1000 before using it."},
+    {t:"Impulse", eq:T`J_y=\int_0^{t}-${fx(r.F0)}\sin(\omega t)\,dt=\frac{${fx(r.F0)}}{\omega}\big(\cos\omega t-1\big)`},
+    {t:"Evaluate", eq:T`J_y=\frac{${fx(r.F0)}}{${fx(r.w)}}\big(\cos ${fmt(r.wt)}-1\big)=${fx(r.J)}\ \text{N·s}`},
+    {t:"Exit vertical velocity", eq:T`J_y=m(v_{y2}-0)\;\Rightarrow\;v_{y2}=\frac{${fx(r.J)}}{9.11\times10^{-31}}=${fx(r.vy)}\ \text{m/s}`},
+    {t:"Exit velocity", eq:T`\vec v_{exit}=${fx(r.vx)}\,\hat i${r.vy<0?"-":"+"}${fx(Math.abs(r.vy))}\,\hat j\ \text{m/s}`}
+  ];},
+  takeaway:"The impulse is tiny because the electron's mass is tiny, but so is the change in momentum it has to produce. Keep powers of ten organized and the answer comes out in a reasonable range.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=80;i++){const t=r.t*i/80; pts.push([t*1e9, -r.F0*Math.sin(r.w*t)*1e15]);} return {xl:"t (ns)", yl:"F_y (fN = 10⁻¹⁵ N)", series:[{pts}], cap:"Vertical force on the electron while it is between the plates. The impulse is the area under this curve."}; }
+},
+
+/* ---------- Fire truck: momentum flux ---------- */
+{
+  id:"fire", topic:T_IM, name:"Fire Truck Water Jet", tag:"ΣF = ṁ Δv",
+  kind:"Momentum flux (steady flow)",
+  original:{ md:1.6, x:35, y:8, th:20 },
+  randomize(){ return resample(()=>({ md:pick(1.0,3.0,0.2), x:pick(25,50,5), y:pick(4,15,1), th:pick(15,35,5) }), v=>v.x*Math.tan(v.th*D2R)-v.y>2); },
+  solve(v){ const g=32.2, th=v.th*D2R, c=Math.cos(th), V=Math.sqrt(g*v.x*v.x/(2*c*c*(v.x*Math.tan(th)-v.y))), vx=V*c, Fx=v.md*vx; return {V,vx,Fx,FN:Fx*4.44822}; },
+  statement:(v)=>`A parked fire truck's nozzle sprays water at ${N(v.md,"slug/s")} at ${N(v.th,"°")} above the horizontal. The stream hits a window ${N(v.x,"ft")} away horizontally and ${N(v.y,"ft")} above the nozzle. Find the nozzle speed and the horizontal force the water jet exerts on the truck.`,
+  given:(v)=>[["ṁ",`${fmt(v.md)} slug/s`],["θ",`${fmt(v.th)}°`],["Target (x, y)",`(${fmt(v.x)}, ${fmt(v.y)}) ft`],["g","32.2 ft/s²"],["Truck","not moving"]],
+  find:["Nozzle speed","Horizontal force on truck"],
+  method:"Mass crosses the system boundary, so use the momentum-flux form ΣF = ṁΔv (an open system), not ΣJ = Δp for a fixed mass. First find the jet speed from projectile motion.",
+  answers:(v,r)=>[
+    {label:"Nozzle speed", unit:"ft/s", val:r.V},
+    {label:"Horizontal force", unit:"lbf", val:r.Fx}],
+  steps(v,r){ return [
+    {t:"Projectile path of the stream", eq:T`y=x\tan\theta-\frac{gx^2}{2v^2\cos^2\theta}`},
+    {t:"Solve for the nozzle speed", eq:T`v=\sqrt{\frac{gx^2}{2\cos^2\theta\,(x\tan\theta-y)}}=\sqrt{\frac{32.2(${fmt(v.x)})^2}{2\cos^2${fmt(v.th)}^\circ\,(${fmt(v.x)}\tan${fmt(v.th)}^\circ-${fmt(v.y)})}}=${fmt(r.V)}\ \text{ft/s}`},
+    {t:"Horizontal component", eq:T`v_x=v\cos\theta=${fmt(r.V)}\cos${fmt(v.th)}^\circ=${fmt(r.vx)}\ \text{ft/s}`},
+    {t:"Momentum flux", eq:T`F_x=\dot m\,\Delta v_x=${fmt(v.md)}(${fmt(r.vx)}-0)=${fmt(r.Fx)}\ \text{lbf}\quad(=${fmt(r.FN)}\ \text{N})`,
+      note:"slug/s × ft/s = slug·ft/s² = lbf. The water starts with no horizontal velocity inside the truck."}
+  ];},
+  takeaway:"The truck must push the water forward to give it horizontal momentum, so the water pushes the truck backward with the same force. That is why the truck (or firefighter) has to brace against the jet.",
+  plot(v,r){ const pts=[]; const X=v.x*1.05, th=v.th*D2R; for(let i=0;i<=80;i++){const x=X*i/80; pts.push([x, x*Math.tan(th)-32.2*x*x/(2*r.V*r.V*Math.cos(th)**2)]);} return {xl:"x (ft)", yl:"y (ft)", series:[{pts}], mark:[v.x,v.y], equal:true, cap:"Water stream to scale. The dot is the target window."}; }
+},
+
+/* ---------- Train cars coupling on level track ---------- */
+{
+  id:"train", topic:T_IM, name:"Train Car Collision", tag:"conservation of p",
+  kind:"Conservation of linear momentum",
+  original:{ WA:120000, WB:70000, vA:2, vB:1 },
+  randomize(){ const vA=pick(1.5,4,0.5); return { WA:pick(60000,150000,10000), WB:pick(40000,120000,10000), vA, vB:pick(0,vA-0.5,0.5) }; },
+  solve(v){ const mA=v.WA/32.2, mB=v.WB/32.2, vf=(mA*v.vA+mB*v.vB)/(mA+mB); return {mA,mB,vf,dT:0.5*mA*v.vA**2+0.5*mB*v.vB**2-0.5*(mA+mB)*vf*vf}; },
+  statement:(v)=>`Tank car A (weight ${N(v.WA,"lb")}, full of acid) rolling at ${N(v.vA,"ft/s")} runs into and couples with tank car B (weight ${N(v.WB,"lb")}, half full) rolling in the same direction at ${N(v.vB,"ft/s")} on level track. Find the velocity of the cars' common center of mass, and the velocity of both cars once the sloshing in B has stopped.`,
+  given:(v)=>[["W_A",`${fmt(v.WA)} lb`],["W_B",`${fmt(v.WB)} lb`],["v_A",`${fmt(v.vA)} ft/s`],["v_B",`${fmt(v.vB)} ft/s`],["Cars couple","e = 0"]],
+  find:["v′ of the common center of mass"],
+  method:"No external horizontal force acts during the collision, so linear momentum is conserved. The cars couple (perfectly inelastic, e = 0), so once the sloshing stops they share one velocity, which equals the center-of-mass velocity.",
+  answers:(v,r)=>[{label:"Common velocity v′", unit:"ft/s", val:r.vf}],
+  steps(v,r){ return [
+    {t:"Masses", eq:T`m_A=\frac{${fmt(v.WA)}}{32.2}=${fmt(r.mA)}\ \text{slug},\qquad m_B=\frac{${fmt(v.WB)}}{32.2}=${fmt(r.mB)}\ \text{slug}`},
+    {t:"Conservation of momentum", eq:T`m_Av_A+m_Bv_B=(m_A+m_B)v'`},
+    {t:"Solve", eq:T`${fmt(r.mA)}(${fmt(v.vA)})+${fmt(r.mB)}(${fmt(v.vB)})=${fmt(r.mA+r.mB)}\,v'\;\Rightarrow\;v'=${fmt(r.vf)}\ \text{ft/s}`},
+    {t:"After the sloshing stops", eq:T`v'_A=v'_B=v'_{cm}=${fmt(r.vf)}\ \text{ft/s}`,
+      note:`The sloshing only moves momentum around inside the system; it doesn't change the total. About ${sci(r.dT,3)} ft·lb of kinetic energy is lost to heat and sound.`}
+  ];},
+  takeaway:"Momentum is conserved in the collision, but kinetic energy is not, so work–energy can't be used across the impact.",
+  plot(v,r){ return {xl:"before (left) → after (right)", yl:"momentum (slug·ft/s)", series:[{pts:[[0,r.mA*v.vA],[1,r.mA*v.vA]]},{pts:[[0,r.mB*v.vB],[1,r.mB*v.vB]],alt:true},{pts:[[2,(r.mA+r.mB)*r.vf],[3,(r.mA+r.mB)*r.vf]]}], cap:"Left: momentum of A (blue) and B (orange) before impact. Right: total momentum after coupling, which equals their sum."}; }
+},
+
+/* ---------- Train cars on a slight slope ---------- */
+{
+  id:"trainslope", topic:T_IM, name:"Train Collision on a Slope", tag:"gravity, then impact",
+  kind:"Kinematics + conservation of momentum",
+  original:{ WA:120000, WB:70000, vA:2, vB:1, th:0.2, d:6 },
+  randomize(){ const vA=pick(1.5,4,0.5); return { WA:pick(60000,150000,10000), WB:pick(40000,120000,10000), vA, vB:pick(0.5,vA-0.5,0.5), th:pick(0.1,0.5,0.05), d:pick(4,12,1) }; },
+  solve(v){ const g=32.2, mA=v.WA/g, mB=v.WB/g, a=g*Math.sin(v.th*D2R), t=v.d/(v.vA-v.vB), uA=v.vA-a*t, uB=v.vB-a*t, vf=(mA*uA+mB*uB)/(mA+mB); return {mA,mB,a,t,uA,uB,vf}; },
+  statement:(v)=>`The same two tank cars are rolling up a track with a slope of ${N(v.th,"°")}. Car A (${N(v.WA,"lb")}) is ${N(v.d,"ft")} behind car B (${N(v.WB,"lb")}). At that instant A moves at ${N(v.vA,"ft/s")} and B at ${N(v.vB,"ft/s")}, both up the slope. Neglecting rolling resistance, find when they collide, their speeds just before impact, and their common velocity after they couple.`,
+  given:(v)=>[["W_A, W_B",`${fmt(v.WA)} lb, ${fmt(v.WB)} lb`],["v_A, v_B",`${fmt(v.vA)}, ${fmt(v.vB)} ft/s (up slope)`],["Gap d",`${fmt(v.d)} ft`],["θ",`${fmt(v.th)}°`],["Cars couple","e = 0"]],
+  find:["Time to impact","v_A and v_B at impact","Common velocity v′"],
+  method:"Gravity changes each car's momentum while they roll, so first use kinematics (a = −g sin θ along the track) to get their speeds at impact. Then conserve momentum across the short impact. Don't use work–energy across the impact: kinetic energy is lost.",
+  answers:(v,r)=>[
+    {label:"Time to impact", unit:"s", val:r.t},
+    {label:"v_A at impact", unit:"ft/s", val:r.uA},
+    {label:"v_B at impact", unit:"ft/s", val:r.uB},
+    {label:"Common velocity v′", unit:"ft/s", val:r.vf}],
+  steps(v,r){ return [
+    {t:"Acceleration along the slope (both cars)", eq:T`a=-g\sin\theta=-32.2\sin${fmt(v.th)}^\circ=${fmt(-r.a)}\ \text{ft/s}^2`},
+    {t:"Positions (x up the slope, A starts at 0)", eq:T`x_A=${fmt(v.vA)}t-\tfrac12(${fmt(r.a)})t^2,\qquad x_B=${fmt(v.d)}+${fmt(v.vB)}t-\tfrac12(${fmt(r.a)})t^2`},
+    {t:"They collide when x_A = x_B", eq:T`${fmt(v.vA)}t=${fmt(v.d)}+${fmt(v.vB)}t\;\Rightarrow\;t=\frac{${fmt(v.d)}}{${fmt(v.vA-v.vB)}}=${fmt(r.t)}\ \text{s}`,
+      note:"The gravity terms cancel because both cars have the same acceleration."},
+    {t:"Speeds just before impact", eq:T`v_A=${fmt(v.vA)}-${fmt(r.a)}(${fmt(r.t)})=${fmt(r.uA)},\qquad v_B=${fmt(v.vB)}-${fmt(r.a)}(${fmt(r.t)})=${fmt(r.uB)}\ \text{ft/s}`},
+    {t:"Conservation of momentum across the impact", eq:T`v'=\frac{m_Av_A+m_Bv_B}{m_A+m_B}=\frac{${fmt(r.mA)}(${fmt(r.uA)})+${fmt(r.mB)}(${fmt(r.uB)})}{${fmt(r.mA+r.mB)}}=${fmt(r.vf)}\ \text{ft/s}`}
+  ];},
+  takeaway:"During the long approach, gravity is an external force, so momentum is not conserved then. During the brief impact, gravity's impulse is negligible, so momentum is conserved across the impact itself.",
+  plot(v,r){ const a=[],b=[]; for(let i=0;i<=60;i++){const t=r.t*i/60; a.push([t, v.vA*t-0.5*r.a*t*t]); b.push([t, v.d+v.vB*t-0.5*r.a*t*t]);} return {xl:"t (s)", yl:"x (ft, up slope)", series:[{pts:a},{pts:b,alt:true}], mark:[r.t, v.vA*r.t-0.5*r.a*r.t*r.t], cap:"Position of car A (blue) and car B (orange) up the slope. They meet at the dot."}; }
+}
+
+];
+
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
+const $ = (s)=>document.querySelector(s);
+const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
+
+function renderNav(){
+  const topics=[...new Set(PROBLEMS.map(p=>p.topic))];
+  $("#nav").innerHTML = topics.map(tp=>`<div class="topic"><h2>${tp}</h2><ul>${
+    PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
+  }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
+  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+}
+
+function select(id){
+  state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
+  try{ localStorage.setItem("dpl-last-kinetics", id); }catch(e){}
+  renderNav(); renderSheet(); window.scrollTo({top:0});
+}
+function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
+function original(){ state.vars={...cur().original}; state.isOriginal=true; state.shown=0; renderSheet(); }
+
+function renderSheet(){
+  const p=cur(), v=state.vars, r=p.solve(v), ans=p.answers(v,r);
+  const steps=p.steps(v,r);
+  $("#sheet").innerHTML = `
+    <div class="phead">
+      <div><div class="eyebrow">${p.kind} · ${p.tag}</div><h2>${p.name}</h2></div>
+      <div class="controls">
+        <button class="btn primary" id="new" type="button">New numbers</button>
+        <button class="btn" id="orig" type="button">Class example</button>
+      </div>
+    </div>
+    <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
+    <p class="statement">${p.statement(v,r)}</p>
+    <div class="cols">
+      <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
+      <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="method"><b>Method.</b> ${p.method}</p>
+
+    <form class="answers" id="ansform" autocomplete="off">
+      <h3>Your answers</h3>
+      ${ans.map((a,i)=>`<div class="arow">
+        <label for="a${i}">${a.label}</label>
+        <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
+        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+      <div class="checkbar">
+        <button class="btn primary" type="submit">Check answers</button>
+        <button class="btn" type="button" id="next">Show next step</button>
+        <button class="btn" type="button" id="all">Show full solution</button>
+        <span class="hint">Correct within 1%.</span>
+      </div>
+    </form>
+    <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
+
+  $("#new").onclick=fresh; $("#orig").onclick=original;
+  $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
+  $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  if(state.shown) drawSolution(p,v,r,ans,steps);
+}
+
+function check(a,i){
+  const raw=$("#a"+i).value.trim().replace(/,/g,""), chip=$("#c"+i);
+  if(raw===""){ chip.className="chip idle"; chip.textContent="enter a value"; return; }
+  const x=parseFloat(raw);
+  if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
+  const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
+  else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
+  else { chip.className="chip bad"; chip.textContent="not yet"; }
+}
+
+function drawSolution(p,v,r,ans,steps){
+  const sol=$("#sol"); sol.hidden=false;
+  const done = state.shown>=steps.length;
+  const tk = typeof p.takeaway==="function" ? p.takeaway(v,r) : p.takeaway;
+  sol.innerHTML = `<h3>Worked solution</h3>
+    <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
+    ${done ? `
+      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
+      <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
+      : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
+  if(done) drawPlot(p.plot(v,r));
+}
+
+function drawPlot(P){
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const all=P.series.flatMap(s=>s.pts);
+  let x0=P.xmin??Math.min(0,...all.map(p=>p[0])), x1=Math.max(...all.map(p=>p[0]));
+  let y0=Math.min(0,...all.map(p=>p[1])), y1=Math.max(...all.map(p=>p[1]));
+  const padY=(y1-y0)*0.08||1; y1+=padY; if(y0<0) y0-=padY;
+  const L=58,R=16,Tp=12,B=40, pw=W-L-R, ph=H-Tp-B;
+  let sx=pw/(x1-x0), sy=ph/(y1-y0);
+  if(P.equal){ const s=Math.min(sx,sy); sx=sy=s; const cx=(x0+x1)/2, cy=(y0+y1)/2; x0=cx-pw/(2*s); y0=cy-ph/(2*s); }
+  const X=(x)=>L+(x-x0)*sx, Y=(y)=>Tp+ph-(y-y0)*sy;
+  const nice=(span)=>{const r=span/5, m=Math.pow(10,Math.floor(Math.log10(r))), f=r/m; return (f<1.5?1:f<3.5?2:f<7.5?5:10)*m;};
+  c.font="12px "+col("--mono"); c.lineWidth=1;
+  const xs=nice(P.equal?(pw/sx):(x1-x0)), ys=nice(P.equal?(ph/sy):(y1-y0));
+  const xEnd=x0+pw/sx, yEnd=y0+ph/sy;
+  c.strokeStyle=col("--line"); c.fillStyle=col("--muted");
+  c.textAlign="center"; c.textBaseline="top";
+  for(let x=Math.ceil(x0/xs)*xs; x<=xEnd+1e-9; x+=xs){ c.beginPath(); c.moveTo(X(x),Tp); c.lineTo(X(x),Tp+ph); c.stroke(); c.fillText(fmt(x,3),X(x),Tp+ph+6); }
+  c.textAlign="right"; c.textBaseline="middle";
+  for(let y=Math.ceil(y0/ys)*ys; y<=yEnd+1e-9; y+=ys){ c.beginPath(); c.moveTo(L,Y(y)); c.lineTo(L+pw,Y(y)); c.stroke(); c.fillText(fmt(y,3),L-6,Y(y)); }
+  c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
+  c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
+  c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
+  if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
+}
+
+window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
+
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-kinetics"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+state.id=start; state.vars={...cur().original};
+renderNav(); renderSheet();
+function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
+renderConcepts();
+</script>
+</body></html>
