@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rigid Body Kinematics · Dynamics Practice</title>
+<title>Impacts · Dynamics Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -169,18 +169,17 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 
 <div class="wrap">
   <header class="top">
-    <div><a class="back" href="./">&larr; All topics</a><h1>Rigid Body Kinematics</h1></div>
+    <div><a class="back" href="./">&larr; All topics</a><h1>Impacts</h1></div>
     <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
   </header>
   <details class="concepts" id="concepts">
-    <summary>Key equations: rigid-body kinematics</summary>
+    <summary>Key equations: impacts</summary>
     <div class="cgrid">
-      <div><h4>Fixed-axis rotation</h4><div class="ceq" data-tex="v=r\omega,\quad a_t=r\alpha,\quad a_n=r\omega^2,\quad \alpha=\frac{d\omega}{dt}=\omega\frac{d\omega}{d\theta}"></div><p>Gears in mesh: r_Aω_A = r_Bω_B (no slip).</p></div>
-      <div><h4>Relative velocity</h4><div class="ceq" data-tex="\vec v_B=\vec v_A+\vec\omega\times\vec r_{B/A}"></div><p>r_B/A points from A to B. For CW rotation, ω = −ω k̂.</p></div>
-      <div><h4>Instantaneous center</h4><p>Where lines perpendicular to two known velocity directions cross. v = ω r_IC for any point. A rolling wheel's IC is its contact point. <b>Use it for velocities only.</b></p></div>
-      <div><h4>Relative acceleration</h4><div class="ceq" data-tex="\vec a_B=\vec a_A+\vec\alpha\times\vec r_{B/A}-\omega^2\vec r_{B/A}"></div><p>Solve all velocities first; the ω² terms need them.</p></div>
-      <div><h4>Cross products</h4><div class="ceq" data-tex="\hat k\times\hat i=\hat j,\qquad \hat k\times\hat j=-\hat i"></div></div>
-      <div><h4>Rolling without slipping</h4><div class="ceq" data-tex="v_G=r\omega,\quad a_{G,t}=r\alpha"></div><p>On a curved path, the center also has a_n = v_G²/ρ.</p></div>
+      <div><h4>Conservation of momentum</h4><div class="ceq" data-tex="m_Av_A+m_Bv_B=m_Av_A'+m_Bv_B'"></div><p>Holds when the only large forces during the impact are between the two bodies.</p></div>
+      <div><h4>Coefficient of restitution</h4><div class="ceq" data-tex="e=\frac{v_B'-v_A'}{v_A-v_B}"></div><p>Velocity components along the line of impact. e = 1: elastic. e = 0: plastic (they stick).</p></div>
+      <div><h4>Oblique impact (smooth)</h4><p>Along n: momentum + e. Along t: each body keeps its own velocity component.</p></div>
+      <div><h4>Rigid bodies with a pin</h4><p>The pin exerts an impulse, so linear momentum is not conserved; angular momentum about the pin is. Apply e to the velocities of the contact points.</p></div>
+      <div><h4>Energy</h4><p>Kinetic energy is lost unless e = 1. Never use work–energy across an impact; use it before or after.</p></div>
     </div>
   </details>
   <div class="layout">
@@ -221,208 +220,155 @@ function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return 
 function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
 function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
 
-
-const K1="Fixed-Axis Rotation", K2="Relative Velocity & IC", K3="Relative Acceleration";
+const g0=9.81;
+const I1="Particle Impacts", I2="Rigid-Body Impacts";
 const ccw=(x)=> Math.abs(x)<1e-9 ? "" : (x>0 ? "CCW" : "CW");
 
 const PROBLEMS = [
 
-/* ================= FIXED AXIS ================= */
 {
-  id:"hook", topic:K1, name:"Gear & Hook", tag:"α(t), no slip",
-  kind:"Rotation about a fixed axis",
-  original:{ c:0.2, t:10, rA:50, rB:200, rD:100 },
-  randomize(){ return { c:pick(0.1,0.5,0.05), t:pick(4,12,1), rA:pick(30,80,10), rB:pick(150,300,25), rD:pick(60,140,10) }; },
-  solve(v){ const wA=v.c*v.t*v.t/2, wB=v.rA*wA/v.rB, vH=v.rD*wB; return {wA,wB,vH}; },
-  statement:(v)=>`Gear A (radius ${N(v.rA,"mm")}) drives gear B (radius ${N(v.rB,"mm")}). A drum of radius ${N(v.rD,"mm")} is welded to gear B, and the hook's rope winds onto the drum. Gear A starts from rest with angular acceleration α_A = ${N(v.c)}t rad/s² (t in seconds). Find the hook's speed at t = ${N(v.t,"s")}.`,
-  given:(v)=>[["α_A",`${fmt(v.c)}t rad/s², from rest`],["r_A, r_B",`${fmt(v.rA)} mm, ${fmt(v.rB)} mm`],["Drum r_D",`${fmt(v.rD)} mm (on gear B)`],["t",`${fmt(v.t)} s`]],
-  find:["ω_A at t","ω_B at t","Hook speed v_H"],
-  method:"Integrate α_A = dω_A/dt to get ω_A. No slip at the contact point P gives r_Aω_A = r_Bω_B. The drum is welded to B, so ω_D = ω_B and the rope speed is v_H = r_Dω_B.",
+  id:"direct", topic:I1, name:"Direct Central Impact", tag:"momentum + e",
+  kind:"Direct central impact",
+  original:{ mA:2, vA:6, mB:3, vB:-2, e:0.6 },
+  randomize(){ return resample(()=>({ mA:pick(0.5,5,0.5), vA:pick(2,10,0.5), mB:pick(0.5,5,0.5), vB:pick(-6,4,0.5), e:pick(0,1,0.1) }), v=>v.vA-v.vB>1); },
+  solve(v){ const M=v.mA+v.mB, P=v.mA*v.vA+v.mB*v.vB, rel=v.vA-v.vB, vA2=(P-v.mB*v.e*rel)/M, vB2=(P+v.mA*v.e*rel)/M, T1=0.5*v.mA*v.vA**2+0.5*v.mB*v.vB**2, T2=0.5*v.mA*vA2**2+0.5*v.mB*vB2**2, loss=(T1-T2)/T1*100; return {P,rel,vA2,vB2,T1,T2,loss}; },
+  statement:(v)=>`Two smooth blocks slide toward each other along the same straight line. A (${N(v.mA,"kg")}) moves at ${N(v.vA,"m/s")} and B (${N(v.mB,"kg")}) moves at ${N(v.vB,"m/s")} (positive to the right). The coefficient of restitution is e = ${N(v.e)}. Find both velocities after impact and the percentage of kinetic energy lost.`,
+  given:(v)=>[["m_A, v_A",`${fmt(v.mA)} kg, ${fmt(v.vA)} m/s`],["m_B, v_B",`${fmt(v.mB)} kg, ${fmt(v.vB)} m/s`],["e",`${fmt(v.e)}`]],
+  find:["v_A′","v_B′","% KE lost"],
+  method:"During the brief impact, the contact forces are internal, so linear momentum is conserved. That gives one equation; the coefficient of restitution gives the second: e = (v_B′ − v_A′)/(v_A − v_B).",
   answers:(v,r)=>[
-    {label:"ω_A", unit:"rad/s", val:r.wA},
-    {label:"ω_B", unit:"rad/s", val:r.wB},
-    {label:"Hook speed v_H", unit:"mm/s", val:r.vH}],
+    {label:"v_A′", unit:"m/s", val:r.vA2, scale:Math.max(Math.abs(r.vA2),Math.abs(r.vB2))},
+    {label:"v_B′", unit:"m/s", val:r.vB2, scale:Math.max(Math.abs(r.vA2),Math.abs(r.vB2))},
+    {label:"KE lost", unit:"%", val:r.loss, scale:1}],
   steps(v,r){ return [
-    {t:"Integrate α_A (starts from rest)", eq:T`\int_0^{t}${fmt(v.c)}t\,dt=\int_0^{\omega_A}d\omega_A\;\Rightarrow\;\omega_A=\frac{${fmt(v.c)}}{2}t^2=\frac{${fmt(v.c)}}{2}(${fmt(v.t)})^2=${fmt(r.wA)}\ \text{rad/s}`},
-    {t:"No slip at P", eq:T`r_A\omega_A=r_B\omega_B\;\Rightarrow\;\omega_B=\frac{${fmt(v.rA)}}{${fmt(v.rB)}}(${fmt(r.wA)})=${fmt(r.wB)}\ \text{rad/s}`},
-    {t:"Hook speed (drum turns with B)", eq:T`v_H=r_D\,\omega_B=${fmt(v.rD)}(${fmt(r.wB)})=${fmt(r.vH)}\ \text{mm/s}=${fmt(r.vH/1000)}\ \text{m/s}`}
+    {t:"Conservation of momentum", eq:T`${fmt(v.mA)}(${fmt(v.vA)})+${fmt(v.mB)}${P(v.vB)}=${fmt(v.mA)}v_A'+${fmt(v.mB)}v_B'\;\Rightarrow\;${fmt(v.mA)}v_A'+${fmt(v.mB)}v_B'=${fmt(r.P)}`},
+    {t:"Coefficient of restitution", eq:T`v_B'-v_A'=e(v_A-v_B)=${fmt(v.e)}(${fmt(r.rel)})=${fmt(v.e*r.rel)}`},
+    {t:"Solve the two equations", eq:T`v_A'=${fmt(r.vA2)}\ \text{m/s},\qquad v_B'=${fmt(r.vB2)}\ \text{m/s}`},
+    {t:"Energy check", eq:T`T_1=${fmt(r.T1)}\ \text{J},\quad T_2=${fmt(r.T2)}\ \text{J},\quad \text{lost}=\frac{T_1-T_2}{T_1}=${fmt(r.loss,3)}\%`}
   ];},
-  takeaway:(v,r)=>`Gear B turns ${fmt(v.rB/v.rA,3)} times slower than A because it is ${fmt(v.rB/v.rA,3)} times bigger. The contact point has the same speed on both gears.`,
-  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=v.t*1.2*i/60; pts.push([t, v.rD*v.rA/v.rB*v.c*t*t/2]);} return {xl:"t (s)", yl:"v_H (mm/s)", series:[{pts}], mark:[v.t,r.vH], cap:"Hook speed vs. time. It grows like t² because ω_A does."}; }
-},
-
-/* ================= VELOCITY ================= */
-{
-  id:"slidebar", topic:K2, name:"Sliding Bar", tag:"relative velocity & IC",
-  kind:"General plane motion: velocity",
-  original:{ L:10, vB:2, th:60 },
-  randomize(){ return { L:pick(2,12,1), vB:pick(0.5,5,0.5), th:pick(20,75,5) }; },
-  solve(v){ const th=v.th*D2R, w=v.vB/(v.L*Math.sin(th)), vA=-w*v.L*Math.cos(th); return {w,vA,yIC:v.L*Math.sin(th)}; },
-  statement:(v)=>`Bar AB (length ${N(v.L,"m")}) slides with end A on a vertical wall and end B on the floor. When the bar makes θ = ${N(v.th,"°")} with the floor, B moves to the right at ${N(v.vB,"m/s")}. Find the bar's angular velocity using (1) relative velocity and (2) the instantaneous center, and find the velocity of A.`,
-  given:(v)=>[["L",`${fmt(v.L)} m`],["θ (bar to floor)",`${fmt(v.th)}°`],["v_B",`${fmt(v.vB)} m/s →`],["Constraints","A moves vertically, B horizontally"]],
-  find:["ω_AB","v_A"],
-  method:"Method 1: v_A = v_B + ω × r_A/B, knowing v_A is vertical. Method 2: the instantaneous center is where lines perpendicular to v_A and v_B cross, directly above B at the height of A.",
-  answers:(v,r)=>[
-    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w},
-    {label:"v_A (up +)", unit:"m/s", val:r.vA}],
-  steps(v,r){ const c=`\\cos${fmt(v.th)}^\\circ`, s=`\\sin${fmt(v.th)}^\\circ`; return [
-    {t:"Method 1: relative velocity", eq:T`v_A\hat j=${fmt(v.vB)}\hat i+\omega\hat k\times(-${fmt(v.L)}${c}\,\hat i+${fmt(v.L)}${s}\,\hat j)=${fmt(v.vB)}\hat i-${fmt(v.L*Math.cos(v.th*D2R))}\omega\hat j-${fmt(v.L*Math.sin(v.th*D2R))}\omega\hat i`},
-    {t:"î component (v_A has no x part)", eq:T`0=${fmt(v.vB)}-${fmt(r.yIC)}\,\omega\;\Rightarrow\;\omega=${fmt(r.w)}\ \text{rad/s (CCW)}`},
-    {t:"ĵ component gives v_A", eq:T`v_A=-${fmt(v.L*Math.cos(v.th*D2R))}(${fmt(r.w)})=${fmt(r.vA)}\ \text{m/s (down)}`},
-    {t:"Method 2: instantaneous center", eq:T`\vec v_B=\omega\hat k\times\vec r_{B/IC}=\omega\hat k\times(-${fmt(r.yIC)}\,\hat j)=${fmt(r.yIC)}\,\omega\,\hat i\;\Rightarrow\;\omega=\frac{${fmt(v.vB)}}{${fmt(r.yIC)}}=${fmt(r.w)}\ \text{rad/s}\ \checkmark`}
-  ];},
-  takeaway:"Both methods give the same ω. The IC method is faster once you can find the IC; relative velocity works every time.",
-  plot(v,r){ const th=v.th*D2R, Bx=v.L*Math.cos(th), Ay=v.L*Math.sin(th); return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,Ay],[Bx,0]]},{pts:[[0,Ay],[Bx,Ay],[Bx,0]],alt:true}], mark:[Bx,Ay], equal:true, cap:"The bar to scale. Orange lines are perpendicular to v_A and v_B; they meet at the instantaneous center (dot)."}; }
+  takeaway:"e = 1 is perfectly elastic (no energy lost); e = 0 is perfectly plastic (the blocks move together). Momentum is conserved either way; kinetic energy is not.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=40;i++){const e=i/40, a=(r.P-v.mB*e*r.rel)/(v.mA+v.mB), b=(r.P+v.mA*e*r.rel)/(v.mA+v.mB); pts.push([e,0.5*v.mA*a*a+0.5*v.mB*b*b]);} return {xl:"e", yl:"KE after (J)", series:[{pts}], mark:[v.e,r.T2], cap:"Kinetic energy after impact vs. coefficient of restitution. The dot is the given e."}; }
 },
 
 {
-  id:"rack", topic:K2, name:"Linkage Driving a Rack", tag:"4 bodies, v_R",
-  kind:"General plane motion: velocity",
-  original:{ w:10, bx:6, by:12, cx:16, cy:2, rD:6 },
-  randomize(){ return { w:pick(5,15,1), bx:pick(4,8,1), by:pick(10,14,1), cx:pick(12,18,1), cy:pick(1,4,1), rD:pick(4,8,1) }; },
-  solve(v){ const w=-v.w, vBx=-w*v.by, vBy=w*v.bx, rx=v.cx, ry=-v.cy, dx=-6, dy=10;
-    // vC = vB + wBC(-ry, rx) = wCD(-dy, dx)
-    const A=[[-ry, dy],[rx, -dx]], b=[-vBx, -vBy]; const det=A[0][0]*A[1][1]-A[0][1]*A[1][0]; const wBC=(b[0]*A[1][1]-A[0][1]*b[1])/det, wCD=(A[0][0]*b[1]-b[0]*A[1][0])/det;
-    return {vBx,vBy,wBC,wCD,vR:v.rD*wCD}; },
-  statement:(v)=>`Crank AB rotates clockwise at ${N(v.w,"rad/s")} about A. Relative to A, pin B is at (${N(v.bx)}, ${N(v.by)}) in. Link BC runs ${N(v.cx,"in")} to the right and ${N(v.cy,"in")} down to C. Bar CD connects C to the center D of a gear, 6 in right of and 10 in below C; CD and the gear turn together about D. The gear (radius ${N(v.rD,"in")}) drives a vertical rack at its rightmost point P without slipping. Find ω_BC, ω_CD, and the rack velocity.`,
-  given:(v)=>[["ω_AB",`${fmt(v.w)} rad/s CW`],["r_B/A",`(${fmt(v.bx)}, ${fmt(v.by)}) in`],["r_C/B",`(${fmt(v.cx)}, −${fmt(v.cy)}) in`],["r_C/D","(−6, 10) in"],["Gear radius",`${fmt(v.rD)} in`]],
-  find:["ω_BC","ω_CD","v_R (up +)"],
-  method:"AB and CD rotate about fixed pins; BC is in general plane motion. Write v_C two ways, v_C = v_B + ω_BC × r_C/B and v_C = ω_CD × r_C/D, and match components. The rack moves with the gear's contact point: v_R = r_D ω_CD.",
+  id:"bounce", topic:I1, name:"Bouncing Ball", tag:"e from heights",
+  kind:"Impact with a fixed surface",
+  original:{ h0:2, h1:1.28 },
+  randomize(){ const h0=pick(1,4,0.25); return { h0, h1:+(h0*pick(0.2,0.8,0.05)).toFixed(3) }; },
+  solve(v){ const e=Math.sqrt(v.h1/v.h0), v1=Math.sqrt(2*g0*v.h0), h3=v.h0*Math.pow(e,6); return {e,v1,h3}; },
+  statement:(v)=>`A ball dropped from rest at a height of ${N(v.h0,"m")} bounces back up to ${N(v.h1,"m")}. Find the coefficient of restitution between the ball and the floor, the ball's speed just before the first impact, and the height it reaches after the third bounce.`,
+  given:(v)=>[["Drop height h₀",`${fmt(v.h0)} m`],["First rebound h₁",`${fmt(v.h1)} m`],["Floor","fixed (v = 0 before and after)"]],
+  find:["e","Speed before first impact","Height after 3rd bounce"],
+  method:"Use energy (or v² = 2gh) to relate each height to a speed. The floor doesn't move, so e = (rebound speed)/(impact speed) = √(h₁/h₀).",
   answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
-    {label:"v_R (up +)", unit:"in/s", val:r.vR}],
+    {label:"e", unit:"", val:r.e},
+    {label:"Speed before 1st impact", unit:"m/s", val:r.v1},
+    {label:"Height after 3rd bounce", unit:"m", val:r.h3}],
   steps(v,r){ return [
-    {t:"AB (clockwise, so ω = −k̂)", eq:T`\vec v_B=-${fmt(v.w)}\hat k\times(${fmt(v.bx)}\hat i+${fmt(v.by)}\hat j)=${fmt(r.vBx)}\,\hat i${sgn(r.vBy)}\,\hat j\ \text{in/s}`},
-    {t:"BC: v_C from B", eq:T`\vec v_C=\vec v_B+\omega_{BC}\hat k\times(${fmt(v.cx)}\hat i-${fmt(v.cy)}\hat j)=(${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC})\hat i+(${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC})\hat j\quad(1)`,
-      note:"Use r_C/B, the vector from B to C."},
-    {t:"CD: v_C from D", eq:T`\vec v_C=\omega_{CD}\hat k\times(-6\hat i+10\hat j)=-10\omega_{CD}\,\hat i-6\omega_{CD}\,\hat j\quad(2)`},
-    {t:"Match components of (1) and (2)", eq:T`${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC}=-10\omega_{CD},\qquad ${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC}=-6\omega_{CD}`},
-    {t:"Solve", eq:T`\omega_{BC}=${fmt(r.wBC)}\ \text{rad/s},\qquad \omega_{CD}=${fmt(r.wCD)}\ \text{rad/s}`},
-    {t:"Rack velocity (no slip at P)", eq:T`\vec v_R=\vec v_P=\omega_{CD}\hat k\times ${fmt(v.rD)}\hat i=${fmt(r.vR)}\,\hat j\ \text{in/s}`}
+    {t:"Speeds from heights", eq:T`v_1=\sqrt{2gh_0}=\sqrt{2(9.81)(${fmt(v.h0)})}=${fmt(r.v1)}\ \text{m/s},\qquad v_1'=\sqrt{2gh_1}`},
+    {t:"Coefficient of restitution", eq:T`e=\frac{v_1'}{v_1}=\sqrt{\frac{h_1}{h_0}}=\sqrt{\frac{${fmt(v.h1)}}{${fmt(v.h0)}}}=${fmt(r.e)}`},
+    {t:"Each bounce multiplies the height by e²", eq:T`h_n=h_0e^{2n}\;\Rightarrow\;h_3=${fmt(v.h0)}(${fmt(r.e)})^6=${fmt(r.h3)}\ \text{m}`}
   ];},
-  takeaway:(v,r)=>`BC turns ${ccw(r.wBC)}, the gear turns ${ccw(r.wCD)}, and the rack moves ${r.vR<0?"down":"up"} at ${fmt(Math.abs(r.vR),3)} in/s (${fmt(Math.abs(r.vR)/12,3)} ft/s).`,
-  plot(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], D=[C[0]+6,C[1]-10]; const g=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; g.push([D[0]+v.rD*Math.cos(a), D[1]+v.rD*Math.sin(a)]);} return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:[C,D],alt:true},{pts:g},{pts:[[D[0]+v.rD,D[1]-12],[D[0]+v.rD,D[1]+12]],alt:true}], mark:[D[0]+v.rD,D[1]], mark2:[0,0], equal:true, cap:"Mechanism to scale: AB, CD and the rack (orange), BC and the gear (blue). The blue dot is the contact point P."}; }
-},
-
-/* ================= ACCELERATION ================= */
-{
-  id:"fourbar", topic:K3, name:"Four-Bar Linkage", tag:"α_BC, α_CD",
-  kind:"General plane motion: acceleration",
-  original:{ w:10, a:-300, h:2, b:2, c:2 },
-  randomize(){ return { w:pick(4,15,1), a:pick(-400,400,50), h:pick(1,3,0.5), b:pick(1,3,0.5), c:pick(1,3,0.5) }; },
-  solve(v){ const w3=v.w, w2=-v.w*v.c/v.b, a3=(v.a*v.h + w2*w2*v.b + v.w*v.w*v.c)/v.h, a2=-a3*v.c/v.b; return {w2,w3,a2,a3,aBx:-v.a*v.h,aBy:-v.w*v.w*v.h}; },
-  statement:(v)=>`In a four-bar linkage, crank AB (${N(v.h,"ft")}, vertical) rotates about A with ω_AB = ${N(v.w,"rad/s")} CCW and α_AB = ${N(v.a,"rad/s²")} (CCW positive). Link BC (${N(v.b,"ft")}) is horizontal. Bar CD connects C to the fixed pin D, which is at A's level, ${N(v.c,"ft")} to the right of C. Find the angular velocities and angular accelerations of BC and CD.`,
-  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["AB (vertical)",`${fmt(v.h)} ft`],["BC (horizontal)",`${fmt(v.b)} ft`],["r_C/D",`(−${fmt(v.c)}, ${fmt(v.h)}) ft`]],
-  find:["ω_BC, ω_CD","α_BC","α_CD"],
-  method:"Velocities first, then accelerations. Write v_C and a_C two ways, through B (bar BC) and from D (bar CD), and match the î and ĵ components each time.",
-  answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.w2},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.w3},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.a2},
-    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.a3}],
-  steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times ${fmt(v.h)}\hat j=-${fmt(v.w*v.h)}\,\hat i`},
-    {t:"v_C two ways", eq:T`-${fmt(v.w*v.h)}\hat i+${fmt(v.b)}\omega_{BC}\hat j=\omega_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=-${fmt(v.h)}\omega_{CD}\hat i-${fmt(v.c)}\omega_{CD}\hat j`},
-    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.w3)},\qquad \omega_{BC}=-\frac{${fmt(v.c)}}{${fmt(v.b)}}\omega_{CD}=${fmt(r.w2)}\ \text{rad/s}`},
-    {t:"Acceleration of B", eq:T`\vec a_B=\alpha_{AB}\hat k\times\vec r_{B/A}-\omega_{AB}^2\vec r_{B/A}=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j\ \text{ft/s}^2`},
-    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times ${fmt(v.b)}\hat i-\omega_{BC}^2(${fmt(v.b)}\hat i)=(${fmt(r.aBx)}-${fmt(r.w2*r.w2*v.b)})\hat i+(${fmt(r.aBy)}+${fmt(v.b)}\alpha_{BC})\hat j`},
-    {t:"a_C from D", eq:T`\vec a_C=\alpha_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)-\omega_{CD}^2(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=(-${fmt(v.h)}\alpha_{CD}+${fmt(r.w3*r.w3*v.c)})\hat i+(-${fmt(v.c)}\alpha_{CD}-${fmt(r.w3*r.w3*v.h)})\hat j`},
-    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.a3)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.a2)}\ \text{rad/s}^2`}
-  ];},
-  takeaway:(v,r)=>`α_BC is ${ccw(r.a2)} and α_CD is ${ccw(r.a3)}. Always solve the velocities first: the ω² terms in the acceleration equations need them.`,
-  plot(v,r){ return {xl:"x (ft)", yl:"y (ft)", series:[{pts:[[0,0],[0,v.h]],alt:true},{pts:[[0,v.h],[v.b,v.h]]},{pts:[[v.b,v.h],[v.b+v.c,0]],alt:true}], mark:[v.b+v.c,0], mark2:[0,0], equal:true, cap:"The linkage to scale: AB and CD (orange), BC (blue). Fixed pins at A and D."}; }
+  takeaway:"e can be measured without timing anything: just compare drop and rebound heights. Each bounce keeps a fraction e² of the height.",
+  plot(v,r){ const pts=[]; let t=0; const g=g0; let vv=r.v1; pts.push([0,v.h0]); const tf=Math.sqrt(2*v.h0/g); for(let i=1;i<=20;i++){const s=tf*i/20; pts.push([s, v.h0-0.5*g*s*s]);} t=tf; for(let b=1;b<=3;b++){vv=vv*r.e; const T2=2*vv/g; for(let i=1;i<=30;i++){const s=T2*i/30; pts.push([t+s, vv*s-0.5*g*s*s]);} t+=T2;} return {xl:"t (s)", yl:"height (m)", series:[{pts}], mark:[t-2*vv/g+vv/g, r.h3], cap:"Height vs. time for the first three bounces. The dot is the top of the third rebound."}; }
 },
 
 {
-  id:"flywheel", topic:K3, name:"Flywheel Linkage", tag:"3 bodies",
-  kind:"General plane motion: acceleration",
-  original:{ R:0.3, w0:6, L:1.5, l:0.6, th:60 },
-  randomize(){ return { R:pick(0.2,0.5,0.05), w0:pick(3,10,1), L:pick(1,2,0.25), l:pick(0.4,0.8,0.1), th:pick(40,75,5) }; },
-  solve(v){ const th=v.th*D2R, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th), w=-v.w0, vB=w*v.R; // vB = w k x (0,-R) = (wR, 0)
-    const wCD=vB/(-cy), wBC=wCD*cx/v.L;
-    const aB=v.w0*v.w0*v.R; // +j
-    const aCD=(v.L*wBC*wBC - wCD*wCD*cx)/cy;  // i: -L wBC^2 = -cy aCD - wCD^2 cx
-    const aBC=(cx*aCD - wCD*wCD*cy - aB)/v.L;
-    return {cx,cy,vB,wCD,wBC,aB,aCD,aBC}; },
-  statement:(v)=>`A flywheel of radius ${N(v.R,"m")} turns clockwise at a constant ${N(v.w0,"rad/s")}. Link BC (${N(v.L,"m")}) is pinned to the flywheel at its lowest point B and is horizontal at this instant. Bar CD (${N(v.l,"m")}) is pinned to the ground at D and makes ${N(v.th,"°")} with the horizontal, with C up and to the right of D. Find the angular velocities and angular accelerations of BC and CD.`,
-  given:(v)=>[["Flywheel",`r = ${fmt(v.R)} m, ${fmt(v.w0)} rad/s CW, α = 0`],["BC",`${fmt(v.L)} m, horizontal`],["CD",`${fmt(v.l)} m at ${fmt(v.th)}°`],["r_B/O",`(0, −${fmt(v.R)}) m`]],
-  find:["ω_BC, ω_CD","α_BC","α_CD"],
-  method:"OB and CD rotate about fixed points; BC is in general plane motion. Match v_C from B and from D to get ω's, then match a_C from B and from D to get α's.",
+  id:"oblique", topic:I1, name:"Oblique Impact of Two Pucks", tag:"n and t directions",
+  kind:"Oblique central impact",
+  original:{ mA:0.2, vA:5, th:30, mB:0.3, e:0.8 },
+  randomize(){ return { mA:pick(0.1,0.5,0.05), vA:pick(2,10,0.5), th:pick(10,70,5), mB:pick(0.1,0.5,0.05), e:pick(0.3,1,0.1) }; },
+  solve(v){ const th=v.th*D2R, vn=v.vA*Math.cos(th), vt=v.vA*Math.sin(th), M=v.mA+v.mB, vAn=(v.mA-v.e*v.mB)*vn/M, vBn=v.mA*(1+v.e)*vn/M, sA=Math.hypot(vAn,vt), angA=Math.atan2(vt,vAn)/D2R; return {vn,vt,vAn,vBn,sA,angA}; },
+  statement:(v)=>`Puck A (${N(v.mA,"kg")}) slides at ${N(v.vA,"m/s")} and strikes puck B (${N(v.mB,"kg")}), which is at rest. At impact, A's velocity makes ${N(v.th,"°")} with the line of impact n (the line through both centers). The pucks and ice are smooth, and e = ${N(v.e)}. Find each puck's velocity after impact.`,
+  given:(v)=>[["m_A, v_A",`${fmt(v.mA)} kg, ${fmt(v.vA)} m/s`],["Angle to line of impact",`${fmt(v.th)}°`],["m_B","at rest, " + fmt(v.mB) + " kg"],["e",`${fmt(v.e)}`],["Surfaces","smooth"]],
+  find:["A's speed and direction after","B's speed after"],
+  method:"Split each velocity into components along the line of impact (n) and perpendicular to it (t). Smooth surfaces push only along n, so each puck's t component is unchanged. Along n, it's a direct central impact: conserve momentum and apply e.",
   answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
-    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.aCD}],
+    {label:"A: n component", unit:"m/s", val:r.vAn, scale:r.sA},
+    {label:"A: speed after", unit:"m/s", val:r.sA},
+    {label:"A: angle from n", unit:"°", val:r.angA},
+    {label:"B: speed after (along n)", unit:"m/s", val:r.vBn}],
   steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=-${fmt(v.w0)}\hat k\times(-${fmt(v.R)}\hat j)=${fmt(r.vB)}\,\hat i\ \text{m/s}`},
-    {t:"v_C two ways", eq:T`${fmt(r.vB)}\hat i+\omega_{BC}\hat k\times ${fmt(v.L)}\hat i=\omega_{CD}\hat k\times(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)\;\Rightarrow\;${fmt(r.vB)}\hat i+${fmt(v.L)}\omega_{BC}\hat j=-${fmt(r.cy)}\omega_{CD}\hat i+${fmt(r.cx)}\omega_{CD}\hat j`,
-      note:"k̂ × î = +ĵ, so the BC term is +Lω_BC ĵ."},
-    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.wCD)}\ (${ccw(r.wCD)}),\qquad \omega_{BC}=${fmt(r.wBC)}\ (${ccw(r.wBC)})\ \text{rad/s}`},
-    {t:"Acceleration of B (constant ω)", eq:T`\vec a_B=-\omega_0^2\vec r_{B/O}=${fmt(r.aB)}\,\hat j\ \text{m/s}^2`},
-    {t:"a_C two ways", eq:T`${fmt(r.aB)}\hat j+${fmt(v.L)}\alpha_{BC}\hat j-${fmt(r.wBC*r.wBC*v.L)}\hat i=\alpha_{CD}(-${fmt(r.cy)}\hat i+${fmt(r.cx)}\hat j)-${fmt(r.wCD*r.wCD)}(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)`},
-    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.aCD)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.aBC)}\ \text{rad/s}^2`}
+    {t:"Components before impact", eq:T`v_{An}=${fmt(v.vA)}\cos${fmt(v.th)}^\circ=${fmt(r.vn)},\qquad v_{At}=${fmt(v.vA)}\sin${fmt(v.th)}^\circ=${fmt(r.vt)}\ \text{m/s}`},
+    {t:"t direction: no force, no change", eq:T`v_{At}'=${fmt(r.vt)}\ \text{m/s},\qquad v_{Bt}'=0`},
+    {t:"n direction: momentum and restitution", eq:T`${fmt(v.mA)}(${fmt(r.vn)})=${fmt(v.mA)}v_{An}'+${fmt(v.mB)}v_{Bn}',\qquad v_{Bn}'-v_{An}'=${fmt(v.e)}(${fmt(r.vn)})`},
+    {t:"Solve", eq:T`v_{An}'=${fmt(r.vAn)}\ \text{m/s},\qquad v_{Bn}'=${fmt(r.vBn)}\ \text{m/s}`},
+    {t:"A's final velocity", eq:T`|v_A'|=\sqrt{(${fmt(r.vAn)})^2+(${fmt(r.vt)})^2}=${fmt(r.sA)}\ \text{m/s},\qquad \beta=\tan^{-1}\frac{${fmt(r.vt)}}{${fmt(r.vAn)}}=${fmt(r.angA)}^\circ\ \text{from } n`}
   ];},
-  takeaway:(v,r)=>`CD turns ${ccw(r.wCD)} with α_CD ${ccw(r.aCD)}: ${Math.sign(r.wCD)!==Math.sign(r.aCD)?"opposite signs, so CD is slowing down":"same signs, so CD is speeding up"}. Even though the flywheel turns at constant speed, the links still have angular acceleration.`,
-  plot(v,r){ const O=[0,0], B=[0,-v.R], C=[v.L,-v.R], D=[C[0]-r.cx, C[1]-r.cy]; const f=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; f.push([v.R*Math.cos(a), v.R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:f,alt:true},{pts:[B,C]},{pts:[C,D],alt:true}], mark:D, mark2:O, equal:true, cap:"Flywheel and CD (orange), BC (blue), to scale. Orange dot: O; blue dot: D."}; }
+  takeaway:(v,r)=>`B always leaves along the line of impact because that's the only direction it was pushed.${r.vAn<0?" A's n component reversed, so A bounces back.":""}`,
+  plot(v,r){ const k=1; return {xl:"n (m/s)", yl:"t (m/s)", series:[{pts:[[0,0],[r.vn,r.vt]],alt:true},{pts:[[0,0],[r.vAn,r.vt]]},{pts:[[0,0],[r.vBn,0]]}], mark:[r.vAn,r.vt], mark2:[r.vn,r.vt], equal:true, cap:"Velocity vectors in n–t axes: A before (orange), A after (blue, dot), and B after (blue, along n)."}; }
 },
 
 {
-  id:"piston", topic:K3, name:"Linear Acceleration of a Piston", tag:"slider-crank",
-  kind:"General plane motion: acceleration",
-  original:{ w1:10, a1:5, p:3, q:4, L:13 },
-  randomize(){ return { w1:pick(5,15,1), a1:pick(-10,10,1), p:pick(2,5,1), q:pick(2,6,1), L:pick(10,18,1) }; },
-  solve(v){ const w=-v.w1, rx=Math.sqrt(v.L*v.L-v.q*v.q), ry=-v.q;
-    const vAx=-w*v.q, vAy=w*(-v.p); // w k x (-p, q) = w(-q, -p)
-    const w2=-vAy/rx; const vB=vAx - w2*ry;
-    const aAx=-v.a1*v.q - w*w*(-v.p), aAy=v.a1*(-v.p) - w*w*v.q;
-    const a2=-(aAy - w2*w2*ry)/rx; const aB=aAx - a2*ry - w2*w2*rx;
-    return {rx,ry,vAx,vAy,w2,vB,aAx,aAy,a2,aB}; },
-  statement:(v)=>`In a slider-crank, crank OA rotates about O with ω = ${N(v.w1,"rad/s")} clockwise and α = ${N(v.a1,"rad/s²")} (CCW positive). At the instant shown, A is at (−${N(v.p)}, ${N(v.q)}) in relative to O. Connecting rod AB is ${N(v.L,"in")} long, and piston B slides on the horizontal line through O. Find ω_AB, α_AB, and the piston's acceleration.`,
-  given:(v)=>[["ω_OA",`${fmt(v.w1)} rad/s CW`],["α_OA",`${fmt(v.a1)} rad/s² (CCW +)`],["r_A/O",`(−${fmt(v.p)}, ${fmt(v.q)}) in`],["AB",`${fmt(v.L)} in`],["B","moves horizontally"]],
-  find:["ω_AB","α_AB","a_B"],
-  method:"Get v_A and a_A from the crank. Then v_B = v_A + ω_AB × r_B/A and a_B = a_A + α_AB × r_B/A − ω_AB² r_B/A, using the fact that B only moves horizontally (the ĵ components are zero).",
+  id:"wall", topic:I1, name:"Ball Hits a Wall", tag:"only v_n changes",
+  kind:"Oblique impact with a fixed surface",
+  original:{ v:8, th:40, e:0.7 },
+  randomize(){ return { v:pick(3,20,1), th:pick(10,70,5), e:pick(0.3,0.95,0.05) }; },
+  solve(v){ const th=v.th*D2R, vn=v.v*Math.cos(th), vt=v.v*Math.sin(th), vn2=v.e*vn, s=Math.hypot(vn2,vt), b=Math.atan2(vt,vn2)/D2R; return {vn,vt,vn2,s,b,loss:(1-(s*s)/(v.v*v.v))*100}; },
+  statement:(v)=>`A ball hits a smooth, fixed wall at ${N(v.v,"m/s")}, at ${N(v.th,"°")} from the wall's normal. The coefficient of restitution is ${N(v.e)}. Find the ball's rebound speed, its rebound angle from the normal, and the percentage of kinetic energy lost.`,
+  given:(v)=>[["Speed",`${fmt(v.v)} m/s`],["Angle from normal",`${fmt(v.th)}°`],["e",`${fmt(v.e)}`],["Wall","smooth, fixed"]],
+  find:["Rebound speed","Rebound angle from normal","% KE lost"],
+  method:"A smooth wall pushes only along the normal, so the tangential component is unchanged. The wall doesn't move, so the normal component reverses and is scaled by e.",
   answers:(v,r)=>[
-    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w2},
-    {label:"α_AB (CCW +)", unit:"rad/s²", val:r.a2},
-    {label:"a_B (right +)", unit:"in/s²", val:r.aB}],
+    {label:"Rebound speed", unit:"m/s", val:r.s},
+    {label:"Rebound angle", unit:"°", val:r.b},
+    {label:"KE lost", unit:"%", val:r.loss, scale:1}],
   steps(v,r){ return [
-    {t:"Geometry of AB", eq:T`\vec r_{B/A}=\sqrt{${fmt(v.L)}^2-${fmt(v.q)}^2}\,\hat i-${fmt(v.q)}\hat j=${fmt(r.rx)}\,\hat i-${fmt(v.q)}\,\hat j\ \text{in}`},
-    {t:"Crank: v_A and a_A (ω = −k̂ for CW)", eq:T`\vec v_A=${fmt(r.vAx)}\hat i${sgn(r.vAy)}\hat j,\qquad \vec a_A=\alpha\hat k\times\vec r_{A/O}-\omega^2\vec r_{A/O}=${fmt(r.aAx)}\hat i${sgn(r.aAy)}\hat j\ \text{in/s}^2`},
-    {t:"Velocity: ĵ component of v_B is zero", eq:T`0=${fmt(r.vAy)}+${fmt(r.rx)}\,\omega_{AB}\;\Rightarrow\;\omega_{AB}=${fmt(r.w2)}\ \text{rad/s}`},
-    {t:"Acceleration: ĵ component of a_B is zero", eq:T`0=${fmt(r.aAy)}+${fmt(r.rx)}\alpha_{AB}+${fmt(r.w2*r.w2*v.q)}\;\Rightarrow\;\alpha_{AB}=${fmt(r.a2)}\ \text{rad/s}^2`},
-    {t:"î component gives the piston's acceleration", eq:T`a_B=${fmt(r.aAx)}+${fmt(v.q)}\alpha_{AB}-${fmt(r.w2*r.w2)}(${fmt(r.rx)})=${fmt(r.aB)}\ \text{in/s}^2`}
+    {t:"Components", eq:T`v_n=${fmt(v.v)}\cos${fmt(v.th)}^\circ=${fmt(r.vn)},\qquad v_t=${fmt(v.v)}\sin${fmt(v.th)}^\circ=${fmt(r.vt)}\ \text{m/s}`},
+    {t:"After impact", eq:T`v_n'=e\,v_n=${fmt(r.vn2)}\ \text{(reversed)},\qquad v_t'=v_t=${fmt(r.vt)}\ \text{m/s}`},
+    {t:"Rebound speed and angle", eq:T`v'=\sqrt{${fmt(r.vn2)}^2+${fmt(r.vt)}^2}=${fmt(r.s)}\ \text{m/s},\qquad \beta=\tan^{-1}\frac{${fmt(r.vt)}}{${fmt(r.vn2)}}=${fmt(r.b)}^\circ`},
+    {t:"Energy lost", eq:T`1-\frac{v'^2}{v^2}=${fmt(r.loss,3)}\%`}
   ];},
-  takeaway:"Keep √(L² − q²) unrounded (not 12.4): the small difference changes a_B in the third significant figure.",
-  plot(v,r){ const A=[-v.p,v.q], B=[-v.p+r.rx,0]; return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],A],alt:true},{pts:[A,B]},{pts:[[B[0]-1.5,0],[B[0]+1.5,0]],alt:true}], mark:B, mark2:[0,0], equal:true, cap:"Slider-crank to scale: crank OA (orange), rod AB (blue), piston at B (blue dot)."}; }
+  takeaway:"With e < 1 the ball leaves at a larger angle from the normal than it arrived (it comes off flatter), because only the normal component is reduced.",
+  plot(v,r){ return {xl:"x (m/s, along the wall)", yl:"y (m/s, normal)", series:[{pts:[[-r.vt,r.vn],[0,0]],alt:true},{pts:[[0,0],[r.vt,r.vn2]]},{pts:[[-r.vt*1.2,0],[r.vt*1.2,0]]}], mark:[r.vt,r.vn2], equal:true, cap:"Incoming velocity (orange) and rebound (blue) at the wall (horizontal line)."}; }
 },
 
 {
-  id:"diskroll", topic:K3, name:"Disk Rolling on a Curved Surface", tag:"IC ≠ zero acceleration",
-  kind:"General plane motion: acceleration",
-  original:{ w:10, a:20, r:1 },
-  randomize(){ return { w:pick(4,15,1), a:pick(-40,40,5), r:pick(0.5,1.5,0.25) }; },
-  solve(v){ const vBx=2*v.w, vBy=v.w, wBC=-v.w/3, wd=-vBx/v.r; const aBx=2*v.a-v.w*v.w, aBy=v.a+2*v.w*v.w; const aCx=aBx-3*wBC*wBC, an=vBx*vBx/2; const aBC=(an-aBy)/3, ad=-aCx/v.r; return {vBx,vBy,wBC,wd,aBx,aBy,aCx,an,aBC,ad}; },
-  statement:(v)=>`Bar AB rotates about A at ${N(v.w,"rad/s")} CCW with angular acceleration ${N(v.a,"rad/s²")} (CCW positive). B is 1 m right of and 2 m below A. Bar BC (3 m) is horizontal and pinned to the center C of a disk of radius ${N(v.r,"m")}, which rolls without slipping inside a circular surface. C moves on a circle of radius 2 m and is at the bottom of that circle at this instant. Find the angular velocities and angular accelerations of BC and the disk.`,
-  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["r_B/A","(1, −2) m"],["BC","3 m, horizontal"],["Disk radius",`${fmt(v.r)} m`],["Path of C","circle, ρ = 2 m, C at the bottom"]],
-  find:["ω_BC, ω_disk","α_BC","α_disk"],
-  method:"Velocities: the disk rolls, so its IC is the contact point, giving v_C = ω_disk × r_C/IC. Accelerations: the contact point is not an acceleration IC. Instead, C moves on a known circular path, so a_C = a_t ê_t + (v_C²/ρ) ê_n, with a_t = α_disk r.",
+  id:"ballbar", topic:I2, name:"Ball Strikes a Pinned Bar", tag:"H_O conserved + e",
+  kind:"Eccentric impact (rigid body)",
+  original:{ m:0.5, v:6, M:3, L:1.2, d:0.9, e:0.5 },
+  randomize(){ return resample(()=>{ const L=pick(0.6,2,0.1); return { m:pick(0.1,2,0.1), v:pick(2,12,0.5), M:pick(1,8,0.5), L, d:pick(0.3*L,L,0.05), e:pick(0,1,0.1) }; }, v=>v.d<=v.L+1e-9); },
+  solve(v){ const IO=v.M*v.L*v.L/3, w=v.m*v.v*v.d*(1+v.e)/(v.m*v.d*v.d+IO), v2=w*v.d-v.e*v.v, vG=w*v.L/2; return {IO,w,v2,vG}; },
+  statement:(v)=>`A slender bar (${N(v.M,"kg")}, ${N(v.L,"m")}) hangs at rest from a smooth pin O at its top. A ${N(v.m,"kg")} ball moving horizontally at ${N(v.v,"m/s")} strikes it ${N(v.d,"m")} below O. The coefficient of restitution is ${N(v.e)}. Find the bar's angular velocity and the ball's velocity just after impact, and the horizontal impulse the pin exerts.`,
+  given:(v)=>[["Bar",`${fmt(v.M)} kg, ${fmt(v.L)} m, pinned at top`],["Ball",`${fmt(v.m)} kg at ${fmt(v.v)} m/s`],["Impact point",`${fmt(v.d)} m below O`],["e",`${fmt(v.e)}`]],
+  find:["ω′ of the bar","Ball velocity v′","Pin impulse"],
+  method:"The pin exerts an unknown impulse, so linear momentum is not conserved. Angular momentum about O is, because the pin force has no moment about O. The second equation is e, written for the velocities of the contact points along the line of impact.",
   answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_disk (CCW +)", unit:"rad/s", val:r.wd},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
-    {label:"α_disk (CCW +)", unit:"rad/s²", val:r.ad}],
-  steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times(\hat i-2\hat j)=${fmt(r.vBx)}\,\hat i+${fmt(r.vBy)}\,\hat j\ \text{m/s}`},
-    {t:"v_C through B, and from the disk's IC", eq:T`\vec v_C=${fmt(r.vBx)}\hat i+(${fmt(r.vBy)}+3\omega_{BC})\hat j=\omega_{disk}\hat k\times ${fmt(v.r)}\hat j=-${fmt(v.r)}\omega_{disk}\,\hat i`},
-    {t:"Solve", eq:T`\omega_{BC}=-\frac{${fmt(r.vBy)}}{3}=${fmt(r.wBC)},\qquad \omega_{disk}=-\frac{${fmt(r.vBx)}}{${fmt(v.r)}}=${fmt(r.wd)}\ \text{rad/s}`},
-    {t:"Acceleration of B", eq:T`\vec a_B=${fmt(v.a)}\hat k\times(\hat i-2\hat j)-${fmt(v.w*v.w)}(\hat i-2\hat j)=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j`},
-    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times3\hat i-\omega_{BC}^2(3\hat i)=${fmt(r.aCx)}\,\hat i+(${fmt(r.aBy)}+3\alpha_{BC})\,\hat j`},
-    {t:"a_C from C's circular path", eq:T`\vec a_C=-\alpha_{disk}r\,\hat i+\frac{v_C^2}{\rho}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+\frac{${fmt(r.vBx)}^2}{2}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+${fmt(r.an)}\,\hat j`},
-    {t:"Match components", eq:T`\alpha_{disk}=-\frac{${fmt(r.aCx)}}{${fmt(v.r)}}=${fmt(r.ad)},\qquad \alpha_{BC}=\frac{${fmt(r.an)}-${fmt(r.aBy)}}{3}=${fmt(r.aBC)}\ \text{rad/s}^2`}
+    {label:"Bar ω′", unit:"rad/s", val:r.w},
+    {label:"Ball v′ (+ in original direction)", unit:"m/s", val:r.v2, scale:v.v},
+    {label:"Pin impulse (+ in ball's direction)", unit:"N·s", val:v.M*r.vG+v.m*r.v2-v.m*v.v, scale:v.m*v.v}],
+  steps(v,r){ const Jp=v.M*r.vG+v.m*r.v2-v.m*v.v; return [
+    {t:"Moment of inertia about the pin", eq:T`I_O=\tfrac13 ML^2=${fmt(r.IO)}\ \text{kg·m}^2`},
+    {t:"Angular momentum about O is conserved", eq:T`m v d=m v' d+I_O\omega'\;\Rightarrow\;${fmt(v.m*v.v*v.d)}=${fmt(v.m*v.d)}\,v'+${fmt(r.IO)}\,\omega'`},
+    {t:"Restitution at the contact point", eq:T`\omega' d-v'=e\,v\;\Rightarrow\;${fmt(v.d)}\omega'-v'=${fmt(v.e*v.v)}`},
+    {t:"Solve", eq:T`\omega'=\frac{mvd(1+e)}{md^2+I_O}=${fmt(r.w)}\ \text{rad/s},\qquad v'=${fmt(r.v2)}\ \text{m/s}`},
+    {t:"Pin impulse from linear momentum", eq:T`J_O=Mv_G'+mv'-mv=${fmt(v.M)}(${fmt(r.vG)})+${fmt(v.m)}(${fmt(r.v2)})-${fmt(v.m*v.v)}=${fmt(Jp)}\ \text{N·s}`}
   ];},
-  takeaway:(v,r)=>`The disk turns ${ccw(r.wd)}${Math.abs(r.ad)>1e-9?` and α_disk is ${ccw(r.ad)}, so it is ${Math.sign(r.ad)===Math.sign(r.wd)?"speeding up":"slowing down"}`:""}. The contact point has zero velocity but not zero acceleration, which is why the IC can't be used for accelerations.`,
-  plot(v,r){ const B=[1,-2], C=[4,-2]; const d=[],s=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; d.push([C[0]+v.r*Math.cos(a), C[1]+v.r*Math.sin(a)]);} const R=2+v.r; for(let i=0;i<=60;i++){const a=-Math.PI*0.95+Math.PI*0.6*i/60; s.push([4+R*Math.cos(a), R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:d},{pts:s,alt:true}], mark:[4,-2-v.r], mark2:[0,0], equal:true, cap:"To scale: AB (orange), BC and the disk (blue), the circular surface (orange). The blue dot is the contact point."}; }
+  takeaway:(v)=>`If the ball hits at the center of percussion, d = 2L/3 = ${fmt(2*v.L/3,3)} m, the pin impulse is zero. That's the "sweet spot" of a bat.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const d=v.L*i/60, w=v.m*v.v*d*(1+v.e)/(v.m*d*d+r.IO), v2=w*d-v.e*v.v; pts.push([d, v.M*w*v.L/2+v.m*v2-v.m*v.v]);} const J=v.M*r.vG+v.m*r.v2-v.m*v.v; return {xl:"impact distance d (m)", yl:"pin impulse (N·s)", series:[{pts}], mark:[v.d,J], cap:"Pin impulse vs. where the ball hits. It crosses zero at the center of percussion."}; }
+},
+
+{
+  id:"bullet", topic:I2, name:"Bullet into a Hanging Bar", tag:"e = 0, then energy",
+  kind:"Plastic impact + work–energy",
+  original:{ m:0.02, v:400, M:4, L:1, d:0.8 },
+  randomize(){ return resample(()=>{ const L=pick(0.5,1.5,0.1); return { m:pick(0.01,0.05,0.005), v:pick(200,600,25), M:pick(2,10,0.5), L, d:pick(0.4*L,L,0.05) }; }, v=>{const q=this.solve(v); return q.c>-1 && q.c<0.98;}); },
+  solve(v){ const IO=v.M*v.L*v.L/3, It=IO+v.m*v.d*v.d, w=v.m*v.v*v.d/It, T=0.5*It*w*w, W=v.M*g0*v.L/2+v.m*g0*v.d, c=1-T/W, th=Math.acos(Math.max(-1,Math.min(1,c)))/D2R; return {IO,It,w,T,W,c,th}; },
+  statement:(v)=>`A ${N(v.m,"kg")} bullet traveling horizontally at ${N(v.v,"m/s")} embeds in a ${N(v.M,"kg")} slender bar of length ${N(v.L,"m")} that hangs at rest from a pin at its top. The bullet hits ${N(v.d,"m")} below the pin. Find the bar's angular velocity just after impact and the maximum angle it swings to.`,
+  given:(v)=>[["Bullet",`${fmt(v.m)} kg at ${fmt(v.v)} m/s`],["Bar",`${fmt(v.M)} kg, ${fmt(v.L)} m, pinned at top`],["Impact point",`${fmt(v.d)} m below the pin`],["e","0 (bullet embeds)"]],
+  find:["ω′ just after impact","Maximum swing angle"],
+  method:"Two stages. (1) Impact: angular momentum about the pin is conserved (the pin has no moment). (2) Swing: work–energy, since the impact is over and gravity is the only force that does work. Don't use energy across the impact: it isn't conserved.",
+  answers:(v,r)=>[
+    {label:"ω′", unit:"rad/s", val:r.w},
+    {label:"Max swing angle", unit:"°", val:r.th}],
+  steps(v,r){ return [
+    {t:"Moment of inertia after impact", eq:T`I=\tfrac13 ML^2+md^2=${fmt(r.IO)}+${fmt(v.m*v.d*v.d)}=${fmt(r.It)}\ \text{kg·m}^2`},
+    {t:"Impact: H_O conserved", eq:T`mvd=I\omega'\;\Rightarrow\;\omega'=\frac{${fmt(v.m)}(${fmt(v.v)})(${fmt(v.d)})}{${fmt(r.It)}}=${fmt(r.w)}\ \text{rad/s}`},
+    {t:"Swing: work–energy", eq:T`\tfrac12 I\omega'^2=\Big(Mg\tfrac L2+mgd\Big)(1-\cos\theta)\;\Rightarrow\;${fmt(r.T)}=${fmt(r.W)}(1-\cos\theta)`},
+    {t:"Solve", eq:T`\cos\theta=1-\frac{${fmt(r.T)}}{${fmt(r.W)}}=${fmt(r.c)}\;\Rightarrow\;\theta=${fmt(r.th)}^\circ`}
+  ];},
+  takeaway:(v,r)=>`Only ${fmt(r.T/(0.5*v.m*v.v*v.v)*100,3)}% of the bullet's kinetic energy is left after it embeds; the rest goes into heat and deformation.`,
+  plot(v,r){ const t=r.th*D2R; return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],[0,-v.L]],alt:true},{pts:[[0,0],[v.L*Math.sin(t),-v.L*Math.cos(t)]]}], mark:[v.d*Math.sin(t),-v.d*Math.cos(t)], mark2:[0,-v.d], equal:true, cap:"The bar hanging (orange) and at its maximum swing (blue). Dots: where the bullet is."}; }
 }
 
 ];
@@ -490,20 +436,19 @@ const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm"))
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
 
 const DIAG = {
-hook(v,r){ const A=[70,70], rA=26, B=[70+rA+70,70], rB=70, rD=35;
-  return D.svg(D.circ(A[0],A[1],rA,"body2")+D.circ(B[0],B[1],rB,"body2")+D.circ(B[0],B[1],rD,"body")+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0],A[1]-rA-10,"A")+D.text(B[0]+rB*0.6,B[1]-rB*0.9,"B")+D.text(B[0]-8,B[1]+14,"D","end","tm")+D.line(B[0]+rD,B[1],B[0]+rD,190,"s")+D.path(`M${B[0]+rD-8},190 q0,14 8,14 q8,0 8,-8`,"s")+D.text(B[0]+rD+14,196,"hook","start")+D.dot(A[0]+rA,A[1],3.5,"dotf")+D.text(A[0]+rA+4,A[1]+14,"P","start","tf")+D.arcArrow(A[0],A[1],rA+10,200,270,"v","α_A")+LG(245,110,[[`α_A = ${nf(v.c)}t rad/s²`,"tv"],[`r_A = ${nf(v.rA)} mm`],[`r_B = ${nf(v.rB)} mm`],[`r_D = ${nf(v.rD)} mm`],[`find v_H at ${nf(v.t)} s`]])); },
-slidebar(v,r){ const th=v.th*RAD, Lp=150, W=[70,30], B=[W[0]+Lp*Math.cos(th), W[1]+Lp*Math.sin(th)+Math.max(0,(160-Lp*Math.sin(th)))], A=[W[0], B[1]-Lp*Math.sin(th)];
-  return D.svg(D.wall(W[0],10,B[1],-1)+D.ground(W[0],330,B[1])+D.line(A[0],A[1],B[0],B[1],"s")+D.bar(A[0],A[1],B[0],B[1],8)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0]+10,A[1]-6,"A","start")+D.text(B[0],B[1]+16,"B")+D.angle(B[0],B[1],32,180-v.th,180,`θ = ${nf(v.th)}°`)+D.arrow(B[0]+8,B[1]-10,B[0]+60,B[1]-10,"v",`v_B = ${nf(v.vB)} m/s`,B[0]+34,B[1]-24)+D.arrow(A[0]+14,A[1],A[0]+14,A[1]+38,"v","v_A = ?",A[0]+20,A[1]+30,"start")+D.text(W[0]+(B[0]-W[0])/2+20,(A[1]+B[1])/2-10,`L = ${nf(v.L)} m`,"start","tm")); },
-rack(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], Dd=[C[0]+6,C[1]-10], P=[Dd[0]+v.rD,Dd[1]]; const T=FIT([[0,0],B,C,[Dd[0]-v.rD,Dd[1]-v.rD],[P[0]+2,Dd[1]+v.rD]],[25,20,320,195]); const a=T([0,0]),b=T(B),c=T(C),d=T(Dd),p=T(P), rr=p[0]-d[0];
-  return D.svg(D.circ(d[0],d[1],rr,"body2")+D.bar(a[0],a[1],b[0],b[1],7)+D.bar(b[0],b[1],c[0],c[1],7)+D.bar(c[0],c[1],d[0],d[1],7)+D.pin(a[0],a[1])+D.pin(d[0],d[1])+D.pinj(b[0],b[1])+D.pinj(c[0],c[1])+D.rect(p[0],10,10,200,"body")+D.text(a[0]-10,a[1],"A","end")+D.text(b[0],b[1]-12,"B")+D.text(c[0]+4,c[1]-12,"C","start")+D.text(d[0]-10,d[1]-10,"D","end")+D.dot(p[0],p[1],3.5,"dotf")+D.text(p[0]+16,p[1],"P","start","tf")+D.arcArrow(a[0],a[1],28,80,10,"v","ω_AB","start")+D.arrow(p[0]+22,p[1]-40,p[0]+22,p[1]+10,"v","v_R?",p[0]+26,p[1]-46,"start")+D.text(20,14,`ω_AB = ${nf(v.w)} rad/s CW`,"start","tv")); },
-fourbar(v,r){ const T=FIT([[0,0],[0,v.h],[v.b,v.h],[v.b+v.c,0]],[60,50,300,165]); const A=T([0,0]),B=T([0,v.h]),C=T([v.b,v.h]),Dd=T([v.b+v.c,0]);
-  return D.svg(D.bar(A[0],A[1],B[0],B[1],8)+D.bar(B[0],B[1],C[0],C[1],8)+D.bar(C[0],C[1],Dd[0],Dd[1],8)+D.pin(A[0],A[1])+D.pin(Dd[0],Dd[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]-12,A[1],"A","end")+D.text(B[0]-10,B[1]-8,"B","end")+D.text(C[0]+8,C[1]-8,"C","start")+D.text(Dd[0]+12,Dd[1],"D","start")+D.arcArrow(A[0],A[1],30,20,80,"v")+D.text(20,16,`ω_AB = ${nf(v.w)} rad/s CCW`,"start","tv")+D.text(20,34,`α_AB = ${nf(v.a)} rad/s² (CCW +)`,"start","tf")+D.dim(A[0],Dd[1]+30,C[0],Dd[1]+30,`${nf(v.b)} ft`)+D.dim(C[0],Dd[1]+30,Dd[0],Dd[1]+30,`${nf(v.c)} ft`)+D.dim(A[0]-40,A[1],A[0]-40,B[1],`${nf(v.h)} ft`)); },
-flywheel(v,r){ const th=v.th*RAD, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th); const Cm=[v.L,-v.R], Dm=[v.L-cx,-v.R-cy]; const T=FIT([[-v.R,-v.R],[v.R,v.R],Cm,Dm],[30,20,300,180]); const O=T([0,0]),B=T([0,-v.R]),C=T(Cm),Dd=T(Dm), R=O[1]-T([0,v.R])[1];
-  return D.svg(D.circ(O[0],O[1],R,"body2")+D.pinj(O[0],O[1])+D.bar(B[0],B[1],C[0],C[1],7)+D.bar(C[0],C[1],Dd[0],Dd[1],7)+D.pin(Dd[0],Dd[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(O[0],O[1]-12,"O")+D.text(B[0]-6,B[1]+14,"B","end")+D.text(C[0]+10,C[1]-6,"C","start")+D.text(Dd[0]-12,Dd[1],"D","end")+D.arcArrow(O[0],O[1],R+10,130,50,"v",`${nf(v.w0)} rad/s CW`,"start")+D.angle(Dd[0],Dd[1],24,0,v.th,`${nf(v.th)}°`)+D.text(20,205,`r = ${nf(v.R)} m,  BC = ${nf(v.L)} m,  CD = ${nf(v.l)} m`,"start","tm")); },
-piston(v,r){ const A=[-v.p,v.q], Bm=[-v.p+r.rx,0]; const T=FIT([[-v.p,0],A,Bm,[0,-1.5],[Bm[0]+2,1.5]],[30,25,320,170]); const O=T([0,0]),a=T(A),b=T(Bm);
-  return D.svg(D.line(O[0]-20,O[1],335,O[1],"h")+D.rect(b[0]-16,b[1]-11,32,22,"body")+D.line(b[0]-40,b[1]-14,335,b[1]-14,"thin")+D.line(b[0]-40,b[1]+14,335,b[1]+14,"thin")+D.bar(O[0],O[1],a[0],a[1],7)+D.bar(a[0],a[1],b[0],b[1],7)+D.pin(O[0],O[1])+D.pinj(a[0],a[1])+D.pinj(b[0],b[1])+D.text(O[0]+2,O[1]+26,"O")+D.text(a[0]-8,a[1]-10,"A","end")+D.text(b[0],b[1]-24,"B")+D.arcArrow(O[0],O[1],26,60,-20,"v",`ω = ${nf(v.w1)} CW`,"start")+D.text(20,205,`r_A/O = (−${nf(v.p)}, ${nf(v.q)}) in,  AB = ${nf(v.L)} in,  α = ${nf(v.a1)}`,"start","tm")); },
-diskroll(v,r){ const T=FIT([[0,0],[1,-2],[4,-2],[4-(2+v.r),0],[4+(2+v.r)*0.9,-(2+v.r)*0.5],[4,-2-v.r]],[20,20,340,195]); const A=T([0,0]),B=T([1,-2]),C=T([4,-2]),Cn=T([4,0]), rr=C[0]-T([4-v.r,-2])[0], Rs=C[0]-T([4-(2+v.r),0])[0];
-  return D.svg(D.path(`M${Cn[0]-Rs*0.95},${Cn[1]+Rs*0.3} A${Rs},${Rs} 0 0 0 ${Cn[0]+Rs*0.8},${Cn[1]+Rs*0.6}`,"s")+D.dot(Cn[0],Cn[1],2)+D.circ(C[0],C[1],rr,"body2")+D.bar(A[0],A[1],B[0],B[1],7)+D.bar(B[0],B[1],C[0],C[1],7)+D.wall(A[0]-8,A[1]-25,A[1]+25,-1)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]+10,A[1]-10,"A","start")+D.text(B[0]-10,B[1],"B","end")+D.text(C[0]+8,C[1]-10,"C","start")+D.arcArrow(A[0],A[1],28,-80,-10,"v")+D.text(A[0]+40,A[1]+18,`ω = ${nf(v.w)} CCW, α = ${nf(v.a)}`,"start","tv")+D.text(20,205,`BC = 3 m, disk r = ${nf(v.r)} m, path of C: ρ = 2 m`,"start","tm")); }
+direct(v,r){ const y=120;
+  const ar=(x,vv,c)=>vv===0?D.text(x,y-34,"at rest","middle","tm"):D.arrow(x-(vv>0?20:-20),y-34,x+(vv>0?20:-20),y-34,c,`${nf(vv)} m/s`,x,y-50);
+  return D.svg(D.line(15,y+20,345,y+20,"s")+D.rect(80,y-14,60,34,"body")+D.text(110,y+3,"A")+D.rect(220,y-14,60,34,"body2")+D.text(250,y+3,"B")+ar(110,v.vA,"v")+ar(250,v.vB,"v")+D.text(110,y+38,`${nf(v.mA)} kg`,"middle","tm")+D.text(250,y+38,`${nf(v.mB)} kg`,"middle","tm")+LG(20,24,[[`e = ${nf(v.e)},  + to the right`]])); },
+bounce(v,r){ const g=195, s=160/v.h0, x=110;
+  return D.svg(D.ground(20,340,g)+D.circ(x,g-v.h0*s-8,8,"body")+D.path(`M${x},${g-v.h0*s} L${x},${g-8}`,"h")+D.arrow(x-16,g-v.h0*s+10,x-16,g-v.h0*s+50,"v","dropped",x-22,g-v.h0*s+30,"end")+D.dim(x-50,g-v.h0*s,x-50,g,`h₀ = ${nf(v.h0)} m`)+D.circ(x+110,g-v.h1*s-8,8,"h")+D.path(`M${x+4},${g-8} Q${x+55},${g-2*v.h1*s} ${x+110},${g-v.h1*s-8}`,"h")+D.dim(x+150,g-v.h1*s,x+150,g,`h₁ = ${nf(v.h1)} m`)); },
+oblique(v,r){ const B=[210,110], R=26, A=[B[0]-2*R,B[1]], th=v.th*RAD, dir=[Math.cos(th),Math.sin(th)];
+  return D.svg(D.line(40,B[1],330,B[1],"h")+D.text(330,B[1]-10,"n","end","tm")+D.circ(A[0],A[1],R,"body")+D.circ(B[0],B[1],R,"body2")+D.text(A[0],A[1],"A")+D.text(B[0],B[1],"B")+D.arrow(A[0]-dir[0]*110,A[1]+dir[1]*110,A[0]-dir[0]*R*1.05,A[1]+dir[1]*R*1.05,"v",`v_A = ${nf(v.vA)} m/s`,A[0]-dir[0]*110,A[1]+dir[1]*110+14,"middle")+D.angle(A[0],A[1],50,180,180+v.th,`${nf(v.th)}°`)+LG(220,160,[[`m_A = ${nf(v.mA)} kg`],[`m_B = ${nf(v.mB)} kg`],[`e = ${nf(v.e)}, smooth`]])); },
+wall(v,r){ const P=[260,110], th=v.th*RAD, L=120;
+  return D.svg(D.wall(P[0],15,205,1)+D.line(P[0]-150,P[1],P[0],P[1],"h")+D.text(P[0]-155,P[1],"normal","end","tm")+D.arrow(P[0]-L*Math.cos(th),P[1]-L*Math.sin(th),P[0]-8*Math.cos(th),P[1]-8*Math.sin(th),"v",`v = ${nf(v.v)} m/s`,P[0]-L*Math.cos(th)-4,P[1]-L*Math.sin(th)-10,"middle")+D.circ(P[0]-9,P[1],8,"body")+D.angle(P[0],P[1],44,180,180-v.th,`${nf(v.th)}°`)+D.arrow(P[0]-12,P[1]+8,P[0]-80,P[1]+60,"h","rebound?",P[0]-84,P[1]+70,"end")+LG(20,24,[[`e = ${nf(v.e)}, smooth wall`]])); },
+ballbar(v,r){ const O=[180,22], s=175/v.L, d=v.d*s;
+  return D.svg(D.rect(O[0]-30,O[1]-12,60,8,"body2")+D.bar(O[0],O[1],O[0],O[1]+v.L*s,10)+D.pinj(O[0],O[1])+D.text(O[0]+12,O[1]+4,"O","start")+D.circ(O[0]-50,O[1]+d,8,"body")+D.arrow(O[0]-120,O[1]+d,O[0]-62,O[1]+d,"v",`v = ${nf(v.v)} m/s`,O[0]-100,O[1]+d-16)+D.dim(O[0]+30,O[1],O[0]+30,O[1]+d,"")+D.text(O[0]+36,O[1]+d/2,`d = ${nf(v.d)} m`,"start","tm")+D.dim(O[0]+105,O[1],O[0]+105,O[1]+v.L*s,"")+D.text(O[0]+111,O[1]+v.L*s/2,`L = ${nf(v.L)} m`,"start","tm")+LG(12,200,[[`ball ${nf(v.m)} kg, bar ${nf(v.M)} kg, e = ${nf(v.e)}`]])); },
+bullet(v,r){ const O=[180,22], s=175/v.L, d=v.d*s;
+  return D.svg(D.rect(O[0]-30,O[1]-12,60,8,"body2")+D.bar(O[0],O[1],O[0],O[1]+v.L*s,10)+D.pinj(O[0],O[1])+D.text(O[0]+12,O[1]+4,"pin","start","tm")+D.rect(O[0]-60,O[1]+d-3,14,6,"body")+D.arrow(O[0]-130,O[1]+d,O[0]-66,O[1]+d,"v",`${nf(v.v)} m/s`,O[0]-100,O[1]+d-16)+D.dim(O[0]+30,O[1],O[0]+30,O[1]+d,"")+D.text(O[0]+36,O[1]+d/2,`d = ${nf(v.d)} m`,"start","tm")+D.path(`M${O[0]},${O[1]+v.L*s} A${v.L*s},${v.L*s} 0 0 0 ${O[0]+v.L*s*0.7},${O[1]+v.L*s*0.71}`,"h")+D.text(O[0]+v.L*s*0.55+14,O[1]+v.L*s*0.9,"θ_max?","start","tm")+LG(12,200,[[`bullet ${nf(v.m)} kg, bar ${nf(v.M)} kg, ${nf(v.L)} m; embeds`]])); }
 };
 
 /* SCHEMATICS-END */
@@ -522,7 +467,7 @@ function renderNav(){
 
 function select(id){
   state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
-  try{ localStorage.setItem("dpl-last-rigid-kinematics", id); }catch(e){}
+  try{ localStorage.setItem("dpl-last-impacts", id); }catch(e){}
   renderNav(); renderSheet(); window.scrollTo({top:0});
 }
 function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
@@ -630,7 +575,7 @@ function drawPlot(P){
 window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
-let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-rigid-kinematics"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-impacts"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

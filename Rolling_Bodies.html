@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rigid Body Kinematics · Dynamics Practice</title>
+<title>Rolling Bodies · Dynamics Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -169,18 +169,17 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 
 <div class="wrap">
   <header class="top">
-    <div><a class="back" href="./">&larr; All topics</a><h1>Rigid Body Kinematics</h1></div>
+    <div><a class="back" href="./">&larr; All topics</a><h1>Rolling Bodies</h1></div>
     <p>Every problem gets fresh numbers each time you press <b>New numbers</b>. Work it on paper, check your answer, then open the worked solution.</p>
   </header>
   <details class="concepts" id="concepts">
-    <summary>Key equations: rigid-body kinematics</summary>
+    <summary>Key equations: rolling bodies</summary>
     <div class="cgrid">
-      <div><h4>Fixed-axis rotation</h4><div class="ceq" data-tex="v=r\omega,\quad a_t=r\alpha,\quad a_n=r\omega^2,\quad \alpha=\frac{d\omega}{dt}=\omega\frac{d\omega}{d\theta}"></div><p>Gears in mesh: r_Aω_A = r_Bω_B (no slip).</p></div>
-      <div><h4>Relative velocity</h4><div class="ceq" data-tex="\vec v_B=\vec v_A+\vec\omega\times\vec r_{B/A}"></div><p>r_B/A points from A to B. For CW rotation, ω = −ω k̂.</p></div>
-      <div><h4>Instantaneous center</h4><p>Where lines perpendicular to two known velocity directions cross. v = ω r_IC for any point. A rolling wheel's IC is its contact point. <b>Use it for velocities only.</b></p></div>
-      <div><h4>Relative acceleration</h4><div class="ceq" data-tex="\vec a_B=\vec a_A+\vec\alpha\times\vec r_{B/A}-\omega^2\vec r_{B/A}"></div><p>Solve all velocities first; the ω² terms need them.</p></div>
-      <div><h4>Cross products</h4><div class="ceq" data-tex="\hat k\times\hat i=\hat j,\qquad \hat k\times\hat j=-\hat i"></div></div>
-      <div><h4>Rolling without slipping</h4><div class="ceq" data-tex="v_G=r\omega,\quad a_{G,t}=r\alpha"></div><p>On a curved path, the center also has a_n = v_G²/ρ.</p></div>
+      <div><h4>Rolling without slipping</h4><div class="ceq" data-tex="v_G=r\omega,\qquad a_G=r\alpha"></div><p>Friction is static and can be anything up to μ_s N. Check it at the end.</p></div>
+      <div><h4>Equations</h4><div class="ceq" data-tex="\sum F=ma_G,\qquad \sum M_G=I_G\alpha\quad\text{or}\quad\sum M_C=I_C\alpha"></div><p>Moments about the contact point C are allowed for rolling without slipping on a flat or straight surface.</p></div>
+      <div><h4>Energy</h4><div class="ceq" data-tex="T=\tfrac12 mv_G^2+\tfrac12I_G\omega^2"></div><p>Static friction at the contact does no work while rolling without slipping.</p></div>
+      <div><h4>Rolling with slipping</h4><p>Friction is kinetic, f = μ_k N, opposing sliding. v_G and ωr are independent until they become equal.</p></div>
+      <div><h4>Shape factor I_G/(mr²)</h4><p>Hoop 1, shell ⅔, cylinder ½, sphere ⅖. Smaller factor rolls faster.</p></div>
     </div>
   </details>
   <div class="layout">
@@ -221,208 +220,109 @@ function fx(x,s=4){ if(!big(x)) return fmt(x,s); const [m,e]=parts(x,s); return 
 function Ns(x,unit="",s=4){ return `<span class="num">${sci(x,s)}${unit?"&nbsp;"+unit:""}</span>`; }
 function resample(gen, ok){ for(let i=0;i<200;i++){ const v=gen(); if(ok(v)) return v; } return gen(); }
 
-
-const K1="Fixed-Axis Rotation", K2="Relative Velocity & IC", K3="Relative Acceleration";
-const ccw=(x)=> Math.abs(x)<1e-9 ? "" : (x>0 ? "CCW" : "CW");
+const g0=9.81;
+const SH=[{n:"solid cylinder",c:0.5,I:"\\tfrac12 mr^2"},{n:"thin hoop",c:1,I:"mr^2"},{n:"solid sphere",c:0.4,I:"\\tfrac25 mr^2"},{n:"thin spherical shell",c:2/3,I:"\\tfrac23 mr^2"}];
+const L1="Rolling without Slipping", L2="Rolling with Slipping";
 
 const PROBLEMS = [
 
-/* ================= FIXED AXIS ================= */
 {
-  id:"hook", topic:K1, name:"Gear & Hook", tag:"α(t), no slip",
-  kind:"Rotation about a fixed axis",
-  original:{ c:0.2, t:10, rA:50, rB:200, rD:100 },
-  randomize(){ return { c:pick(0.1,0.5,0.05), t:pick(4,12,1), rA:pick(30,80,10), rB:pick(150,300,25), rD:pick(60,140,10) }; },
-  solve(v){ const wA=v.c*v.t*v.t/2, wB=v.rA*wA/v.rB, vH=v.rD*wB; return {wA,wB,vH}; },
-  statement:(v)=>`Gear A (radius ${N(v.rA,"mm")}) drives gear B (radius ${N(v.rB,"mm")}). A drum of radius ${N(v.rD,"mm")} is welded to gear B, and the hook's rope winds onto the drum. Gear A starts from rest with angular acceleration α_A = ${N(v.c)}t rad/s² (t in seconds). Find the hook's speed at t = ${N(v.t,"s")}.`,
-  given:(v)=>[["α_A",`${fmt(v.c)}t rad/s², from rest`],["r_A, r_B",`${fmt(v.rA)} mm, ${fmt(v.rB)} mm`],["Drum r_D",`${fmt(v.rD)} mm (on gear B)`],["t",`${fmt(v.t)} s`]],
-  find:["ω_A at t","ω_B at t","Hook speed v_H"],
-  method:"Integrate α_A = dω_A/dt to get ω_A. No slip at the contact point P gives r_Aω_A = r_Bω_B. The drum is welded to B, so ω_D = ω_B and the rope speed is v_H = r_Dω_B.",
+  id:"incline", topic:L1, name:"Rolling Down an Incline", tag:"ΣF, ΣM_G, a = αr",
+  kind:"Rigid-body kinetics: rolling",
+  original:{ s:0, m:4, r:0.15, th:30 },
+  randomize(){ return { s:Math.floor(Math.random()*4), m:pick(1,20,1), r:pick(0.05,0.5,0.05), th:pick(10,40,5) }; },
+  solve(v){ const c=SH[v.s].c, th=v.th*D2R, a=g0*Math.sin(th)/(1+c), f=v.m*g0*Math.sin(th)*c/(1+c), N=v.m*g0*Math.cos(th), mu=f/N, al=a/v.r; return {c,a,f,N,mu,al}; },
+  statement:(v)=>`A uniform ${SH[v.s].n} (${N(v.m,"kg")}, radius ${N(v.r,"m")}) is released on a ${N(v.th,"°")} incline and rolls without slipping. Find its acceleration, the friction force, and the minimum coefficient of static friction needed to prevent slipping.`,
+  given:(v)=>[["Shape",SH[v.s].n+" (I_G = "+["½mr²","mr²","⅖mr²","⅔mr²"][v.s]+")"],["m, r",`${fmt(v.m)} kg, ${fmt(v.r)} m`],["θ",`${fmt(v.th)}°`],["Condition","rolls without slipping"]],
+  find:["a_G","Friction f","μ_s, min"],
+  method:"Three unknowns (a_G, α, f) and three equations: ΣF along the incline, ΣM_G = I_Gα, and the rolling condition a_G = αr. Friction is static and is whatever is needed, up to μ_s N.",
   answers:(v,r)=>[
-    {label:"ω_A", unit:"rad/s", val:r.wA},
-    {label:"ω_B", unit:"rad/s", val:r.wB},
-    {label:"Hook speed v_H", unit:"mm/s", val:r.vH}],
-  steps(v,r){ return [
-    {t:"Integrate α_A (starts from rest)", eq:T`\int_0^{t}${fmt(v.c)}t\,dt=\int_0^{\omega_A}d\omega_A\;\Rightarrow\;\omega_A=\frac{${fmt(v.c)}}{2}t^2=\frac{${fmt(v.c)}}{2}(${fmt(v.t)})^2=${fmt(r.wA)}\ \text{rad/s}`},
-    {t:"No slip at P", eq:T`r_A\omega_A=r_B\omega_B\;\Rightarrow\;\omega_B=\frac{${fmt(v.rA)}}{${fmt(v.rB)}}(${fmt(r.wA)})=${fmt(r.wB)}\ \text{rad/s}`},
-    {t:"Hook speed (drum turns with B)", eq:T`v_H=r_D\,\omega_B=${fmt(v.rD)}(${fmt(r.wB)})=${fmt(r.vH)}\ \text{mm/s}=${fmt(r.vH/1000)}\ \text{m/s}`}
+    {label:"a_G", unit:"m/s²", val:r.a},
+    {label:"Friction f (up the incline)", unit:"N", val:r.f},
+    {label:"μ_s, min", unit:"", val:r.mu}],
+  steps(v,r){ const I=SH[v.s].I; return [
+    {t:"Along the incline", eq:T`mg\sin\theta-f=ma_G`},
+    {t:"Moments about G", eq:T`fr=I_G\alpha=${I}\,\alpha`},
+    {t:"Rolling condition", eq:T`a_G=\alpha r\;\Rightarrow\;f=${fmt(r.c)}\,m\,a_G`},
+    {t:"Solve", eq:T`a_G=\frac{g\sin\theta}{1+${fmt(r.c)}}=\frac{9.81\sin${fmt(v.th)}^\circ}{${fmt(1+r.c)}}=${fmt(r.a)}\ \text{m/s}^2,\qquad f=${fmt(r.f)}\ \text{N}`},
+    {t:"Minimum μ_s", eq:T`N=mg\cos\theta=${fmt(r.N)}\ \text{N},\qquad \mu_{s,min}=\frac{f}{N}=${fmt(r.mu)}`}
   ];},
-  takeaway:(v,r)=>`Gear B turns ${fmt(v.rB/v.rA,3)} times slower than A because it is ${fmt(v.rB/v.rA,3)} times bigger. The contact point has the same speed on both gears.`,
-  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=v.t*1.2*i/60; pts.push([t, v.rD*v.rA/v.rB*v.c*t*t/2]);} return {xl:"t (s)", yl:"v_H (mm/s)", series:[{pts}], mark:[v.t,r.vH], cap:"Hook speed vs. time. It grows like t² because ω_A does."}; }
-},
-
-/* ================= VELOCITY ================= */
-{
-  id:"slidebar", topic:K2, name:"Sliding Bar", tag:"relative velocity & IC",
-  kind:"General plane motion: velocity",
-  original:{ L:10, vB:2, th:60 },
-  randomize(){ return { L:pick(2,12,1), vB:pick(0.5,5,0.5), th:pick(20,75,5) }; },
-  solve(v){ const th=v.th*D2R, w=v.vB/(v.L*Math.sin(th)), vA=-w*v.L*Math.cos(th); return {w,vA,yIC:v.L*Math.sin(th)}; },
-  statement:(v)=>`Bar AB (length ${N(v.L,"m")}) slides with end A on a vertical wall and end B on the floor. When the bar makes θ = ${N(v.th,"°")} with the floor, B moves to the right at ${N(v.vB,"m/s")}. Find the bar's angular velocity using (1) relative velocity and (2) the instantaneous center, and find the velocity of A.`,
-  given:(v)=>[["L",`${fmt(v.L)} m`],["θ (bar to floor)",`${fmt(v.th)}°`],["v_B",`${fmt(v.vB)} m/s →`],["Constraints","A moves vertically, B horizontally"]],
-  find:["ω_AB","v_A"],
-  method:"Method 1: v_A = v_B + ω × r_A/B, knowing v_A is vertical. Method 2: the instantaneous center is where lines perpendicular to v_A and v_B cross, directly above B at the height of A.",
-  answers:(v,r)=>[
-    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w},
-    {label:"v_A (up +)", unit:"m/s", val:r.vA}],
-  steps(v,r){ const c=`\\cos${fmt(v.th)}^\\circ`, s=`\\sin${fmt(v.th)}^\\circ`; return [
-    {t:"Method 1: relative velocity", eq:T`v_A\hat j=${fmt(v.vB)}\hat i+\omega\hat k\times(-${fmt(v.L)}${c}\,\hat i+${fmt(v.L)}${s}\,\hat j)=${fmt(v.vB)}\hat i-${fmt(v.L*Math.cos(v.th*D2R))}\omega\hat j-${fmt(v.L*Math.sin(v.th*D2R))}\omega\hat i`},
-    {t:"î component (v_A has no x part)", eq:T`0=${fmt(v.vB)}-${fmt(r.yIC)}\,\omega\;\Rightarrow\;\omega=${fmt(r.w)}\ \text{rad/s (CCW)}`},
-    {t:"ĵ component gives v_A", eq:T`v_A=-${fmt(v.L*Math.cos(v.th*D2R))}(${fmt(r.w)})=${fmt(r.vA)}\ \text{m/s (down)}`},
-    {t:"Method 2: instantaneous center", eq:T`\vec v_B=\omega\hat k\times\vec r_{B/IC}=\omega\hat k\times(-${fmt(r.yIC)}\,\hat j)=${fmt(r.yIC)}\,\omega\,\hat i\;\Rightarrow\;\omega=\frac{${fmt(v.vB)}}{${fmt(r.yIC)}}=${fmt(r.w)}\ \text{rad/s}\ \checkmark`}
-  ];},
-  takeaway:"Both methods give the same ω. The IC method is faster once you can find the IC; relative velocity works every time.",
-  plot(v,r){ const th=v.th*D2R, Bx=v.L*Math.cos(th), Ay=v.L*Math.sin(th); return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,Ay],[Bx,0]]},{pts:[[0,Ay],[Bx,Ay],[Bx,0]],alt:true}], mark:[Bx,Ay], equal:true, cap:"The bar to scale. Orange lines are perpendicular to v_A and v_B; they meet at the instantaneous center (dot)."}; }
+  takeaway:"a_G doesn't depend on mass or radius, only on the shape through I_G/(mr²). The smaller that ratio, the faster the object rolls: sphere > cylinder > shell > hoop.",
+  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=60*i/60; pts.push([t, 9.81*Math.sin(t*D2R)/(1+r.c)]);} return {xl:"incline angle (°)", yl:"a_G (m/s²)", series:[{pts}], mark:[v.th,r.a], cap:"Acceleration of this shape vs. incline angle (assuming it keeps rolling)."}; }
 },
 
 {
-  id:"rack", topic:K2, name:"Linkage Driving a Rack", tag:"4 bodies, v_R",
-  kind:"General plane motion: velocity",
-  original:{ w:10, bx:6, by:12, cx:16, cy:2, rD:6 },
-  randomize(){ return { w:pick(5,15,1), bx:pick(4,8,1), by:pick(10,14,1), cx:pick(12,18,1), cy:pick(1,4,1), rD:pick(4,8,1) }; },
-  solve(v){ const w=-v.w, vBx=-w*v.by, vBy=w*v.bx, rx=v.cx, ry=-v.cy, dx=-6, dy=10;
-    // vC = vB + wBC(-ry, rx) = wCD(-dy, dx)
-    const A=[[-ry, dy],[rx, -dx]], b=[-vBx, -vBy]; const det=A[0][0]*A[1][1]-A[0][1]*A[1][0]; const wBC=(b[0]*A[1][1]-A[0][1]*b[1])/det, wCD=(A[0][0]*b[1]-b[0]*A[1][0])/det;
-    return {vBx,vBy,wBC,wCD,vR:v.rD*wCD}; },
-  statement:(v)=>`Crank AB rotates clockwise at ${N(v.w,"rad/s")} about A. Relative to A, pin B is at (${N(v.bx)}, ${N(v.by)}) in. Link BC runs ${N(v.cx,"in")} to the right and ${N(v.cy,"in")} down to C. Bar CD connects C to the center D of a gear, 6 in right of and 10 in below C; CD and the gear turn together about D. The gear (radius ${N(v.rD,"in")}) drives a vertical rack at its rightmost point P without slipping. Find ω_BC, ω_CD, and the rack velocity.`,
-  given:(v)=>[["ω_AB",`${fmt(v.w)} rad/s CW`],["r_B/A",`(${fmt(v.bx)}, ${fmt(v.by)}) in`],["r_C/B",`(${fmt(v.cx)}, −${fmt(v.cy)}) in`],["r_C/D","(−6, 10) in"],["Gear radius",`${fmt(v.rD)} in`]],
-  find:["ω_BC","ω_CD","v_R (up +)"],
-  method:"AB and CD rotate about fixed pins; BC is in general plane motion. Write v_C two ways, v_C = v_B + ω_BC × r_C/B and v_C = ω_CD × r_C/D, and match components. The rack moves with the gear's contact point: v_R = r_D ω_CD.",
+  id:"race", topic:L1, name:"Rolling Race", tag:"work–energy",
+  kind:"Rigid-body work & energy: rolling",
+  original:{ s:2, d:3, th:20 },
+  randomize(){ return { s:Math.floor(Math.random()*4), d:pick(1,6,0.5), th:pick(10,40,5) }; },
+  solve(v){ const c=SH[v.s].c, th=v.th*D2R, vel=Math.sqrt(2*g0*v.d*Math.sin(th)/(1+c)), t=2*v.d/vel, frac=c/(1+c)*100, vslide=Math.sqrt(2*g0*v.d*Math.sin(th)); return {c,vel,t,frac,vslide}; },
+  statement:(v)=>`A ${SH[v.s].n} is released from rest and rolls without slipping ${N(v.d,"m")} down a ${N(v.th,"°")} incline. Find its speed at the bottom, the time it takes, and the percentage of its kinetic energy that is rotational.`,
+  given:(v)=>[["Shape",SH[v.s].n],["Distance",`${fmt(v.d)} m`],["θ",`${fmt(v.th)}°`],["Start","rest"]],
+  find:["Speed at the bottom","Time","% of KE that is rotational"],
+  method:"Two positions, need a speed: work–energy. Static friction at the contact does no work (the contact point doesn't slide), so only gravity does work. Kinetic energy has a translational and a rotational part, linked by v = rω.",
   answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
-    {label:"v_R (up +)", unit:"in/s", val:r.vR}],
+    {label:"Speed at bottom", unit:"m/s", val:r.vel},
+    {label:"Time", unit:"s", val:r.t},
+    {label:"Rotational share of KE", unit:"%", val:r.frac}],
   steps(v,r){ return [
-    {t:"AB (clockwise, so ω = −k̂)", eq:T`\vec v_B=-${fmt(v.w)}\hat k\times(${fmt(v.bx)}\hat i+${fmt(v.by)}\hat j)=${fmt(r.vBx)}\,\hat i${sgn(r.vBy)}\,\hat j\ \text{in/s}`},
-    {t:"BC: v_C from B", eq:T`\vec v_C=\vec v_B+\omega_{BC}\hat k\times(${fmt(v.cx)}\hat i-${fmt(v.cy)}\hat j)=(${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC})\hat i+(${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC})\hat j\quad(1)`,
-      note:"Use r_C/B, the vector from B to C."},
-    {t:"CD: v_C from D", eq:T`\vec v_C=\omega_{CD}\hat k\times(-6\hat i+10\hat j)=-10\omega_{CD}\,\hat i-6\omega_{CD}\,\hat j\quad(2)`},
-    {t:"Match components of (1) and (2)", eq:T`${fmt(r.vBx)}+${fmt(v.cy)}\omega_{BC}=-10\omega_{CD},\qquad ${fmt(r.vBy)}+${fmt(v.cx)}\omega_{BC}=-6\omega_{CD}`},
-    {t:"Solve", eq:T`\omega_{BC}=${fmt(r.wBC)}\ \text{rad/s},\qquad \omega_{CD}=${fmt(r.wCD)}\ \text{rad/s}`},
-    {t:"Rack velocity (no slip at P)", eq:T`\vec v_R=\vec v_P=\omega_{CD}\hat k\times ${fmt(v.rD)}\hat i=${fmt(r.vR)}\,\hat j\ \text{in/s}`}
+    {t:"Kinetic energy of a rolling body", eq:T`T=\tfrac12 mv^2+\tfrac12 I_G\omega^2=\tfrac12 mv^2\big(1+${fmt(r.c)}\big)\quad(\omega=v/r)`},
+    {t:"Work–energy", eq:T`mg\,d\sin\theta=\tfrac12 mv^2(1+${fmt(r.c)})\;\Rightarrow\;v=\sqrt{\frac{2(9.81)(${fmt(v.d)})\sin${fmt(v.th)}^\circ}{${fmt(1+r.c)}}}=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Time (constant acceleration from rest)", eq:T`d=\tfrac12(0+v)t\;\Rightarrow\;t=\frac{2d}{v}=${fmt(r.t)}\ \text{s}`},
+    {t:"Rotational share", eq:T`\frac{T_{rot}}{T}=\frac{${fmt(r.c)}}{1+${fmt(r.c)}}=${fmt(r.frac)}\%`}
   ];},
-  takeaway:(v,r)=>`BC turns ${ccw(r.wBC)}, the gear turns ${ccw(r.wCD)}, and the rack moves ${r.vR<0?"down":"up"} at ${fmt(Math.abs(r.vR),3)} in/s (${fmt(Math.abs(r.vR)/12,3)} ft/s).`,
-  plot(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], D=[C[0]+6,C[1]-10]; const g=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; g.push([D[0]+v.rD*Math.cos(a), D[1]+v.rD*Math.sin(a)]);} return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:[C,D],alt:true},{pts:g},{pts:[[D[0]+v.rD,D[1]-12],[D[0]+v.rD,D[1]+12]],alt:true}], mark:[D[0]+v.rD,D[1]], mark2:[0,0], equal:true, cap:"Mechanism to scale: AB, CD and the rack (orange), BC and the gear (blue). The blue dot is the contact point P."}; }
-},
-
-/* ================= ACCELERATION ================= */
-{
-  id:"fourbar", topic:K3, name:"Four-Bar Linkage", tag:"α_BC, α_CD",
-  kind:"General plane motion: acceleration",
-  original:{ w:10, a:-300, h:2, b:2, c:2 },
-  randomize(){ return { w:pick(4,15,1), a:pick(-400,400,50), h:pick(1,3,0.5), b:pick(1,3,0.5), c:pick(1,3,0.5) }; },
-  solve(v){ const w3=v.w, w2=-v.w*v.c/v.b, a3=(v.a*v.h + w2*w2*v.b + v.w*v.w*v.c)/v.h, a2=-a3*v.c/v.b; return {w2,w3,a2,a3,aBx:-v.a*v.h,aBy:-v.w*v.w*v.h}; },
-  statement:(v)=>`In a four-bar linkage, crank AB (${N(v.h,"ft")}, vertical) rotates about A with ω_AB = ${N(v.w,"rad/s")} CCW and α_AB = ${N(v.a,"rad/s²")} (CCW positive). Link BC (${N(v.b,"ft")}) is horizontal. Bar CD connects C to the fixed pin D, which is at A's level, ${N(v.c,"ft")} to the right of C. Find the angular velocities and angular accelerations of BC and CD.`,
-  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["AB (vertical)",`${fmt(v.h)} ft`],["BC (horizontal)",`${fmt(v.b)} ft`],["r_C/D",`(−${fmt(v.c)}, ${fmt(v.h)}) ft`]],
-  find:["ω_BC, ω_CD","α_BC","α_CD"],
-  method:"Velocities first, then accelerations. Write v_C and a_C two ways, through B (bar BC) and from D (bar CD), and match the î and ĵ components each time.",
-  answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.w2},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.w3},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.a2},
-    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.a3}],
-  steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times ${fmt(v.h)}\hat j=-${fmt(v.w*v.h)}\,\hat i`},
-    {t:"v_C two ways", eq:T`-${fmt(v.w*v.h)}\hat i+${fmt(v.b)}\omega_{BC}\hat j=\omega_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=-${fmt(v.h)}\omega_{CD}\hat i-${fmt(v.c)}\omega_{CD}\hat j`},
-    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.w3)},\qquad \omega_{BC}=-\frac{${fmt(v.c)}}{${fmt(v.b)}}\omega_{CD}=${fmt(r.w2)}\ \text{rad/s}`},
-    {t:"Acceleration of B", eq:T`\vec a_B=\alpha_{AB}\hat k\times\vec r_{B/A}-\omega_{AB}^2\vec r_{B/A}=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j\ \text{ft/s}^2`},
-    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times ${fmt(v.b)}\hat i-\omega_{BC}^2(${fmt(v.b)}\hat i)=(${fmt(r.aBx)}-${fmt(r.w2*r.w2*v.b)})\hat i+(${fmt(r.aBy)}+${fmt(v.b)}\alpha_{BC})\hat j`},
-    {t:"a_C from D", eq:T`\vec a_C=\alpha_{CD}\hat k\times(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)-\omega_{CD}^2(-${fmt(v.c)}\hat i+${fmt(v.h)}\hat j)=(-${fmt(v.h)}\alpha_{CD}+${fmt(r.w3*r.w3*v.c)})\hat i+(-${fmt(v.c)}\alpha_{CD}-${fmt(r.w3*r.w3*v.h)})\hat j`},
-    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.a3)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.a2)}\ \text{rad/s}^2`}
-  ];},
-  takeaway:(v,r)=>`α_BC is ${ccw(r.a2)} and α_CD is ${ccw(r.a3)}. Always solve the velocities first: the ω² terms in the acceleration equations need them.`,
-  plot(v,r){ return {xl:"x (ft)", yl:"y (ft)", series:[{pts:[[0,0],[0,v.h]],alt:true},{pts:[[0,v.h],[v.b,v.h]]},{pts:[[v.b,v.h],[v.b+v.c,0]],alt:true}], mark:[v.b+v.c,0], mark2:[0,0], equal:true, cap:"The linkage to scale: AB and CD (orange), BC (blue). Fixed pins at A and D."}; }
+  takeaway:(v,r)=>`A frictionless block sliding the same distance would reach ${fmt(r.vslide,3)} m/s. The rolling body is slower because part of the energy goes into spinning.`,
+  plot(v,r){ const p1=[],p2=[]; const sn=Math.sin(v.th*D2R); for(let i=0;i<=60;i++){const d=v.d*i/60; p1.push([d,Math.sqrt(2*g0*d*sn/(1+r.c))]); p2.push([d,Math.sqrt(2*g0*d*sn)]);} return {xl:"distance down the incline (m)", yl:"speed (m/s)", series:[{pts:p1},{pts:p2,alt:true}], mark:[v.d,r.vel], cap:"Speed vs. distance for the rolling "+SH[v.s].n+" (blue) and a frictionless sliding block (orange)."}; }
 },
 
 {
-  id:"flywheel", topic:K3, name:"Flywheel Linkage", tag:"3 bodies",
-  kind:"General plane motion: acceleration",
-  original:{ R:0.3, w0:6, L:1.5, l:0.6, th:60 },
-  randomize(){ return { R:pick(0.2,0.5,0.05), w0:pick(3,10,1), L:pick(1,2,0.25), l:pick(0.4,0.8,0.1), th:pick(40,75,5) }; },
-  solve(v){ const th=v.th*D2R, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th), w=-v.w0, vB=w*v.R; // vB = w k x (0,-R) = (wR, 0)
-    const wCD=vB/(-cy), wBC=wCD*cx/v.L;
-    const aB=v.w0*v.w0*v.R; // +j
-    const aCD=(v.L*wBC*wBC - wCD*wCD*cx)/cy;  // i: -L wBC^2 = -cy aCD - wCD^2 cx
-    const aBC=(cx*aCD - wCD*wCD*cy - aB)/v.L;
-    return {cx,cy,vB,wCD,wBC,aB,aCD,aBC}; },
-  statement:(v)=>`A flywheel of radius ${N(v.R,"m")} turns clockwise at a constant ${N(v.w0,"rad/s")}. Link BC (${N(v.L,"m")}) is pinned to the flywheel at its lowest point B and is horizontal at this instant. Bar CD (${N(v.l,"m")}) is pinned to the ground at D and makes ${N(v.th,"°")} with the horizontal, with C up and to the right of D. Find the angular velocities and angular accelerations of BC and CD.`,
-  given:(v)=>[["Flywheel",`r = ${fmt(v.R)} m, ${fmt(v.w0)} rad/s CW, α = 0`],["BC",`${fmt(v.L)} m, horizontal`],["CD",`${fmt(v.l)} m at ${fmt(v.th)}°`],["r_B/O",`(0, −${fmt(v.R)}) m`]],
-  find:["ω_BC, ω_CD","α_BC","α_CD"],
-  method:"OB and CD rotate about fixed points; BC is in general plane motion. Match v_C from B and from D to get ω's, then match a_C from B and from D to get α's.",
+  id:"spool", topic:L1, name:"Spool Pulled by a String", tag:"ΣM about contact",
+  kind:"Rigid-body kinetics: rolling",
+  original:{ m:10, R:0.3, r:0.15, k:0.2, P:40 },
+  randomize(){ return resample(()=>{ const R=pick(0.2,0.6,0.05); return { m:pick(2,30,1), R, r:pick(0.3*R,0.8*R,0.05), k:pick(0.5*R,0.9*R,0.05), P:pick(10,100,5) }; }, v=>v.r<v.R && v.k<v.R); },
+  solve(v){ const IG=v.m*v.k*v.k, a=v.P*v.R*(v.R-v.r)/(v.m*v.R*v.R+IG), f=v.m*a-v.P, mu=Math.abs(f)/(v.m*g0), al=a/v.R; return {IG,a,f,mu,al}; },
+  statement:(v)=>`A spool (${N(v.m,"kg")}, outer radius ${N(v.R,"m")}, radius of gyration ${N(v.k,"m")} about its center) rests on the floor. A string is wound around its hub (radius ${N(v.r,"m")}) and comes off the bottom of the hub. The string is pulled horizontally to the right with ${N(v.P,"N")}. The spool rolls without slipping. Find its acceleration, the friction force, and the minimum μ_s.`,
+  given:(v)=>[["m",`${fmt(v.m)} kg`],["R, r",`${fmt(v.R)} m, ${fmt(v.r)} m`],["k_G",`${fmt(v.k)} m`],["P",`${fmt(v.P)} N →, from bottom of hub`],["Condition","rolls without slipping"]],
+  find:["a_G","Friction f","μ_s, min"],
+  method:"For a body rolling without slipping on a flat surface, you can sum moments about the contact point C: ΣM_C = I_Cα, with I_C = I_G + mR². This eliminates the unknown friction. Then ΣF_x = ma_G gives the friction.",
   answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_CD (CCW +)", unit:"rad/s", val:r.wCD},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
-    {label:"α_CD (CCW +)", unit:"rad/s²", val:r.aCD}],
+    {label:"a_G (right +)", unit:"m/s²", val:r.a},
+    {label:"Friction f (right +)", unit:"N", val:r.f, scale:v.P},
+    {label:"μ_s, min", unit:"", val:r.mu, scale:Math.max(r.mu,0.01)}],
   steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=-${fmt(v.w0)}\hat k\times(-${fmt(v.R)}\hat j)=${fmt(r.vB)}\,\hat i\ \text{m/s}`},
-    {t:"v_C two ways", eq:T`${fmt(r.vB)}\hat i+\omega_{BC}\hat k\times ${fmt(v.L)}\hat i=\omega_{CD}\hat k\times(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)\;\Rightarrow\;${fmt(r.vB)}\hat i+${fmt(v.L)}\omega_{BC}\hat j=-${fmt(r.cy)}\omega_{CD}\hat i+${fmt(r.cx)}\omega_{CD}\hat j`,
-      note:"k̂ × î = +ĵ, so the BC term is +Lω_BC ĵ."},
-    {t:"Solve", eq:T`\omega_{CD}=${fmt(r.wCD)}\ (${ccw(r.wCD)}),\qquad \omega_{BC}=${fmt(r.wBC)}\ (${ccw(r.wBC)})\ \text{rad/s}`},
-    {t:"Acceleration of B (constant ω)", eq:T`\vec a_B=-\omega_0^2\vec r_{B/O}=${fmt(r.aB)}\,\hat j\ \text{m/s}^2`},
-    {t:"a_C two ways", eq:T`${fmt(r.aB)}\hat j+${fmt(v.L)}\alpha_{BC}\hat j-${fmt(r.wBC*r.wBC*v.L)}\hat i=\alpha_{CD}(-${fmt(r.cy)}\hat i+${fmt(r.cx)}\hat j)-${fmt(r.wCD*r.wCD)}(${fmt(r.cx)}\hat i+${fmt(r.cy)}\hat j)`},
-    {t:"Match components", eq:T`\alpha_{CD}=${fmt(r.aCD)}\ \text{rad/s}^2,\qquad \alpha_{BC}=${fmt(r.aBC)}\ \text{rad/s}^2`}
+    {t:"Moment of inertia about the contact point", eq:T`I_C=m(k^2+R^2)=${fmt(v.m)}(${fmt(v.k)}^2+${fmt(v.R)}^2)=${fmt(v.m*(v.k*v.k+v.R*v.R))}\ \text{kg·m}^2`},
+    {t:"Moments about C (P acts R − r above the floor)", eq:T`P(R-r)=I_C\alpha\;\Rightarrow\;\alpha=\frac{${fmt(v.P)}(${fmt(v.R-v.r)})}{${fmt(v.m*(v.k*v.k+v.R*v.R))}}=${fmt(r.al)}\ \text{rad/s}^2\ \text{(CW)}`},
+    {t:"Rolling", eq:T`a_G=\alpha R=${fmt(r.a)}\ \text{m/s}^2\ \text{(to the right)}`},
+    {t:"Friction from ΣF_x", eq:T`P+f=ma_G\;\Rightarrow\;f=${fmt(v.m)}(${fmt(r.a)})-${fmt(v.P)}=${fmt(r.f)}\ \text{N}`},
+    {t:"Minimum μ_s", eq:T`\mu_{s,min}=\frac{|f|}{mg}=${fmt(r.mu)}`}
   ];},
-  takeaway:(v,r)=>`CD turns ${ccw(r.wCD)} with α_CD ${ccw(r.aCD)}: ${Math.sign(r.wCD)!==Math.sign(r.aCD)?"opposite signs, so CD is slowing down":"same signs, so CD is speeding up"}. Even though the flywheel turns at constant speed, the links still have angular acceleration.`,
-  plot(v,r){ const O=[0,0], B=[0,-v.R], C=[v.L,-v.R], D=[C[0]-r.cx, C[1]-r.cy]; const f=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; f.push([v.R*Math.cos(a), v.R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:f,alt:true},{pts:[B,C]},{pts:[C,D],alt:true}], mark:D, mark2:O, equal:true, cap:"Flywheel and CD (orange), BC (blue), to scale. Orange dot: O; blue dot: D."}; }
+  takeaway:(v,r)=>`The spool rolls toward the pull, and friction points ${r.f<0?"left, opposing it":"right"}. Taking moments about C works here because the spool rolls without slipping on a flat surface.`,
+  plot(v,r){ const c=(R)=>{const p=[];for(let i=0;i<=60;i++){const a=2*Math.PI*i/60;p.push([R*Math.cos(a),v.R+R*Math.sin(a)]);}return p;}; return {xl:"x (m)", yl:"y (m)", series:[{pts:c(v.R)},{pts:c(v.r),alt:true},{pts:[[0,v.R-v.r],[v.R*1.8,v.R-v.r]],alt:true},{pts:[[-v.R*1.3,0],[v.R*2,0]]}], mark:[0,0], equal:true, cap:"Spool to scale with the string (orange) leaving the bottom of the hub. The dot is the contact point C."}; }
 },
 
 {
-  id:"piston", topic:K3, name:"Linear Acceleration of a Piston", tag:"slider-crank",
-  kind:"General plane motion: acceleration",
-  original:{ w1:10, a1:5, p:3, q:4, L:13 },
-  randomize(){ return { w1:pick(5,15,1), a1:pick(-10,10,1), p:pick(2,5,1), q:pick(2,6,1), L:pick(10,18,1) }; },
-  solve(v){ const w=-v.w1, rx=Math.sqrt(v.L*v.L-v.q*v.q), ry=-v.q;
-    const vAx=-w*v.q, vAy=w*(-v.p); // w k x (-p, q) = w(-q, -p)
-    const w2=-vAy/rx; const vB=vAx - w2*ry;
-    const aAx=-v.a1*v.q - w*w*(-v.p), aAy=v.a1*(-v.p) - w*w*v.q;
-    const a2=-(aAy - w2*w2*ry)/rx; const aB=aAx - a2*ry - w2*w2*rx;
-    return {rx,ry,vAx,vAy,w2,vB,aAx,aAy,a2,aB}; },
-  statement:(v)=>`In a slider-crank, crank OA rotates about O with ω = ${N(v.w1,"rad/s")} clockwise and α = ${N(v.a1,"rad/s²")} (CCW positive). At the instant shown, A is at (−${N(v.p)}, ${N(v.q)}) in relative to O. Connecting rod AB is ${N(v.L,"in")} long, and piston B slides on the horizontal line through O. Find ω_AB, α_AB, and the piston's acceleration.`,
-  given:(v)=>[["ω_OA",`${fmt(v.w1)} rad/s CW`],["α_OA",`${fmt(v.a1)} rad/s² (CCW +)`],["r_A/O",`(−${fmt(v.p)}, ${fmt(v.q)}) in`],["AB",`${fmt(v.L)} in`],["B","moves horizontally"]],
-  find:["ω_AB","α_AB","a_B"],
-  method:"Get v_A and a_A from the crank. Then v_B = v_A + ω_AB × r_B/A and a_B = a_A + α_AB × r_B/A − ω_AB² r_B/A, using the fact that B only moves horizontally (the ĵ components are zero).",
+  id:"bowling", topic:L2, name:"Bowling Ball: Slip to Roll", tag:"kinetic friction",
+  kind:"Rigid-body kinetics: rolling with slipping",
+  original:{ m:7, r:0.11, v0:8, mu:0.15 },
+  randomize(){ return { m:pick(4,8,0.5), r:pick(0.1,0.12,0.005), v0:pick(4,12,0.5), mu:pick(0.05,0.3,0.05) }; },
+  solve(v){ const t=2*v.v0/(7*v.mu*g0), vf=5*v.v0/7, s=v.v0*t-0.5*v.mu*g0*t*t, wf=vf/v.r, loss=(0.5*v.m*v.v0**2-0.5*v.m*vf*vf*1.4); return {t,vf,s,wf,loss}; },
+  statement:(v)=>`A bowling ball (a solid sphere of ${N(v.m,"kg")} and radius ${N(v.r,"m")}) is released sliding at ${N(v.v0,"m/s")} with no spin. The coefficient of kinetic friction with the lane is ${N(v.mu)}. Find how long it slides before it starts rolling without slipping, its speed at that moment, and how far it has slid.`,
+  given:(v)=>[["m, r",`${fmt(v.m)} kg, ${fmt(v.r)} m`],["v₀, ω₀",`${fmt(v.v0)} m/s, 0`],["μ_k",`${fmt(v.mu)}`],["I_G","⅖mr²"]],
+  find:["Time to start rolling","Speed when rolling starts","Distance slid"],
+  method:"While it slides, friction is kinetic (f = μ_k N) and acts backward. It slows the ball down (ΣF = ma) and spins it up (ΣM_G = I_Gα). Sliding stops when v = ωr.",
   answers:(v,r)=>[
-    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.w2},
-    {label:"α_AB (CCW +)", unit:"rad/s²", val:r.a2},
-    {label:"a_B (right +)", unit:"in/s²", val:r.aB}],
+    {label:"Time", unit:"s", val:r.t},
+    {label:"Speed when rolling", unit:"m/s", val:r.vf},
+    {label:"Distance slid", unit:"m", val:r.s}],
   steps(v,r){ return [
-    {t:"Geometry of AB", eq:T`\vec r_{B/A}=\sqrt{${fmt(v.L)}^2-${fmt(v.q)}^2}\,\hat i-${fmt(v.q)}\hat j=${fmt(r.rx)}\,\hat i-${fmt(v.q)}\,\hat j\ \text{in}`},
-    {t:"Crank: v_A and a_A (ω = −k̂ for CW)", eq:T`\vec v_A=${fmt(r.vAx)}\hat i${sgn(r.vAy)}\hat j,\qquad \vec a_A=\alpha\hat k\times\vec r_{A/O}-\omega^2\vec r_{A/O}=${fmt(r.aAx)}\hat i${sgn(r.aAy)}\hat j\ \text{in/s}^2`},
-    {t:"Velocity: ĵ component of v_B is zero", eq:T`0=${fmt(r.vAy)}+${fmt(r.rx)}\,\omega_{AB}\;\Rightarrow\;\omega_{AB}=${fmt(r.w2)}\ \text{rad/s}`},
-    {t:"Acceleration: ĵ component of a_B is zero", eq:T`0=${fmt(r.aAy)}+${fmt(r.rx)}\alpha_{AB}+${fmt(r.w2*r.w2*v.q)}\;\Rightarrow\;\alpha_{AB}=${fmt(r.a2)}\ \text{rad/s}^2`},
-    {t:"î component gives the piston's acceleration", eq:T`a_B=${fmt(r.aAx)}+${fmt(v.q)}\alpha_{AB}-${fmt(r.w2*r.w2)}(${fmt(r.rx)})=${fmt(r.aB)}\ \text{in/s}^2`}
+    {t:"Translation", eq:T`-\mu_kmg=ma\;\Rightarrow\;v=v_0-\mu_kg\,t=${fmt(v.v0)}-${fmt(v.mu*g0)}t`},
+    {t:"Rotation", eq:T`\mu_kmg\,r=\tfrac25 mr^2\alpha\;\Rightarrow\;\alpha=\frac{5\mu_kg}{2r},\qquad \omega r=\tfrac52\mu_kg\,t=${fmt(2.5*v.mu*g0)}t`},
+    {t:"Rolling starts when v = ωr", eq:T`${fmt(v.v0)}-${fmt(v.mu*g0)}t=${fmt(2.5*v.mu*g0)}t\;\Rightarrow\;t=\frac{2v_0}{7\mu_kg}=${fmt(r.t)}\ \text{s}`},
+    {t:"Speed then", eq:T`v=\tfrac57 v_0=${fmt(r.vf)}\ \text{m/s}`},
+    {t:"Distance slid", eq:T`s=v_0t-\tfrac12\mu_kg\,t^2=${fmt(r.s)}\ \text{m}`}
   ];},
-  takeaway:"Keep √(L² − q²) unrounded (not 12.4): the small difference changes a_B in the third significant figure.",
-  plot(v,r){ const A=[-v.p,v.q], B=[-v.p+r.rx,0]; return {xl:"x (in)", yl:"y (in)", series:[{pts:[[0,0],A],alt:true},{pts:[A,B]},{pts:[[B[0]-1.5,0],[B[0]+1.5,0]],alt:true}], mark:B, mark2:[0,0], equal:true, cap:"Slider-crank to scale: crank OA (orange), rod AB (blue), piston at B (blue dot)."}; }
-},
-
-{
-  id:"diskroll", topic:K3, name:"Disk Rolling on a Curved Surface", tag:"IC ≠ zero acceleration",
-  kind:"General plane motion: acceleration",
-  original:{ w:10, a:20, r:1 },
-  randomize(){ return { w:pick(4,15,1), a:pick(-40,40,5), r:pick(0.5,1.5,0.25) }; },
-  solve(v){ const vBx=2*v.w, vBy=v.w, wBC=-v.w/3, wd=-vBx/v.r; const aBx=2*v.a-v.w*v.w, aBy=v.a+2*v.w*v.w; const aCx=aBx-3*wBC*wBC, an=vBx*vBx/2; const aBC=(an-aBy)/3, ad=-aCx/v.r; return {vBx,vBy,wBC,wd,aBx,aBy,aCx,an,aBC,ad}; },
-  statement:(v)=>`Bar AB rotates about A at ${N(v.w,"rad/s")} CCW with angular acceleration ${N(v.a,"rad/s²")} (CCW positive). B is 1 m right of and 2 m below A. Bar BC (3 m) is horizontal and pinned to the center C of a disk of radius ${N(v.r,"m")}, which rolls without slipping inside a circular surface. C moves on a circle of radius 2 m and is at the bottom of that circle at this instant. Find the angular velocities and angular accelerations of BC and the disk.`,
-  given:(v)=>[["ω_AB, α_AB",`${fmt(v.w)} rad/s, ${fmt(v.a)} rad/s²`],["r_B/A","(1, −2) m"],["BC","3 m, horizontal"],["Disk radius",`${fmt(v.r)} m`],["Path of C","circle, ρ = 2 m, C at the bottom"]],
-  find:["ω_BC, ω_disk","α_BC","α_disk"],
-  method:"Velocities: the disk rolls, so its IC is the contact point, giving v_C = ω_disk × r_C/IC. Accelerations: the contact point is not an acceleration IC. Instead, C moves on a known circular path, so a_C = a_t ê_t + (v_C²/ρ) ê_n, with a_t = α_disk r.",
-  answers:(v,r)=>[
-    {label:"ω_BC (CCW +)", unit:"rad/s", val:r.wBC},
-    {label:"ω_disk (CCW +)", unit:"rad/s", val:r.wd},
-    {label:"α_BC (CCW +)", unit:"rad/s²", val:r.aBC},
-    {label:"α_disk (CCW +)", unit:"rad/s²", val:r.ad}],
-  steps(v,r){ return [
-    {t:"Velocity of B", eq:T`\vec v_B=${fmt(v.w)}\hat k\times(\hat i-2\hat j)=${fmt(r.vBx)}\,\hat i+${fmt(r.vBy)}\,\hat j\ \text{m/s}`},
-    {t:"v_C through B, and from the disk's IC", eq:T`\vec v_C=${fmt(r.vBx)}\hat i+(${fmt(r.vBy)}+3\omega_{BC})\hat j=\omega_{disk}\hat k\times ${fmt(v.r)}\hat j=-${fmt(v.r)}\omega_{disk}\,\hat i`},
-    {t:"Solve", eq:T`\omega_{BC}=-\frac{${fmt(r.vBy)}}{3}=${fmt(r.wBC)},\qquad \omega_{disk}=-\frac{${fmt(r.vBx)}}{${fmt(v.r)}}=${fmt(r.wd)}\ \text{rad/s}`},
-    {t:"Acceleration of B", eq:T`\vec a_B=${fmt(v.a)}\hat k\times(\hat i-2\hat j)-${fmt(v.w*v.w)}(\hat i-2\hat j)=${fmt(r.aBx)}\,\hat i${sgn(r.aBy)}\,\hat j`},
-    {t:"a_C through B", eq:T`\vec a_C=\vec a_B+\alpha_{BC}\hat k\times3\hat i-\omega_{BC}^2(3\hat i)=${fmt(r.aCx)}\,\hat i+(${fmt(r.aBy)}+3\alpha_{BC})\,\hat j`},
-    {t:"a_C from C's circular path", eq:T`\vec a_C=-\alpha_{disk}r\,\hat i+\frac{v_C^2}{\rho}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+\frac{${fmt(r.vBx)}^2}{2}\hat j=-${fmt(v.r)}\alpha_{disk}\,\hat i+${fmt(r.an)}\,\hat j`},
-    {t:"Match components", eq:T`\alpha_{disk}=-\frac{${fmt(r.aCx)}}{${fmt(v.r)}}=${fmt(r.ad)},\qquad \alpha_{BC}=\frac{${fmt(r.an)}-${fmt(r.aBy)}}{3}=${fmt(r.aBC)}\ \text{rad/s}^2`}
-  ];},
-  takeaway:(v,r)=>`The disk turns ${ccw(r.wd)}${Math.abs(r.ad)>1e-9?` and α_disk is ${ccw(r.ad)}, so it is ${Math.sign(r.ad)===Math.sign(r.wd)?"speeding up":"slowing down"}`:""}. The contact point has zero velocity but not zero acceleration, which is why the IC can't be used for accelerations.`,
-  plot(v,r){ const B=[1,-2], C=[4,-2]; const d=[],s=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; d.push([C[0]+v.r*Math.cos(a), C[1]+v.r*Math.sin(a)]);} const R=2+v.r; for(let i=0;i<=60;i++){const a=-Math.PI*0.95+Math.PI*0.6*i/60; s.push([4+R*Math.cos(a), R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:d},{pts:s,alt:true}], mark:[4,-2-v.r], mark2:[0,0], equal:true, cap:"To scale: AB (orange), BC and the disk (blue), the circular surface (orange). The blue dot is the contact point."}; }
+  takeaway:(v,r)=>`The final speed is always 5/7 of v₀ for a solid sphere, no matter what μ_k is; μ_k only changes how long it takes. About ${fmt(r.loss,3)} J is lost to sliding friction.`,
+  plot(v,r){ const a=[],b=[]; const T2=r.t*1.4; for(let i=0;i<=60;i++){const t=T2*i/60; a.push([t, t<r.t? v.v0-v.mu*g0*t : r.vf]); b.push([t, t<r.t? 2.5*v.mu*g0*t : r.vf]);} return {xl:"t (s)", yl:"speed (m/s)", series:[{pts:a},{pts:b,alt:true}], mark:[r.t,r.vf], cap:"v_G (blue) and ωr (orange). They meet when the ball starts rolling without slipping."}; }
 }
 
 ];
@@ -489,21 +389,16 @@ const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm"))
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
 
+const SHN=["solid cylinder","thin hoop","solid sphere","thin shell"];
 const DIAG = {
-hook(v,r){ const A=[70,70], rA=26, B=[70+rA+70,70], rB=70, rD=35;
-  return D.svg(D.circ(A[0],A[1],rA,"body2")+D.circ(B[0],B[1],rB,"body2")+D.circ(B[0],B[1],rD,"body")+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0],A[1]-rA-10,"A")+D.text(B[0]+rB*0.6,B[1]-rB*0.9,"B")+D.text(B[0]-8,B[1]+14,"D","end","tm")+D.line(B[0]+rD,B[1],B[0]+rD,190,"s")+D.path(`M${B[0]+rD-8},190 q0,14 8,14 q8,0 8,-8`,"s")+D.text(B[0]+rD+14,196,"hook","start")+D.dot(A[0]+rA,A[1],3.5,"dotf")+D.text(A[0]+rA+4,A[1]+14,"P","start","tf")+D.arcArrow(A[0],A[1],rA+10,200,270,"v","α_A")+LG(245,110,[[`α_A = ${nf(v.c)}t rad/s²`,"tv"],[`r_A = ${nf(v.rA)} mm`],[`r_B = ${nf(v.rB)} mm`],[`r_D = ${nf(v.rD)} mm`],[`find v_H at ${nf(v.t)} s`]])); },
-slidebar(v,r){ const th=v.th*RAD, Lp=150, W=[70,30], B=[W[0]+Lp*Math.cos(th), W[1]+Lp*Math.sin(th)+Math.max(0,(160-Lp*Math.sin(th)))], A=[W[0], B[1]-Lp*Math.sin(th)];
-  return D.svg(D.wall(W[0],10,B[1],-1)+D.ground(W[0],330,B[1])+D.line(A[0],A[1],B[0],B[1],"s")+D.bar(A[0],A[1],B[0],B[1],8)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0]+10,A[1]-6,"A","start")+D.text(B[0],B[1]+16,"B")+D.angle(B[0],B[1],32,180-v.th,180,`θ = ${nf(v.th)}°`)+D.arrow(B[0]+8,B[1]-10,B[0]+60,B[1]-10,"v",`v_B = ${nf(v.vB)} m/s`,B[0]+34,B[1]-24)+D.arrow(A[0]+14,A[1],A[0]+14,A[1]+38,"v","v_A = ?",A[0]+20,A[1]+30,"start")+D.text(W[0]+(B[0]-W[0])/2+20,(A[1]+B[1])/2-10,`L = ${nf(v.L)} m`,"start","tm")); },
-rack(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], Dd=[C[0]+6,C[1]-10], P=[Dd[0]+v.rD,Dd[1]]; const T=FIT([[0,0],B,C,[Dd[0]-v.rD,Dd[1]-v.rD],[P[0]+2,Dd[1]+v.rD]],[25,20,320,195]); const a=T([0,0]),b=T(B),c=T(C),d=T(Dd),p=T(P), rr=p[0]-d[0];
-  return D.svg(D.circ(d[0],d[1],rr,"body2")+D.bar(a[0],a[1],b[0],b[1],7)+D.bar(b[0],b[1],c[0],c[1],7)+D.bar(c[0],c[1],d[0],d[1],7)+D.pin(a[0],a[1])+D.pin(d[0],d[1])+D.pinj(b[0],b[1])+D.pinj(c[0],c[1])+D.rect(p[0],10,10,200,"body")+D.text(a[0]-10,a[1],"A","end")+D.text(b[0],b[1]-12,"B")+D.text(c[0]+4,c[1]-12,"C","start")+D.text(d[0]-10,d[1]-10,"D","end")+D.dot(p[0],p[1],3.5,"dotf")+D.text(p[0]+16,p[1],"P","start","tf")+D.arcArrow(a[0],a[1],28,80,10,"v","ω_AB","start")+D.arrow(p[0]+22,p[1]-40,p[0]+22,p[1]+10,"v","v_R?",p[0]+26,p[1]-46,"start")+D.text(20,14,`ω_AB = ${nf(v.w)} rad/s CW`,"start","tv")); },
-fourbar(v,r){ const T=FIT([[0,0],[0,v.h],[v.b,v.h],[v.b+v.c,0]],[60,50,300,165]); const A=T([0,0]),B=T([0,v.h]),C=T([v.b,v.h]),Dd=T([v.b+v.c,0]);
-  return D.svg(D.bar(A[0],A[1],B[0],B[1],8)+D.bar(B[0],B[1],C[0],C[1],8)+D.bar(C[0],C[1],Dd[0],Dd[1],8)+D.pin(A[0],A[1])+D.pin(Dd[0],Dd[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]-12,A[1],"A","end")+D.text(B[0]-10,B[1]-8,"B","end")+D.text(C[0]+8,C[1]-8,"C","start")+D.text(Dd[0]+12,Dd[1],"D","start")+D.arcArrow(A[0],A[1],30,20,80,"v")+D.text(20,16,`ω_AB = ${nf(v.w)} rad/s CCW`,"start","tv")+D.text(20,34,`α_AB = ${nf(v.a)} rad/s² (CCW +)`,"start","tf")+D.dim(A[0],Dd[1]+30,C[0],Dd[1]+30,`${nf(v.b)} ft`)+D.dim(C[0],Dd[1]+30,Dd[0],Dd[1]+30,`${nf(v.c)} ft`)+D.dim(A[0]-40,A[1],A[0]-40,B[1],`${nf(v.h)} ft`)); },
-flywheel(v,r){ const th=v.th*RAD, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th); const Cm=[v.L,-v.R], Dm=[v.L-cx,-v.R-cy]; const T=FIT([[-v.R,-v.R],[v.R,v.R],Cm,Dm],[30,20,300,180]); const O=T([0,0]),B=T([0,-v.R]),C=T(Cm),Dd=T(Dm), R=O[1]-T([0,v.R])[1];
-  return D.svg(D.circ(O[0],O[1],R,"body2")+D.pinj(O[0],O[1])+D.bar(B[0],B[1],C[0],C[1],7)+D.bar(C[0],C[1],Dd[0],Dd[1],7)+D.pin(Dd[0],Dd[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(O[0],O[1]-12,"O")+D.text(B[0]-6,B[1]+14,"B","end")+D.text(C[0]+10,C[1]-6,"C","start")+D.text(Dd[0]-12,Dd[1],"D","end")+D.arcArrow(O[0],O[1],R+10,130,50,"v",`${nf(v.w0)} rad/s CW`,"start")+D.angle(Dd[0],Dd[1],24,0,v.th,`${nf(v.th)}°`)+D.text(20,205,`r = ${nf(v.R)} m,  BC = ${nf(v.L)} m,  CD = ${nf(v.l)} m`,"start","tm")); },
-piston(v,r){ const A=[-v.p,v.q], Bm=[-v.p+r.rx,0]; const T=FIT([[-v.p,0],A,Bm,[0,-1.5],[Bm[0]+2,1.5]],[30,25,320,170]); const O=T([0,0]),a=T(A),b=T(Bm);
-  return D.svg(D.line(O[0]-20,O[1],335,O[1],"h")+D.rect(b[0]-16,b[1]-11,32,22,"body")+D.line(b[0]-40,b[1]-14,335,b[1]-14,"thin")+D.line(b[0]-40,b[1]+14,335,b[1]+14,"thin")+D.bar(O[0],O[1],a[0],a[1],7)+D.bar(a[0],a[1],b[0],b[1],7)+D.pin(O[0],O[1])+D.pinj(a[0],a[1])+D.pinj(b[0],b[1])+D.text(O[0]+2,O[1]+26,"O")+D.text(a[0]-8,a[1]-10,"A","end")+D.text(b[0],b[1]-24,"B")+D.arcArrow(O[0],O[1],26,60,-20,"v",`ω = ${nf(v.w1)} CW`,"start")+D.text(20,205,`r_A/O = (−${nf(v.p)}, ${nf(v.q)}) in,  AB = ${nf(v.L)} in,  α = ${nf(v.a1)}`,"start","tm")); },
-diskroll(v,r){ const T=FIT([[0,0],[1,-2],[4,-2],[4-(2+v.r),0],[4+(2+v.r)*0.9,-(2+v.r)*0.5],[4,-2-v.r]],[20,20,340,195]); const A=T([0,0]),B=T([1,-2]),C=T([4,-2]),Cn=T([4,0]), rr=C[0]-T([4-v.r,-2])[0], Rs=C[0]-T([4-(2+v.r),0])[0];
-  return D.svg(D.path(`M${Cn[0]-Rs*0.95},${Cn[1]+Rs*0.3} A${Rs},${Rs} 0 0 0 ${Cn[0]+Rs*0.8},${Cn[1]+Rs*0.6}`,"s")+D.dot(Cn[0],Cn[1],2)+D.circ(C[0],C[1],rr,"body2")+D.bar(A[0],A[1],B[0],B[1],7)+D.bar(B[0],B[1],C[0],C[1],7)+D.wall(A[0]-8,A[1]-25,A[1]+25,-1)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]+10,A[1]-10,"A","start")+D.text(B[0]-10,B[1],"B","end")+D.text(C[0]+8,C[1]-10,"C","start")+D.arcArrow(A[0],A[1],28,-80,-10,"v")+D.text(A[0]+40,A[1]+18,`ω = ${nf(v.w)} CCW, α = ${nf(v.a)}`,"start","tv")+D.text(20,205,`BC = 3 m, disk r = ${nf(v.r)} m, path of C: ρ = 2 m`,"start","tm")); }
+incline(v,r){ const th=v.th*RAD, O=[25,195], L=300, T=D.at(O[0],O[1],v.th,L), m=D.at(O[0],O[1],v.th,L*0.42), n=[-Math.sin(th),-Math.cos(th)], R=26, c=[m[0]+n[0]*R,m[1]+n[1]*R];
+  return D.svg(D.poly([O,[T[0],O[1]],T],"body2",true)+(v.s===1||v.s===3?D.circ(c[0],c[1],R,"body2")+D.circ(c[0],c[1],R-4,"body2"):D.circ(c[0],c[1],R,"body"))+D.dot(c[0],c[1],2.5)+D.angle(O[0],O[1],50,0,v.th,`θ = ${nf(v.th)}°`)+D.arcArrow(c[0],c[1],R+10,60,150,"v","","start")+D.arrow(c[0]+n[0]*(R+16)+22*Math.cos(th),c[1]+n[1]*(R+16)-22*Math.sin(th),c[0]+n[0]*(R+16)-24*Math.cos(th),c[1]+n[1]*(R+16)+24*Math.sin(th),"v","a_G?",c[0]+n[0]*(R+30)+26*Math.cos(th),c[1]+n[1]*(R+30)-26*Math.sin(th),"start")+LG(12,20,[[`${SHN[v.s]}, ${nf(v.m)} kg, r = ${nf(v.r)} m`],["rolls without slipping"]])); },
+race(v,r){ const th=v.th*RAD, O=[25,195], L=300, T=D.at(O[0],O[1],v.th,L), m=D.at(O[0],O[1],v.th,L*0.85), n=[-Math.sin(th),-Math.cos(th)], R=18, c=[m[0]+n[0]*R,m[1]+n[1]*R];
+  return D.svg(D.poly([O,[T[0],O[1]],T],"body2",true)+(v.s===1||v.s===3?D.circ(c[0],c[1],R,"body2")+D.circ(c[0],c[1],R-4,"body2"):D.circ(c[0],c[1],R,"body"))+D.text(c[0]+4,c[1]-R-10,"start (rest)","end","tm")+D.angle(O[0],O[1],50,0,v.th,`θ = ${nf(v.th)}°`)+D.text(O[0]+40,O[1]-54,`d = ${nf(v.d)} m along incline`,"start","tm")+LG(12,20,[[`${SHN[v.s]} rolls without slipping`],["find v and t at the bottom"]])); },
+spool(v,r){ const g=190, R=80, rr=Math.max(10,v.r/v.R*R), C=[140,g-R];
+  return D.svg(D.ground(20,340,g)+D.circ(C[0],C[1],R,"body2")+D.circ(C[0],C[1],rr,"body")+D.dot(C[0],C[1],2.5)+D.line(C[0],C[1]+rr,C[0]+170,C[1]+rr,"s")+D.arrow(C[0]+130,C[1]+rr,C[0]+175,C[1]+rr,"f",`P = ${nf(v.P)} N`)+D.dot(C[0],g,3.5,"dotf")+D.text(C[0]-8,g-10,"C","end","tf")+D.dim(C[0]-R-18,C[1],C[0]-R-18,g,`R = ${nf(v.R)}`)+D.text(C[0]-rr-6,C[1]-4,`r = ${nf(v.r)}`,"end","tm")+LG(230,24,[[`m = ${nf(v.m)} kg`],[`k_G = ${nf(v.k)} m`],["rolls, no slip"]])); },
+bowling(v,r){ const g=170, R=40, C=[80,g-R];
+  return D.svg(D.ground(15,345,g)+D.circ(C[0],C[1],R,"body")+D.dot(C[0],C[1],2.5)+D.arrow(C[0]+R+6,C[1],C[0]+R+60,C[1],"v",`v₀ = ${nf(v.v0)} m/s`)+D.text(C[0],C[1]-R-12,"ω₀ = 0","middle","tv")+D.arrow(C[0]+10,g+14,C[0]-30,g+14,"f",`f = μ_k N`,C[0]+16,g+14,"start")+D.circ(270,g-R,R,"h")+D.text(270,g-R,"rolling","middle","tm")+D.text(270,g+18,"v = ωr","middle","tm")+LG(160,24,[[`m = ${nf(v.m)} kg, r = ${nf(v.r)} m`],[`μ_k = ${nf(v.mu)}`]])); }
 };
 
 /* SCHEMATICS-END */
@@ -522,7 +417,7 @@ function renderNav(){
 
 function select(id){
   state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
-  try{ localStorage.setItem("dpl-last-rigid-kinematics", id); }catch(e){}
+  try{ localStorage.setItem("dpl-last-rolling", id); }catch(e){}
   renderNav(); renderSheet(); window.scrollTo({top:0});
 }
 function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
@@ -630,7 +525,7 @@ function drawPlot(P){
 window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
-let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-rigid-kinematics"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-rolling"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

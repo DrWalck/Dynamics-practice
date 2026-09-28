@@ -139,6 +139,29 @@ canvas{display:block;width:100%;height:260px}
   .solution{animation:rise .25s ease-out}
   @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
 }
+sub{font-size:.72em;line-height:0;vertical-align:-.25em}
+/* SCHEM-CSS-START */
+.probtop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
+@media (max-width:900px){.probtop{grid-template-columns:1fr}}
+.schem{margin:0;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:8px 8px 4px}
+.schem figcaption{font-size:.74rem;color:var(--muted);text-align:right;margin-top:2px}
+.diag{width:100%;height:auto;display:block;overflow:visible}
+.diag .s,.diag .spr{stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.diag .thin{stroke:var(--ink);stroke-width:1.1;fill:none}
+.diag .h{stroke:var(--muted);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.diag .h2{stroke:var(--muted);stroke-width:1.2;fill:none}
+.diag .hatch{stroke:var(--muted);stroke-width:1}
+.diag .v{stroke:var(--accent);stroke-width:2.2;fill:none}
+.diag .f{stroke:var(--plot-2);stroke-width:2.2;fill:none}
+.diag .body{fill:var(--accent-soft);stroke:var(--ink);stroke-width:1.6}
+.diag .body2{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
+.diag .pinb,.diag .pinc{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.diag .dotk{fill:var(--ink)} .diag .dotv{fill:var(--accent)} .diag .dotf{fill:var(--plot-2)}
+.diag .dimln{stroke:var(--muted);stroke-width:1} .diag .ext{stroke:var(--muted);stroke-width:.8;stroke-dasharray:2 3}
+.diag .ms{fill:var(--muted)} .diag .mv{fill:var(--accent)} .diag .mf{fill:var(--plot-2)}
+.diag text{font-family:var(--body);font-size:12.5px}
+.diag .t,.diag .ts{fill:var(--ink)} .diag .tv{fill:var(--accent);font-weight:600} .diag .tf{fill:var(--plot-2);font-weight:600} .diag .tm{fill:var(--muted)}
+/* SCHEM-CSS-END */
 </style>
 </head><body>
 
@@ -423,6 +446,84 @@ const PROBLEMS = [
 /* =====================================================================
    APP
    ===================================================================== */
+/* Turn plain-text subscripts like a_t, ΣF_n, r_B/A into real subscripts (skips math and inputs). */
+function fixSubs(root){
+  if(!root) return;
+  const skip=(n)=>{ for(let p=n.parentNode;p&&p!==root.parentNode;p=p.parentNode){ const t=p.nodeName; if(t==="svg"||t==="text"||t==="tspan"||t==="MATH"||t==="math"||t==="CODE"||t==="SCRIPT"||t==="STYLE"||t==="TEXTAREA"||t==="SUB"||(p.classList&&(p.classList.contains("eq")||p.classList.contains("ceq")))) return true; } return false; };
+  const re=/([^\s_(])_([A-Za-z0-9]+(?:\/[A-Z][A-Za-z]*)?|[θαωρμ∞])/g;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); const nodes=[];
+  while(w.nextNode()){ const n=w.currentNode; if(n.nodeValue.indexOf("_")>=0 && !skip(n)) nodes.push(n); }
+  nodes.forEach(n=>{ const s=n.nodeValue; const frag=document.createDocumentFragment(); let last=0; s.replace(re,(m,a,b,i)=>{ frag.appendChild(document.createTextNode(s.slice(last,i)+a)); const sb=document.createElement("sub"); sb.textContent=b; frag.appendChild(sb); last=i+m.length; return m; }); frag.appendChild(document.createTextNode(s.slice(last))); n.parentNode.replaceChild(frag,n); });
+}
+/* SCHEMATICS-START */
+/* ===================== SCHEMATIC HELPERS (SVG) =====================
+   Coordinates are SVG pixels in a 360 × 220 box (y points down).
+   Classes: s = structure, h = hidden/dashed, v = velocity/rotation (blue),
+            f = force/acceleration (orange), body = filled part, t = text.
+   Labels accept a_t style subscripts.                                   */
+const D = (()=>{
+  const r1=(n)=>Math.round(n*10)/10;
+  const esc=(s)=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  const lab=(s)=>esc(s).replace(/_([A-Za-z0-9θαωρμ′]+(?:\/[A-Z][A-Za-z]*)?)/g,(m,b)=>`<tspan dy="0.32em" font-size="0.72em">${b}</tspan><tspan dy="-0.32em"> </tspan>`);
+  const defs=`<defs>${["s","v","f"].map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m${k}" d="M0,0 L10,5 L0,10 z"/></marker>`).join("")}</defs>`;
+  const D={
+    W:360, H:220,
+    svg:(inner,w=360,h=220)=>`<svg class="diag" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${defs}${inner}</svg>`,
+    line:(x1,y1,x2,y2,c="s")=>`<line class="${c}" x1="${r1(x1)}" y1="${r1(y1)}" x2="${r1(x2)}" y2="${r1(y2)}"/>`,
+    poly:(pts,c="s",close=false)=>`<${close?"polygon":"polyline"} class="${c}" points="${pts.map(p=>r1(p[0])+","+r1(p[1])).join(" ")}"/>`,
+    path:(d,c="s")=>`<path class="${c}" d="${d}"/>`,
+    rect:(x,y,w,h,c="body",rot=0,cx=0,cy=0)=>`<rect class="${c}" x="${r1(x)}" y="${r1(y)}" width="${r1(w)}" height="${r1(h)}"${rot?` transform="rotate(${r1(rot)} ${r1(cx)} ${r1(cy)})"`:""}/>`,
+    circ:(cx,cy,r,c="body")=>`<circle class="${c}" cx="${r1(cx)}" cy="${r1(cy)}" r="${r1(r)}"/>`,
+    dot:(x,y,r=3.2,c="dotk")=>`<circle class="${c}" cx="${r1(x)}" cy="${r1(y)}" r="${r}"/>`,
+    text:(x,y,s,a="middle",c="t")=>`<text class="${c}" x="${r1(x)}" y="${r1(y)}" text-anchor="${a}" dominant-baseline="middle">${lab(s)}</text>`,
+    arrow:(x1,y1,x2,y2,c="v",label="",lx,ly,la="middle")=>{ const k=c==="f"?"f":c==="v"?"v":"s"; let o=`<line class="${c} arr" x1="${r1(x1)}" y1="${r1(y1)}" x2="${r1(x2)}" y2="${r1(y2)}" marker-end="url(#ah-${k})"/>`; if(label){ if(lx===undefined){ const L=Math.hypot(x2-x1,y2-y1)||1; let nx=-(y2-y1)/L, ny=(x2-x1)/L; if(ny>0||(Math.abs(ny)<1e-6&&nx<0)){nx=-nx;ny=-ny;} lx=(x1+x2)/2+nx*13; ly=(y1+y2)/2+ny*13; if(Math.abs(ny)<0.3){ la=nx>0?"start":"end"; lx=(x1+x2)/2+nx*8; } } o+=D.text(lx,ly,label,la,"t"+k); } return o; },
+    ground:(x1,x2,y,step=9)=>{ let o=D.line(x1,y,x2,y); for(let x=x1+4;x<x2;x+=step) o+=D.line(x,y,x-6,y+7,"hatch"); return o; },
+    wall:(x,y1,y2,side=-1,step=9)=>{ let o=D.line(x,y1,x,y2); for(let y=y1+4;y<y2;y+=step) o+=D.line(x,y,x+side*7,y+6,"hatch"); return o; },
+    pin:(x,y,size=9)=>`${D.poly([[x,y],[x-size,y+size*1.4],[x+size,y+size*1.4]],"pinb",true)}${D.ground(x-size-5,x+size+5,y+size*1.4,6)}${D.circ(x,y,3,"pinc")}`,
+    spring:(x1,y1,x2,y2,n=7,amp=5)=>{ const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L, px=-uy, py=ux; const pts=[[x1,y1]]; const a=L*0.12, b=L*0.88; pts.push([x1+ux*a,y1+uy*a]); for(let i=0;i<n;i++){ const t=a+(b-a)*(i+0.5)/n, s=(i%2?-1:1)*amp; pts.push([x1+ux*t+px*s, y1+uy*t+py*s]); } pts.push([x1+ux*b,y1+uy*b],[x2,y2]); return D.poly(pts,"spr"); },
+    /* arc arrow: angles in degrees, math convention (CCW positive, 0 = +x) */
+    arcArrow:(cx,cy,r,a0,a1,c="v",label="",la)=>{ const p=(a)=>[cx+r*Math.cos(a*Math.PI/180), cy-r*Math.sin(a*Math.PI/180)]; const [x0,y0]=p(a0),[x1,y1]=p(a1); const large=Math.abs(a1-a0)>180?1:0, sweep=a1>a0?0:1; const k=c==="f"?"f":"v"; let o=`<path class="${c} arr" d="M${r1(x0)},${r1(y0)} A${r1(r)},${r1(r)} 0 ${large} ${sweep} ${r1(x1)},${r1(y1)}" marker-end="url(#ah-${k})"/>`; if(label){ const am=(a0+a1)/2, [lx,ly]=[cx+(r+12)*Math.cos(am*Math.PI/180), cy-(r+12)*Math.sin(am*Math.PI/180)]; o+=D.text(lx,ly,label,la||"middle","t"+k); } return o; },
+    angle:(cx,cy,r,a0,a1,label="",c="h2")=>{ const p=(a)=>[cx+r*Math.cos(a*Math.PI/180), cy-r*Math.sin(a*Math.PI/180)]; const [x0,y0]=p(a0),[x1,y1]=p(a1); const sweep=a1>a0?0:1; let o=`<path class="${c}" d="M${r1(x0)},${r1(y0)} A${r1(r)},${r1(r)} 0 0 ${sweep} ${r1(x1)},${r1(y1)}"/>`; if(label){ const am=(a0+a1)/2; o+=D.text(cx+(r+11)*Math.cos(am*Math.PI/180), cy-(r+11)*Math.sin(am*Math.PI/180), label,"middle","tm"); } return o; },
+    dim:(x1,y1,x2,y2,label="",off=0)=>{ const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1, px=-dy/L*off, py=dx/L*off; const a=[x1+px,y1+py], b=[x2+px,y2+py]; let o=`<line class="dimln" x1="${r1(a[0])}" y1="${r1(a[1])}" x2="${r1(b[0])}" y2="${r1(b[1])}" marker-end="url(#ah-s)" marker-start="url(#ah-s)"/>`; if(off){ o+=D.line(x1,y1,a[0],a[1],"ext")+D.line(x2,y2,b[0],b[1],"ext"); } if(label){ const nx=-dy/L, ny=dx/L, s=off>=0?1:-1; o+=D.text((a[0]+b[0])/2+nx*10*s,(a[1]+b[1])/2+ny*10*s,label,"middle","tm"); } return o; },
+    /* rotate a point (x,y) about (cx,cy) by deg (math CCW) */
+    rot:(x,y,cx,cy,deg)=>{ const a=deg*Math.PI/180, dx=x-cx, dy=-(y-cy); return [cx+dx*Math.cos(a)-dy*Math.sin(a), cy-(dx*Math.sin(a)+dy*Math.cos(a))]; },
+    /* unit point on a ray from (cx,cy) at angle deg (math) and length L */
+    at:(cx,cy,deg,L)=>[cx+L*Math.cos(deg*Math.PI/180), cy-L*Math.sin(deg*Math.PI/180)],
+    /* slender bar between two points, drawn as a rounded band */
+    bar:(x1,y1,x2,y2,w=8,c="body")=>{ const L=Math.hypot(x2-x1,y2-y1)||1, ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI; return `<rect class="${c}" x="${r1(x1-w/2)}" y="${r1(y1-w/2)}" width="${r1(L+w)}" height="${r1(w)}" rx="${r1(w/2)}" transform="rotate(${r1(ang)} ${r1(x1)} ${r1(y1)})"/>`; },
+    /* block centered at (x,y) rotated to lie along direction deg (math) */
+    collar:(x,y,deg,w=18,h=14,c="body")=>`<rect class="${c}" x="${r1(x-w/2)}" y="${r1(y-h/2)}" width="${w}" height="${h}" rx="2" transform="rotate(${r1(-deg)} ${r1(x)} ${r1(y)})"/>`,
+    pinj:(x,y)=>`<circle class="pinc" cx="${r1(x)}" cy="${r1(y)}" r="3.2"/>`,
+    fitScale:(span,px)=> px/Math.max(span,1e-9)
+  };
+  return D;
+})();
+const nf=(x,s=3)=>fmt(x,s);
+const RAD=Math.PI/180;
+const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
+/* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
+const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+
+const DIAG = {
+collar(v,r){ const O=[150,115], deg=((r.th*180/Math.PI)%360+360)%360, L=88, rr=Math.min(0.9,r.r/(v.r0+v.c*16))*L, E=D.at(O[0],O[1],deg,L), A=D.at(O[0],O[1],deg,rr);
+  return D.svg(D.line(O[0],O[1],O[0]+120,O[1],"h")+D.bar(O[0],O[1],E[0],E[1],7,"body2")+D.collar(A[0],A[1],deg)+D.pin(O[0],O[1])+D.angle(O[0],O[1],26,0,deg,"θ")+D.text(A[0]+12,A[1]-12,"A","start")+D.text(250,30,`r = ${nf(v.r0)} + ${nf(v.c)}t² m`,"start","tm")+D.text(250,50,`θ = ${nf(v.k)}t rad`,"start","tm")+D.text(250,70,`t = ${nf(v.t)} s`,"start","tm")+D.text(250,200,"rod shown at θ(t)","start","tm")+D.text(O[0]+14,O[1]+22,"O","start")); },
+arc(v,r){ const O=[50,180], R=95, C=[O[0]+R,O[1]], th=v.th, rr=2*R*Math.cos(th*RAD), A=D.at(O[0],O[1],th,rr);
+  return D.svg(D.path(`M${O[0]},${O[1]} A${R},${R} 0 0 1 ${O[0]+2*R},${O[1]}`,"s")+D.line(O[0]-10,O[1],O[0]+2*R+30,O[1],"h")+D.line(O[0],O[1],A[0],A[1],"s")+D.collar(A[0],A[1],th-90,16,12)+D.pin(O[0],O[1])+D.angle(O[0],O[1],34,0,th,`θ = ${nf(v.th)}°`)+D.text(A[0]+12,A[1]-10,"A","start")+D.text(O[0]-4,O[1]-12,"O","end")+D.arcArrow(O[0],O[1],62,th+10,th+38,"v")+D.text(250,30,`r = ${nf(v.b)} cos θ m`,"start","tm")+D.text(250,50,`θ̇ = ${nf(v.w)} rad/s`,"start","tv")+D.text(250,70,"θ̈ = 0","start","tm")); },
+cam(v,r){ const O=[165,110], th=v.th; let mx=0; const fr=(a)=>v.p/(1+v.e*Math.cos(a)); for(let i=0;i<72;i++) mx=Math.max(mx,fr(i*5*RAD)); const sc=88/mx; const pts=[]; for(let i=0;i<=72;i++){const a=i*5*RAD, q=fr(a)*sc; pts.push([O[0]+q*Math.cos(a), O[1]-q*Math.sin(a)]);} const rr=fr(th*RAD)*sc, P=D.at(O[0],O[1],th,rr), E=D.at(O[0],O[1],th,rr+30);
+  return D.svg(D.poly(pts,"body2",true)+D.line(O[0]-110,O[1],O[0]+110,O[1],"h")+D.bar(O[0],O[1],E[0],E[1],10,"h")+D.circ(P[0],P[1],7,"body")+D.pin(O[0],O[1])+D.angle(O[0],O[1],22,0,th,`θ = ${nf(v.th)}°`)+D.arcArrow(O[0],O[1],44,th+18,th+55,"v")+D.text(10,18,`r = ${nf(v.p)}/(1 + ${nf(v.e)} cos θ) m`,"start","tm")+D.text(10,205,`ω = ${nf(v.w)} rad/s (const)`,"start","tv")); },
+spring(v,r){ const O=[50,160], deg=25, L=280, s=L*0.8/Math.max(v.r2,1e-6), A1=D.at(O[0],O[1],deg,v.r1*s), A2=D.at(O[0],O[1],deg,v.r2*s), E=D.at(O[0],O[1],deg,L);
+  return D.svg(D.bar(O[0],O[1],E[0],E[1],7,"body2")+D.spring(O[0],O[1],A1[0],A1[1],8,5)+D.collar(A1[0],A1[1],deg)+D.collar(A2[0],A2[1],deg,18,14,"h")+D.pin(O[0],O[1])+D.arcArrow(O[0],O[1],40,40,95,"v")+D.text(20,44,`ω = ${nf(v.w)} rad/s`,"start","tv")+D.text(A1[0],A1[1]+22,`r₁ = ${nf(v.r1)}`,"middle","tm")+D.text(A2[0],A2[1]+22,`r₂ = ${nf(v.r2)}`,"middle","tm")+D.arrow(A1[0]-6,A1[1]-18,A1[0]+32,A1[1]-36,"v")+D.text(20,64,`ṙ₁ = ${nf(v.vr1)} m/s (outward)`,"start","tv")+D.text(20,24,`a_r = −${nf(v.k)} r`,"start","tf")); },
+boat(v,r){ const O=[180,112], th=r.th, sc=95/(v.b*th); const pts=[]; for(let i=0;i<=240;i++){const a=th*i/240, q=v.b*a*sc; pts.push([O[0]+q*Math.cos(a), O[1]-q*Math.sin(a)]);} const P=pts[pts.length-1];
+  return D.svg(D.poly(pts,"h")+D.dot(O[0],O[1],2.5)+D.line(O[0],O[1],P[0],P[1],"thin")+D.text(O[0]+6,O[1]+12,"O","start")+D.rect(P[0]-9,P[1]-6,18,12,"body")+D.text(P[0],P[1]-16,"boat")+D.text(10,18,`r = ${nf(v.b)}θ m`,"start","tm")+D.text(10,38,`θ = ${nf(v.n)}π rad`,"start","tm")+D.text(10,58,`speed ${nf(v.kn)} knots`,"start","tv")); },
+cars(v,r){ const C=[150,140], sy=(v.d>0? 100/v.d:1);
+  return D.svg(D.rect(20,C[1]-18,320,36,"h")+D.rect(C[0]-18,10,36,200,"h")+D.rect(C[0]-14,C[1]-8,28,16,"body")+D.text(C[0],C[1]+24,"A")+D.arrow(C[0]+20,C[1]-28,C[0]+80,C[1]-28,"v",`v_A = ${nf(v.kmh)} km/h`)+D.rect(C[0]-8,C[1]-100-14,16,28,"body")+D.text(C[0]+14,C[1]-100,"B","start")+D.arrow(C[0]+40,C[1]-112,C[0]+40,C[1]-72,"f",`a_B = ${nf(v.aB)} m/s²`,C[0]+48,C[1]-92,"start")+D.dim(C[0]-45,C[1]-100,C[0]-45,C[1],`${nf(v.d)} m`)+D.text(258,200,`find B/A at t = ${nf(v.t)} s`,"middle","tm")+D.arrow(300,30,330,30,"s","x (E)",332,30,"start")+D.arrow(300,30,300,5,"s","")); },
+trains(v,r){ const O=[45,110], R=85, xA=O[0]+R+42, X=215;
+  return D.svg(D.path(`M${O[0]},${O[1]+R} A${R},${R} 0 0 0 ${O[0]},${O[1]-R}`,"s")+D.dot(O[0],O[1],2.5)+D.text(O[0]-6,O[1],"O","end")+D.line(O[0],O[1],O[0]+R,O[1],"h")+D.text(O[0]+R/2-4,O[1]-10,"R","middle","tm")+D.line(xA,10,xA,210,"s")+D.rect(O[0]+R-7,O[1]-12,14,24,"body")+D.text(O[0]+R-12,O[1]+22,"B","end")+D.arrow(O[0]+R+2,O[1]-18,O[0]+R+2,O[1]-65,"v","v_B",O[0]+R+10,O[1]-60,"start")+D.rect(xA-7,O[1]-12,14,24,"body")+D.text(xA-12,O[1]+22,"A","end")+D.arrow(xA+12,O[1]-20,xA+12,O[1]+30,"v","v_A",xA+18,O[1]+30,"start")+D.text(X,30,`R = ${nf(v.R)} ft`,"start","tm")+D.text(X,50,`v_B = ${nf(v.vB)} ft/s (const)`,"start","tv")+D.text(X,70,`v_A = ${nf(v.vA)} ft/s ↓`,"start","tv")+D.text(X,150,`a_A = ${nf(v.aA)} ft/s²`,"start","tf")+D.text(X,168,"(speeding up)","start","tm")); },
+jet(v,r){ const O=[150,150], L=110, hd=v.hd, J=[O[0]+L*Math.sin(hd*RAD), O[1]-L*Math.cos(hd*RAD)];
+  return D.svg(D.poly([[O[0]-60,O[1]+10],[O[0]+40,O[1]+10],[O[0]+62,O[1]],[O[0]+40,O[1]-10],[O[0]-60,O[1]-10]],"body2",true)+D.arrow(O[0]+70,O[1]+30,O[0]+150,O[1]+30,"v",`v_S = ${nf(v.vS)} m/s (east)`,O[0]+110,O[1]+46)+D.line(O[0],O[1],O[0],O[1]-120,"h")+D.text(O[0],O[1]-128,"N","middle","tm")+D.arrow(O[0],O[1],J[0],J[1],"v",`v_P = ${nf(v.vP)} m/s`,J[0]+8,J[1]-8,"start")+D.angle(O[0],O[1],30,90,90-hd)+D.text(O[0]-8,O[1]-44,`${nf(v.hd)}° E of N`,"end","tm")+D.dot(O[0],O[1],4)); }
+};
+
+/* SCHEMATICS-END */
 const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
 const $ = (s)=>document.querySelector(s);
 const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
@@ -433,6 +534,7 @@ function renderNav(){
     PROBLEMS.filter(p=>p.topic===tp).map(p=>`<li><button type="button" data-id="${p.id}" aria-current="${p.id===state.id}"><span class="pname">${p.name}</span><span class="ptag">${p.tag}</span></button></li>`).join("")
   }</ul></div>`).join("") + `<p class="soon">More topics will appear here as they are added.</p>`;
   $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>select(b.dataset.id));
+  fixSubs($("#nav"));
 }
 
 function select(id){
@@ -455,7 +557,7 @@ function renderSheet(){
       </div>
     </div>
     <div class="variant">${state.isOriginal ? "Showing the numbers from the class notes" : "Practice version #"+(state.variant-1)+" · random givens"}</div>
-    <p class="statement">${p.statement(v,r)}</p>
+    <div class="probtop"><p class="statement">${p.statement(v,r)}</p>${(typeof DIAG!=="undefined"&&DIAG[p.id])?`<figure class="schem">${DIAG[p.id](v,r)}<figcaption>Schematic · updates with the numbers</figcaption></figure>`:""}</div>
     <div class="cols">
       <div class="box"><h3>Given</h3><ul>${p.given(v,r).map(([k,x])=>`<li><span>${k}</span><span class="v">${x}</span></li>`).join("")}</ul></div>
       <div class="box"><h3>Find</h3><ul>${p.find.map(f=>`<li><span>${f}</span></li>`).join("")}</ul></div>
@@ -482,6 +584,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  fixSubs($("#sheet"));
 }
 
 function check(a,i){
@@ -508,10 +611,11 @@ function drawSolution(p,v,r,ans,steps){
       <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
       : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
   if(done) drawPlot(p.plot(v,r));
+  fixSubs(sol);
 }
 
 function drawPlot(P){
-  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap;
+  const cv=$("#plot"); if(!cv) return; $("#cap").textContent=P.cap; fixSubs($("#cap"));
   const css=getComputedStyle(document.documentElement), col=(n)=>css.getPropertyValue(n).trim();
   const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
   cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
@@ -547,6 +651,6 @@ let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-polar"); i
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
-renderConcepts();
+renderConcepts(); fixSubs(document.getElementById("concepts"));
 </script>
 </body></html>
