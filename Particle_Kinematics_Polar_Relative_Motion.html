@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';s.onload=function(){window.renderSheet&&renderSheet();window.renderConcepts&&renderConcepts()};document.head.appendChild(s)"></script>
 <style>
 :root{
@@ -140,6 +141,7 @@ canvas{display:block;width:100%;height:260px}
   @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
 }
 sub{font-size:.72em;line-height:0;vertical-align:-.25em}
+.eyebrow sub,.topic h2 sub{text-transform:none}
 /* SCHEM-CSS-START */
 .probtop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
 @media (max-width:900px){.probtop{grid-template-columns:1fr}}
@@ -162,7 +164,145 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 .diag text{font-family:var(--body);font-size:12.5px}
 .diag .t,.diag .ts{fill:var(--ink)} .diag .tv{fill:var(--accent);font-weight:600} .diag .tf{fill:var(--plot-2);font-weight:600} .diag .tm{fill:var(--muted)}
 /* SCHEM-CSS-END */
-.eyebrow sub,.topic h2 sub{text-transform:none}
+/* GAME-CSS-START */
+/* ---------- Neon "game" theme (overrides everything above) ---------- */
+:root:root:root{
+  color-scheme:dark;
+  --bg:#060a14; --grid:rgba(34,211,238,.05); --surface:rgba(13,20,38,.86); --surface-2:#0e1730; --surface-3:#15213f;
+  --ink:#e9f1ff; --muted:#97a7c9; --line:#23345c;
+  --accent:#22d3ee; --accent-ink:#04121a; --accent-soft:rgba(34,211,238,.10);
+  --hl:rgba(255,210,63,.13); --hl-ink:#ffe27a;
+  --good:#7cff6b; --good-soft:rgba(124,255,107,.11); --warn:#ffd23f; --warn-soft:rgba(255,210,63,.12); --bad:#ff5c8a; --bad-soft:rgba(255,92,138,.13);
+  --plot-2:#ff8a3d; --mag:#ff4fd8; --vio:#8b5cf6;
+  --display:"Chakra Petch","Barlow Semi Condensed",system-ui,sans-serif;
+  --grad:linear-gradient(135deg,#22d3ee 0%,#8b5cf6 55%,#ff4fd8 100%);
+}
+html{background:#060a14}
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 5% -8%,rgba(139,92,246,.20),transparent 62%),
+    radial-gradient(800px 480px at 105% 0%,color-mix(in srgb,var(--zone) 20%,transparent),transparent 60%),
+    linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:auto,auto,28px 28px,28px 28px;
+}
+::selection{background:rgba(34,211,238,.35)}
+
+/* header */
+header.top{border-bottom:none;position:relative;padding-block:26px 22px;align-items:flex-end}
+header.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--zone),#8b5cf6,transparent);box-shadow:0 0 14px var(--zone)}
+header.top h1{font-weight:700;letter-spacing:.02em;background:linear-gradient(90deg,#ffffff 20%,var(--zone));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.back{color:var(--zone);font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:.8rem}
+header.top p{flex:1 1 320px}
+
+/* HUD */
+.hud{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;flex:0 1 auto}
+.hud .cell{display:flex;align-items:center;gap:8px;background:rgba(10,16,32,.9);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-family:var(--display);font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.hud .cell svg{width:18px;height:18px;flex:none}
+.hud .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.hud .n{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.hud .lvl{border-color:rgba(139,92,246,.6);box-shadow:0 0 16px -6px #8b5cf6}
+.hud .lvl .n{color:#c4b5fd}
+.hud .xpbar{width:84px;height:7px;border-radius:9px;background:#1a2648;overflow:hidden}
+.hud .xpbar i{display:block;height:100%;background:var(--grad);box-shadow:0 0 10px #22d3ee;transition:width .5s}
+.hud .streak .n{color:#ffb35c}.hud .streak svg{color:#ff8a3d;filter:drop-shadow(0 0 5px #ff8a3d)}
+.hud .clr .n{color:var(--good)}.hud .clr svg{color:var(--good);filter:drop-shadow(0 0 4px var(--good))}
+.hud .xp svg{color:#22d3ee;filter:drop-shadow(0 0 4px #22d3ee)}
+.hud .bump{animation:bump .5s ease-out}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* panels */
+.concepts,main.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 0 0 1px rgba(34,211,238,.04),0 24px 60px -24px rgba(0,0,0,.8);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+main.sheet{border-top:2px solid color-mix(in srgb,var(--zone) 70%,transparent)}
+.concepts summary{font-family:var(--display);letter-spacing:.03em;color:#fff}
+.concepts summary::marker{color:var(--zone)}
+.cgrid h4{color:var(--zone)}
+.cgrid>div{background:rgba(8,14,30,.6);border:1px solid var(--line);border-radius:10px;padding:12px}
+
+/* nav */
+.topic h2{color:var(--zone);font-family:var(--display);letter-spacing:.14em}
+.topic button{border-radius:9px;transition:background .15s,box-shadow .15s}
+.topic button:hover{background:rgba(34,211,238,.06)}
+.topic button[aria-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--zone) 18%,transparent),rgba(13,20,38,.6));border-color:color-mix(in srgb,var(--zone) 45%,transparent);box-shadow:inset 3px 0 0 var(--zone),0 0 22px -10px var(--zone)}
+.topic .ptag{color:#8ea3cf}
+.topic button.solved .pname::after{content:"✓";display:inline-grid;place-items:center;width:1.15em;height:1.15em;margin-left:.45em;border-radius:50%;font-size:.72em;background:var(--good);color:#06210a;box-shadow:0 0 8px var(--good);vertical-align:.1em}
+.soon{border-top-color:var(--line)}
+
+/* problem sheet */
+.eyebrow{color:var(--zone);letter-spacing:.14em}
+.phead h2{color:#fff;letter-spacing:.01em}
+.variant{color:#8ea3cf}
+.btn{font-family:var(--display);letter-spacing:.05em;text-transform:uppercase;font-size:.84rem;padding:11px 15px;border-radius:9px;background:var(--surface-3);border:1px solid #2c4274;color:var(--ink);transition:transform .12s,box-shadow .15s,border-color .15s}
+.btn:hover{border-color:var(--accent);box-shadow:0 0 16px -4px var(--accent)}
+.btn.primary{background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#050b18;border-color:transparent;font-weight:700;box-shadow:0 0 18px -6px #22d3ee}
+.btn.primary:hover{filter:brightness(1.08);box-shadow:0 0 24px -4px #22d3ee}
+@media (prefers-reduced-motion:no-preference){.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(1px)}}
+.num{background:var(--hl);color:var(--hl-ink);border:1px solid rgba(255,210,63,.25);text-shadow:0 0 8px rgba(255,210,63,.35)}
+.box{background:rgba(8,14,30,.7);border-radius:12px;border-color:var(--line)}
+.cols .box:first-child{box-shadow:inset 0 2px 0 #22d3ee}
+.cols .box:first-child h3{color:#5eeaff}
+.cols .box:last-child{box-shadow:inset 0 2px 0 var(--mag)}
+.cols .box:last-child h3{color:#ff8be6}
+.box h3{letter-spacing:.14em}
+.box li .v{color:#ffe27a}
+.method b{color:#c4b5fd}
+.answers h3{font-family:var(--display);letter-spacing:.04em;color:#fff}
+.arow{border-top-color:var(--line)}
+.arow input{background:#08101f;border:1px solid #2c4274;border-radius:9px;color:#fff;transition:border-color .15s,box-shadow .15s}
+.arow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.18),0 0 18px -4px var(--accent)}
+.chip{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:.74rem;border:1px solid transparent}
+.chip.good{border-color:rgba(124,255,107,.45);box-shadow:0 0 14px -4px var(--good);text-shadow:0 0 6px rgba(124,255,107,.6)}
+.chip.warn{border-color:rgba(255,210,63,.4)}
+.chip.bad{border-color:rgba(255,92,138,.45)}
+.chip.idle{border-color:var(--line)}
+@media (prefers-reduced-motion:no-preference){.chip.good,.chip.warn,.chip.bad{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.hint{color:#8ea3cf}
+
+/* solution */
+.solution{border-top:none;position:relative}
+.solution::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,#8b5cf6,var(--zone),transparent)}
+.solution h3{font-family:var(--display);letter-spacing:.04em;color:#fff}
+ol.steps li::before{color:#5eeaff;border:1.5px solid #22d3ee;background:rgba(34,211,238,.08);box-shadow:0 0 10px -2px #22d3ee}
+.final .ans{border:1px solid transparent;background:linear-gradient(#0c1530,#0c1530) padding-box,var(--grad) border-box;border-radius:12px;box-shadow:0 0 20px -8px #8b5cf6}
+.final .ans .val{color:#fff}
+.plotwrap{background:rgba(8,14,30,.75);border-radius:12px}
+.takeaway{border-left:3px solid var(--good);background:rgba(124,255,107,.06);border-radius:0 10px 10px 0}
+.takeaway b{color:var(--good)}
+
+/* schematic */
+.schem{background:radial-gradient(120% 90% at 30% 20%,#122049,#070d1d 70%);border:1px solid #2a3f70;border-radius:12px;box-shadow:inset 0 0 30px rgba(34,211,238,.06),0 0 24px -12px #22d3ee}
+.schem figcaption{color:#7f93bd;letter-spacing:.04em}
+.diag .s{stroke:#d6e4ff}
+.diag .thin{stroke:#b8c9ee}
+.diag .spr{stroke:#a3e635;stroke-width:2.2;filter:url(#glow)}
+.diag .h{stroke:#6d82b3}
+.diag .h2{stroke:#b69cff}
+.diag .hatch{stroke:#4f6396}
+.diag .v{stroke:#22d3ee;stroke-width:2.6;filter:url(#glow)}
+.diag .f{stroke:#ff8a3d;stroke-width:2.6;filter:url(#glow)}
+.diag .body{fill:url(#gBody);stroke:#a5c4ff}
+.diag .body2{fill:url(#gBody2);stroke:#86a6e6}
+.diag .pinb{fill:#1c2a52;stroke:#a5c4ff}
+.diag .pinc{fill:#0b1226;stroke:#22d3ee}
+.diag .dotk{fill:#ffffff;filter:url(#glow)} .diag .dotv{fill:#22d3ee;filter:url(#glow)} .diag .dotf{fill:#ff8a3d;filter:url(#glow)}
+.diag .dimln{stroke:#b69cff} .diag .ext{stroke:#6d82b3}
+.diag .ms{fill:#b8c9ee} .diag .mv{fill:#22d3ee} .diag .mf{fill:#ff8a3d}
+.diag text{paint-order:stroke;stroke:#08101f;stroke-width:3.2px;stroke-linejoin:round}
+.diag .t,.diag .ts{fill:#f1f6ff} .diag .tv{fill:#67e8f9} .diag .tf{fill:#ffa468} .diag .tm{fill:#c9bcff}
+
+/* celebration */
+#fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:50}
+.toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-140%);z-index:60;background:rgba(8,14,30,.95);border:1px solid transparent;background-image:linear-gradient(#0a1226,#0a1226),var(--grad);background-origin:border-box;background-clip:padding-box,border-box;border-radius:14px;padding:12px 20px;font-family:var(--display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;box-shadow:0 0 30px -6px #8b5cf6;transition:transform .35s cubic-bezier(.3,1.4,.5,1);display:flex;gap:12px;align-items:center;max-width:calc(100vw - 32px)}
+.toast.show{transform:translate(-50%,0)}
+.toast .plus{color:var(--good);text-shadow:0 0 10px var(--good)}
+.toast small{display:block;font-weight:500;letter-spacing:.04em;text-transform:none;color:var(--muted);font-family:var(--body);font-size:.85rem}
+@media (max-width:780px){.hud{width:100%}.hud .cell{flex:1 1 auto;justify-content:center}}
+/* keep symbols like ma, Iα, a_t in their real case */
+.eyebrow,.topic h2{text-transform:none;letter-spacing:.06em;font-size:.86rem}
+.final .ans .k,.cgrid h4{text-transform:none;letter-spacing:.05em}
+:root:root:root{--zone:#22d3ee}
+/* GAME-CSS-END */
 </style>
 </head><body>
 
@@ -466,7 +606,7 @@ const D = (()=>{
   const r1=(n)=>Math.round(n*10)/10;
   const esc=(s)=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
   const lab=(s)=>esc(s).replace(/_([A-Za-z0-9θαωρμ′]+(?:\/[A-Z][A-Za-z]*)?)/g,(m,b)=>`<tspan dy="0.32em" font-size="0.72em">${b}</tspan><tspan dy="-0.32em"> </tspan>`);
-  const defs=`<defs>${["s","v","f"].map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m${k}" d="M0,0 L10,5 L0,10 z"/></marker>`).join("")}</defs>`;
+  const defs=`<defs>${["s","v","f"].map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m${k}" d="M0,0 L10,5 L0,10 z"/></marker>`).join("")}<linearGradient id="gBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5" stop-opacity=".85"/><stop offset="1" stop-color="#0e7490" stop-opacity=".75"/></linearGradient><linearGradient id="gBody2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#334a7d" stop-opacity=".9"/><stop offset="1" stop-color="#1a2748" stop-opacity=".9"/></linearGradient><filter id="glow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1000" height="800"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   const D={
     W:360, H:220,
     svg:(inner,w=360,h=220)=>`<svg class="diag" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${defs}${inner}</svg>`,
@@ -525,6 +665,77 @@ jet(v,r){ const O=[150,150], L=110, hd=v.hd, J=[O[0]+L*Math.sin(hd*RAD), O[1]-L*
 };
 
 /* SCHEMATICS-END */
+/* GAME-JS-START */
+const GAME_PAGE="Particle_Kinematics_Polar_Relative_Motion.html";
+/* ---------- Game layer: XP, levels, streak, cleared badges, celebration ---------- */
+const GAME=(()=>{
+  const KEY="dpl-game";
+  let S={xp:0,streak:0,best:0,solved:{},orig:{}};
+  try{ Object.assign(S,JSON.parse(localStorage.getItem(KEY))||{}); }catch(e){}
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
+  const mem=new WeakMap();                       /* per set of numbers: {earned:Set, revealed, cleared} */
+  const rec=()=>{ let m=mem.get(state.vars); if(!m){ m={earned:new Set(),revealed:false,cleared:false}; mem.set(state.vars,m);} return m; };
+  const solved=()=>S.solved[GAME_PAGE]||(S.solved[GAME_PAGE]=[]);
+  const lvl=()=>Math.floor(S.xp/100)+1;
+  const I={
+    xp:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+    fire:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.2 1-3.8 2.3-5 .2 1.8 1 2.8 2.2 3.2C11 8.6 11.3 5 12 2z"/></svg>',
+    ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>'
+  };
+  function hud(bump){
+    let h=document.getElementById("hud");
+    if(!h){ h=document.createElement("div"); h.className="hud"; h.id="hud"; h.setAttribute("aria-label","Your progress"); document.querySelector("header.top").appendChild(h); }
+    const n=solved().filter(id=>PROBLEMS.some(p=>p.id===id)).length;
+    h.innerHTML=`<div class="cell lvl"><span class="k">LVL</span><span class="n">${lvl()}</span><span class="xpbar" title="${S.xp%100}/100 XP to next level"><i style="width:${S.xp%100}%"></i></span></div>
+      <div class="cell xp">${I.xp}<span class="n">${S.xp}</span><span class="k">XP</span></div>
+      <div class="cell streak" title="Problems cleared in a row without opening the full solution (best ${S.best})">${I.fire}<span class="n">${S.streak}</span><span class="k">streak</span></div>
+      <div class="cell clr" title="Problems on this page you have fully solved">${I.ok}<span class="n">${n}/${PROBLEMS.length}</span><span class="k">cleared</span></div>`;
+    if(bump) h.querySelectorAll(".cell").forEach(c=>{ if(bump.includes(c.classList[1])){ c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump"); } });
+  }
+  function markNav(){ const s=solved(); document.querySelectorAll("#nav button[data-id]").forEach(b=>b.classList.toggle("solved",s.includes(b.dataset.id))); }
+  function toast(big,small){
+    let t=document.getElementById("toast"); if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; t.setAttribute("role","status"); document.body.appendChild(t); }
+    t.innerHTML=`<div>${big}${small?`<small>${small}</small>`:""}</div>`;
+    t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600);
+  }
+  function burst(x,y){
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cv=document.getElementById("fx"); if(!cv){ cv=document.createElement("canvas"); cv.id="fx"; document.body.appendChild(cv); }
+    const dpr=window.devicePixelRatio||1, W=innerWidth, H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; const c=cv.getContext("2d"); c.scale(dpr,dpr);
+    const cols=["#22d3ee","#8b5cf6","#ff4fd8","#7cff6b","#ffd23f","#ff8a3d"];
+    const P=Array.from({length:140},()=>{ const a=Math.random()*Math.PI*2, s=3+Math.random()*9; return {x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,r:2+Math.random()*3.5,c:cols[Math.random()*cols.length|0],rot:Math.random()*6,vr:(Math.random()-.5)*.4,sq:Math.random()<.5}; });
+    let t0=null;
+    (function f(ts){ t0??=ts; const k=(ts-t0)/1600; c.clearRect(0,0,W,H); if(k>=1){ c.clearRect(0,0,W,H); return; }
+      P.forEach(p=>{ p.vy+=.28; p.vx*=.985; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; c.save(); c.globalAlpha=1-k; c.translate(p.x,p.y); c.rotate(p.rot); c.fillStyle=p.c; c.shadowColor=p.c; c.shadowBlur=8; if(p.sq) c.fillRect(-p.r,-p.r/2,p.r*2,p.r); else { c.beginPath(); c.arc(0,0,p.r*.7,0,7); c.fill(); } c.restore(); });
+      requestAnimationFrame(f); })(performance.now());
+  }
+  function onCheck(ans){
+    const m=rec(); let gain=0, allGood=true;
+    ans.forEach((a,i)=>{ const good=document.getElementById("c"+i).classList.contains("good"); if(!good) allGood=false; else if(!m.revealed && !m.earned.has(i)){ m.earned.add(i); gain+=10; } });
+    const origKey=GAME_PAGE+"|"+state.id;
+    if(state.isOriginal && S.orig[origKey]) gain=0;   /* the class example only pays XP once */
+    if(allGood && !m.cleared){
+      m.cleared=true;
+      if(!m.revealed){
+        if(!(state.isOriginal && S.orig[origKey])){ gain+=20; S.streak++; S.best=Math.max(S.best,S.streak); }
+        if(state.isOriginal) S.orig[origKey]=true;
+        const s=solved(); if(!s.includes(state.id)) s.push(state.id);
+      }
+      const before=lvl(); S.xp+=gain; save(); hud(["lvl","xp","streak","clr"]); markNav();
+      const b=document.querySelector('#ansform button[type="submit"]').getBoundingClientRect(); burst(b.left+b.width/2,b.top);
+      const up=lvl()>before;
+      toast(up?`Level up! <span class="plus">LVL ${lvl()}</span>`:`Stage clear <span class="plus">+${gain} XP</span>`,
+            m.revealed?"Solution was open, so no XP this time. Try New numbers!":(S.streak>1?`${S.streak} in a row. Keep it going with New numbers.`:"Press New numbers for another round."));
+      return;
+    }
+    if(gain){ S.xp+=gain; save(); hud(["xp","lvl"]); }
+  }
+  function onReveal(){ const m=rec(); if(!m.revealed && !m.cleared){ m.revealed=true; if(S.streak){ S.streak=0; save(); hud(["streak"]); } } }
+  return {S,hud,markNav,onCheck,onReveal};
+})();
+{ const _rn=renderNav; renderNav=function(){ _rn(); GAME.markNav(); };
+  const _ds=drawSolution; drawSolution=function(p,v,r,ans,steps){ _ds(p,v,r,ans,steps); if(state.shown>=steps.length) GAME.onReveal(); }; }
+/* GAME-JS-END */
 const state = { id: PROBLEMS[0].id, vars:null, isOriginal:true, shown:0, variant:1 };
 const $ = (s)=>document.querySelector(s);
 const cur = ()=>PROBLEMS.find(p=>p.id===state.id);
@@ -540,7 +751,7 @@ function renderNav(){
 
 function select(id){
   state.id=id; state.vars={...cur().original}; state.isOriginal=true; state.shown=0; state.variant=1;
-  try{ localStorage.setItem("dpl-last-polar", id); }catch(e){}
+  try{ localStorage.setItem("dpl-last-Particle_Kinematics_Polar_Relative_Motion.html", id); }catch(e){}
   renderNav(); renderSheet(); window.scrollTo({top:0});
 }
 function fresh(){ state.vars=cur().randomize(); state.isOriginal=false; state.shown=0; state.variant++; renderSheet(); }
@@ -583,7 +794,7 @@ function renderSheet(){
   $("#new").onclick=fresh; $("#orig").onclick=original;
   $("#next").onclick=()=>{ state.shown=Math.min(state.shown+1, steps.length); drawSolution(p,v,r,ans,steps); };
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
-  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); };
+  $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
   fixSubs($("#sheet"));
 }
@@ -640,7 +851,8 @@ function drawPlot(P){
   c.strokeStyle=col("--muted"); c.beginPath(); c.moveTo(L,Y(Math.max(0,y0))); c.lineTo(L+pw,Y(Math.max(0,y0))); c.moveTo(L,Tp); c.lineTo(L,Tp+ph); c.stroke();
   c.fillStyle=col("--muted"); c.textAlign="right"; c.textBaseline="bottom"; c.fillText(P.xl,L+pw,H-2);
   c.save(); c.translate(12,Tp+ph/2); c.rotate(-Math.PI/2); c.textAlign="center"; c.textBaseline="middle"; c.fillText(P.yl,0,0); c.restore();
-  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.25; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  P.series.forEach(s=>{ c.strokeStyle=s.alt?col("--plot-2"):col("--accent"); c.lineWidth=2.5; c.shadowColor=c.strokeStyle; c.shadowBlur=10; c.beginPath(); s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]))); c.stroke(); });
+  c.shadowBlur=0;
   const dot=(m,color)=>{ c.fillStyle=color; c.strokeStyle=col("--surface-2"); c.lineWidth=2; c.beginPath(); c.arc(X(m[0]),Y(m[1]),5,0,7); c.fill(); c.stroke(); };
   if(P.mark) dot(P.mark,col("--accent")); if(P.mark2) dot(P.mark2,col("--plot-2"));
 }
@@ -648,9 +860,9 @@ function drawPlot(P){
 window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ const p=cur(), v=state.vars, r=p.solve(v); if(state.shown>=p.steps(v,r).length) drawPlot(p.plot(v,r)); }});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
-let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-polar"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Particle_Kinematics_Polar_Relative_Motion.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
 state.id=start; state.vars={...cur().original};
-renderNav(); renderSheet();
+renderNav(); renderSheet(); GAME.hud();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }
 renderConcepts(); fixSubs(document.getElementById("concepts"));
 </script>
