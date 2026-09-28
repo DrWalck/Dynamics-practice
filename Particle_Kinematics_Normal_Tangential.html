@@ -162,6 +162,7 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 .diag text{font-family:var(--body);font-size:12.5px}
 .diag .t,.diag .ts{fill:var(--ink)} .diag .tv{fill:var(--accent);font-weight:600} .diag .tf{fill:var(--plot-2);font-weight:600} .diag .tm{fill:var(--muted)}
 /* SCHEM-CSS-END */
+.eyebrow sub,.topic h2 sub{text-transform:none}
 </style>
 </head><body>
 
@@ -384,7 +385,7 @@ const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,
 const DIAG = {
 robot(v,r){ const B=[120,175], L=120, ang=50, P=D.at(B[0],B[1],ang,L);
   const t=D.at(0,0,ang+90,1);
-  return D.svg(D.ground(60,190,B[1]+14)+D.rect(B[0]-16,B[1]-4,32,18,"body2")+D.path(`M${B[0]+L},${B[1]} A${L},${L} 0 0 0 ${B[0]-L*0.35},${B[1]-L*0.94}`,"h")+D.bar(B[0],B[1],P[0],P[1],9)+D.pinj(B[0],B[1])+D.dot(P[0],P[1],5,"dotf")+D.text(P[0]+10,P[1]-8,"P","start")+D.text(B[0]-24,B[1]-4,"B","end")+D.arrow(P[0],P[1],P[0]+t[0]*50,P[1]+t[1]*50,"f",`a_t = ${nf(v.at)} mm/s²`)+D.text(200,170,`L = ρ = ${nf(v.L)} m`,"start","tm")+D.text(250,205,`from rest; find at t = ${nf(v.t)} s`,"middle","tm")); },
+  return D.svg(D.ground(60,190,B[1]+14)+D.rect(B[0]-16,B[1]-4,32,18,"body2")+D.path(`M${B[0]+L},${B[1]} A${L},${L} 0 0 0 ${B[0]-L*0.35},${B[1]-L*0.94}`,"h")+D.bar(B[0],B[1],P[0],P[1],9)+D.pinj(B[0],B[1])+D.dot(P[0],P[1],5,"dotf")+D.text(P[0]+10,P[1]-8,"P","start")+D.text(B[0]-24,B[1]-4,"B","end")+D.arrow(P[0],P[1],P[0]+t[0]*50,P[1]+t[1]*50,"f",`a_t = ${nf(v.at)} mm/s²`,P[0]+t[0]*50-6,P[1]+t[1]*50-10,"end")+D.text(200,170,`L = ρ = ${nf(v.L)} m`,"start","tm")+D.text(250,205,`from rest; find at t = ${nf(v.t)} s`,"middle","tm")); },
 crank(v,r){ const A=[210,160], L=95, th=v.th, B=[A[0]-L*Math.sin(th*RAD), A[1]-L*Math.cos(th*RAD)], phi=90+th, t=D.at(0,0,phi+90,1);
   return D.svg(D.pin(A[0],A[1])+D.line(A[0],A[1],A[0],A[1]-115,"h")+D.bar(A[0],A[1],B[0],B[1],9)+D.pinj(A[0],A[1])+D.dot(B[0],B[1],4)+D.text(B[0]-8,B[1]-12,"B","end")+D.text(A[0]+14,A[1]+4,"A","start")+D.angle(A[0],A[1],40,90,phi,`θ = ${nf(v.th)}°`)+D.arcArrow(A[0],A[1],30,-20,40,"v",`ω = ${nf(v.rpm)} rpm`,"start")+D.arrow(B[0],B[1],B[0]+t[0]*50,B[1]+t[1]*50,"v","v_B")+D.text(A[0]-L/2*Math.sin(th*RAD)+14,A[1]-L/2*Math.cos(th*RAD)+10,`${nf(v.rin)} in`,"start","tm")); },
 circle(v,r){ const C=[170,110], R=80, deg=(r.deg%360);
