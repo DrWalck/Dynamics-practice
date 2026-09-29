@@ -629,6 +629,39 @@ const PROBLEMS = [
   ];},
   takeaway:(v,r)=>`Seen from the deck, the jet moves at ${fmt(r.M,3)} m/s${r.rx<0?", drifting west because the ship is outrunning it eastward":""}.`,
   plot(v,r){ return {xl:"x (m/s, east)", yl:"y (m/s, north)", series:[{pts:[[0,0],[r.px,r.py]]},{pts:[[0,0],[v.vS,0]],alt:true},{pts:[[v.vS,0],[r.px,r.py]]}], mark:[r.px,r.py], mark2:[v.vS,0], equal:true, cap:"Velocity triangle: blue from the origin is v_P, orange is v_S, and the blue segment from the tip of v_S to the tip of v_P is v_P/S."}; }
+},
+
+/* ---------- 9. Fire-truck ladder: constant θ̇ and constant ṙ ---------- */
+{
+  id:"ladder", topic:"Polar Coordinates & Relative Motion", name:"Fire-Truck Ladder", tag:"ṙ, θ̇ const",
+  kind:"Polar kinematics",
+  original:{ r0:18, th0:35, wdeg:3, rd:0.4 },
+  randomize(){ return { r0:pick(10,30,1), th0:pick(20,60,5), wdeg:pick(2,6,0.5), rd:pick(0.2,0.8,0.1) }; },
+  solve(v){ const w=v.wdeg*D2R, vr=v.rd, vt=v.r0*w, ar=-v.r0*w*w, at=2*v.rd*w; return {w,vr,vt,ar,at,V:Math.hypot(vr,vt),A:Math.hypot(ar,at)}; },
+  statement:(v)=>`The extension ladder on a fire truck pivots about a pin O on the truck bed. At the instant when the ladder is ${N(v.r0,"m")} long (pin to tip) and inclined at θ = ${N(v.th0,"°")} above the horizontal, it is being raised at a constant rate of ${N(v.wdeg,"°/s")} while extending at a constant ${N(v.rd,"m/s")}. Find the radial and transverse components and the magnitudes of the velocity and acceleration of the tip of the ladder.`,
+  given:(v)=>[["r, θ (this instant)",`${fmt(v.r0)} m, ${fmt(v.th0)}°`],["ṙ",`${fmt(v.rd)} m/s (constant, so r̈ = 0)`],["θ̇",`${fmt(v.wdeg)} °/s (constant, so θ̈ = 0)`]],
+  find:["v_r, v_θ, |v|","a_r, a_θ, |a|"],
+  method:"The tip moves along a rotating line of changing length from a fixed pin, so polar coordinates about O are natural. Both rates are constant: r̈ = 0 and θ̈ = 0, but the acceleration is not zero because of the centripetal (−rθ̇²) and Coriolis (2ṙθ̇) terms.",
+  answers:(v,r)=>[
+    {label:"v_r", unit:"m/s", val:r.vr},
+    {label:"v_θ", unit:"m/s", val:r.vt},
+    {label:"|v|", unit:"m/s", val:r.V},
+    {label:"a_r", unit:"m/s²", val:r.ar, scale:r.A},
+    {label:"a_θ", unit:"m/s²", val:r.at, scale:r.A},
+    {label:"|a|", unit:"m/s²", val:r.A}],
+  steps(v,r){ return [
+    {t:"Convert the angular rate to rad/s", eq:T`\dot\theta=${fmt(v.wdeg)}\,\tfrac{^\circ}{\text{s}}\cdot\tfrac{\pi\ \text{rad}}{180^\circ}=${fmt(r.w)}\ \text{rad/s}`,
+      note:"The polar formulas need θ̇ in rad/s. The value of θ itself does not appear in v_r, v_θ, a_r or a_θ; it only tells you which way ê_r and ê_θ point."},
+    {t:"Derivatives at this instant", eq:T`r=${fmt(v.r0)}\ \text{m},\quad \dot r=${fmt(v.rd)}\ \text{m/s},\quad \ddot r=0,\qquad \dot\theta=${fmt(r.w)}\ \text{rad/s},\quad \ddot\theta=0`},
+    {t:"Velocity", eq:T`\vec v=\dot r\,\hat e_r+r\dot\theta\,\hat e_\theta=${fmt(v.rd)}\,\hat e_r+(${fmt(v.r0)})(${fmt(r.w)})\,\hat e_\theta=${fmt(r.vr)}\,\hat e_r+${fmt(r.vt)}\,\hat e_\theta\ \text{m/s}`},
+    {t:"Speed of the tip", eq:T`|\vec v|=\sqrt{${fmt(r.vr)}^2+${fmt(r.vt)}^2}=${fmt(r.V)}\ \text{m/s}`},
+    {t:"Acceleration equation with r̈ = 0 and θ̈ = 0", eq:T`\vec a=(\ddot r-r\dot\theta^2)\,\hat e_r+(r\ddot\theta+2\dot r\dot\theta)\,\hat e_\theta=(0-r\dot\theta^2)\,\hat e_r+(0+2\dot r\dot\theta)\,\hat e_\theta`},
+    {t:"Plug in", eq:T`a_r=-(${fmt(v.r0)})(${fmt(r.w)})^2=${fmt(r.ar)}\ \text{m/s}^2,\qquad a_\theta=2(${fmt(v.rd)})(${fmt(r.w)})=${fmt(r.at)}\ \text{m/s}^2`,
+      note:"a_r is the centripetal term (toward O); a_θ is the Coriolis-like term that appears whenever the tip moves outward along a line that is turning."},
+    {t:"Magnitude", eq:T`|\vec a|=\sqrt{(${fmt(r.ar)})^2+(${fmt(r.at)})^2}=${fmt(r.A)}\ \text{m/s}^2`}
+  ];},
+  takeaway:(v,r)=>`Even with both rates constant the tip accelerates: −rθ̇² because its direction changes, and 2ṙθ̇ because it moves outward while the ladder turns. Here the Coriolis term is ${fmt(Math.abs(r.at/r.ar),3)} times the centripetal term.`,
+  plot(v,r){ const T2=12; const pts=[]; for(let i=0;i<=80;i++){const t=T2*i/80, rr=v.r0+v.rd*t, th=(v.th0*D2R)+r.w*t; pts.push([rr*Math.cos(th), rr*Math.sin(th)]);} const th=v.th0*D2R, M=[v.r0*Math.cos(th), v.r0*Math.sin(th)]; return {xl:"x (m)", yl:"y (m)", series:[{pts},{pts:[[0,0],M],alt:true}], mark:M, equal:true, cap:`Path of the ladder tip over the next ${T2} s (to scale). Orange is the ladder at the instant asked; the dot is the tip. The path curves because the ladder turns as it extends.`}; }
 }
 
 ];
@@ -694,6 +727,32 @@ const RAD=Math.PI/180;
 const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+/* ---- runtime layout pass: move labels off lines/arrows/other labels, then grow the viewBox so nothing is clipped ---- */
+D.tidy=function(svg){
+  if(!svg||!svg.getBBox) return;
+  try{
+    const texts=[...svg.querySelectorAll("text")];
+    const gfx=[...svg.querySelectorAll("line,path,polyline,polygon,circle,rect")].filter(e=>!e.closest("marker")&&!e.closest("defs"));
+    /* sample outline points of every graphic once */
+    const pts=[]; gfx.forEach(g=>{ const tag=g.tagName.toLowerCase(); const cls=g.getAttribute("class")||""; const w=/\b(h|h2|ext|hatch|dimln)\b/.test(cls)?0.6:1;
+      if(tag==="circle"){ const cx=+g.getAttribute("cx"),cy=+g.getAttribute("cy"),r=+g.getAttribute("r"); if(r<5) return; for(let a=0;a<48;a++) pts.push([cx+r*Math.cos(a/48*6.2832),cy+r*Math.sin(a/48*6.2832),w]); return; }
+      if(tag==="rect"){ const b=g.getBBox(); const tr=g.transform.baseVal.consolidate(); const m=tr?tr.matrix:null; const c=[[b.x,b.y],[b.x+b.width,b.y],[b.x+b.width,b.y+b.height],[b.x,b.y+b.height]].map(([x,y])=>m?[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]:[x,y]); for(let e=0;e<4;e++){ const [x1,y1]=c[e],[x2,y2]=c[(e+1)%4]; const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/4)); for(let s=0;s<=n;s++) pts.push([x1+(x2-x1)*s/n,y1+(y2-y1)*s/n,w]); } return; }
+      let L=0; try{ L=g.getTotalLength(); }catch(e){} if(!L) return; const n=Math.max(3,Math.ceil(L/4)); for(let s=0;s<=n;s++){ const q=g.getPointAtLength(L*s/n); pts.push([q.x,q.y,w]); } });
+    const boxes=[]; const pad=1.5;
+    const cost=(b,self)=>{ let c=0; for(const o of boxes){ if(o===self) continue; if(b.x<o.x+o.w+pad&&o.x<b.x+b.w+pad&&b.y<o.y+o.h+pad&&o.y<b.y+b.h+pad) c+=3; } for(const [x,y,w] of pts){ if(x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad) c+=w; } return c; };
+    const cand=[]; for(const d of [7,14,21,30,40,52,66]) for(let a=0;a<8;a++){ const t=a*Math.PI/4; cand.push([Math.round(d*Math.cos(t)),Math.round(-d*Math.sin(t))]); }
+    texts.forEach(t=>{ const b=t.getBBox(); boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,el:t}); });
+    for(let pass=0;pass<2;pass++){
+      boxes.forEach(bx=>{ let c0=cost(bx,bx); if(c0<=0) return; let best=null, bc=c0;
+        for(const [dx,dy] of cand){ const nb={x:bx.x+dx,y:bx.y+dy,w:bx.w,h:bx.h}; const c=cost(nb,bx)+Math.hypot(dx,dy)*0.02; if(c<bc-0.01){ bc=c; best=[dx,dy]; if(c<0.5) break; } }
+        if(best){ const t=bx.el; const x=parseFloat(t.getAttribute("x"))||0, y=parseFloat(t.getAttribute("y"))||0; t.setAttribute("x",(x+best[0]).toFixed(1)); t.setAttribute("y",(y+best[1]).toFixed(1)); bx.x+=best[0]; bx.y+=best[1]; } });
+    }
+    /* grow the viewBox to fit everything (never shrink below the design size) */
+    const all=svg.getBBox(); const vb=svg.viewBox.baseVal; const P=6;
+    const x0=Math.min(vb.x,all.x-P), y0=Math.min(vb.y,all.y-P), x1=Math.max(vb.x+vb.width,all.x+all.width+P), y1=Math.max(vb.y+vb.height,all.y+all.height+P);
+    if(x0<vb.x||y0<vb.y||x1>vb.x+vb.width||y1>vb.y+vb.height) svg.setAttribute("viewBox",`${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1-x0).toFixed(1)} ${(y1-y0).toFixed(1)}`);
+  }catch(e){}
+};
 
 const DIAG = {
 collar(v,r){ const O=[150,115], deg=((r.th*180/Math.PI)%360+360)%360, L=88, rr=Math.min(0.9,r.r/(v.r0+v.c*16))*L, E=D.at(O[0],O[1],deg,L), A=D.at(O[0],O[1],deg,rr);
@@ -711,7 +770,9 @@ cars(v,r){ const C=[150,140], sy=(v.d>0? 100/v.d:1);
 trains(v,r){ const O=[45,110], R=85, xA=O[0]+R+42, X=215;
   return D.svg(D.path(`M${O[0]},${O[1]+R} A${R},${R} 0 0 0 ${O[0]},${O[1]-R}`,"s")+D.dot(O[0],O[1],2.5)+D.text(O[0]-6,O[1],"O","end")+D.line(O[0],O[1],O[0]+R,O[1],"h")+D.text(O[0]+R/2-4,O[1]-10,"R","middle","tm")+D.line(xA,10,xA,210,"s")+D.rect(O[0]+R-7,O[1]-12,14,24,"body")+D.text(O[0]+R-12,O[1]+22,"B","end")+D.arrow(O[0]+R+2,O[1]-18,O[0]+R+2,O[1]-65,"v","v_B",O[0]+R+10,O[1]-60,"start")+D.rect(xA-7,O[1]-12,14,24,"body")+D.text(xA-12,O[1]+22,"A","end")+D.arrow(xA+12,O[1]-20,xA+12,O[1]+30,"v","v_A",xA+18,O[1]+30,"start")+D.text(X,30,`R = ${nf(v.R)} ft`,"start","tm")+D.text(X,50,`v_B = ${nf(v.vB)} ft/s (const)`,"start","tv")+D.text(X,70,`v_A = ${nf(v.vA)} ft/s ↓`,"start","tv")+D.text(X,150,`a_A = ${nf(v.aA)} ft/s²`,"start","tf")+D.text(X,168,"(speeding up)","start","tm")); },
 jet(v,r){ const O=[150,150], L=110, hd=v.hd, J=[O[0]+L*Math.sin(hd*RAD), O[1]-L*Math.cos(hd*RAD)];
-  return D.svg(D.poly([[O[0]-60,O[1]+10],[O[0]+40,O[1]+10],[O[0]+62,O[1]],[O[0]+40,O[1]-10],[O[0]-60,O[1]-10]],"body2",true)+D.arrow(O[0]+70,O[1]+30,O[0]+150,O[1]+30,"v",`v_S = ${nf(v.vS)} m/s (east)`,O[0]+110,O[1]+46)+D.line(O[0],O[1],O[0],O[1]-120,"h")+D.text(O[0],O[1]-128,"N","middle","tm")+D.arrow(O[0],O[1],J[0],J[1],"v",`v_P = ${nf(v.vP)} m/s`,J[0]+8,J[1]-8,"start")+D.angle(O[0],O[1],30,90,90-hd)+D.text(O[0]-8,O[1]-44,`${nf(v.hd)}° E of N`,"end","tm")+D.dot(O[0],O[1],4)); }
+  return D.svg(D.poly([[O[0]-60,O[1]+10],[O[0]+40,O[1]+10],[O[0]+62,O[1]],[O[0]+40,O[1]-10],[O[0]-60,O[1]-10]],"body2",true)+D.arrow(O[0]+70,O[1]+30,O[0]+150,O[1]+30,"v",`v_S = ${nf(v.vS)} m/s (east)`,O[0]+110,O[1]+46)+D.line(O[0],O[1],O[0],O[1]-120,"h")+D.text(O[0],O[1]-128,"N","middle","tm")+D.arrow(O[0],O[1],J[0],J[1],"v",`v_P = ${nf(v.vP)} m/s`,J[0]+8,J[1]-8,"start")+D.angle(O[0],O[1],30,90,90-hd)+D.text(O[0]-8,O[1]-44,`${nf(v.hd)}° E of N`,"end","tm")+D.dot(O[0],O[1],4)); },
+ladder(v,r){ const O=[60,158], L=145, th=v.th0, E=D.at(O[0],O[1],th,L), Mi=D.at(O[0],O[1],th,L*0.6), Mo=D.at(O[0],O[1],th,L*0.45), Vt=D.at(O[0],O[1],th,L+30), Mb=D.at(O[0],O[1],th,L*0.5), n=D.at(0,0,th+90,1);
+  return D.svg(D.ground(15,345,200)+D.rect(25,158,150,27,"body2")+D.rect(175,146,50,39,"body")+D.circ(55,192,8,"body")+D.circ(150,192,8,"body")+D.circ(205,192,8,"body")+D.bar(O[0],O[1],Mi[0],Mi[1],11,"body")+D.bar(Mo[0],Mo[1],E[0],E[1],7,"body2")+D.pinj(O[0],O[1])+D.line(O[0],O[1],O[0]+95,O[1],"h")+D.angle(O[0],O[1],30,0,th,`θ = ${nf(v.th0)}°`)+D.arcArrow(O[0],O[1],104,th+10,th+50,"v",`θ̇ = ${nf(v.wdeg)} °/s`,"start")+D.arrow(E[0],E[1],Vt[0],Vt[1],"v",`ṙ = ${nf(v.rd)} m/s`,Vt[0]+8,Vt[1],"start")+D.text(Mb[0]+n[0]*16,Mb[1]+n[1]*16,`r = ${nf(v.r0)} m`,"middle","tm")+D.text(O[0]-8,O[1]+12,"O","end")+D.dot(E[0],E[1],3.5,"dotf")+D.text(250,40,"both rates constant","start","tm")+D.text(250,58,"(r̈ = 0, θ̈ = 0)","start","tm")); }
 };
 
 /* SCHEMATICS-END */
@@ -1324,6 +1385,42 @@ fprintf('Seen from the ship: %.3f m/s, heading %.1f deg from north (negative = w
   sense:(v,r)=>[r.rx<0?"negative: the ship outruns the jet, so it drifts west on deck":null, null],
 },
 
+ladder:{
+  out:["v_r","v_th","v_mag","a_r","a_th","a_mag"],
+  code:(v,r)=>`% Fire-truck ladder: constant raise rate theta_dot and constant extension rate r_dot
+clc; clear;
+
+% ---- Given (at this instant) ----
+r         = ${v.r0};        % m, pin-to-tip length
+theta_deg = ${v.th0};       % deg, elevation (does not enter the polar components)
+w_deg     = ${v.wdeg};      % deg/s, raise rate (constant)
+r_dot     = ${v.rd};        % m/s, extension rate (constant)
+
+% ---- Convert the angular rate; both rates are constant ----
+theta_dot  = {{deg2rad(w_deg) || The polar formulas need theta_dot in rad/s: multiply by pi/180.}};      % rad/s
+theta_ddot = 0;                       % rad/s^2, raise rate is constant
+r_ddot     = 0;                       % m/s^2,   extension rate is constant
+
+% ---- Velocity: v = r_dot e_r + r theta_dot e_theta ----
+v_r   = r_dot;                                   % m/s
+v_th  = {{r*theta_dot || Transverse velocity is r times the angular rate (rad/s).}};                      % m/s
+v_mag = {{hypot(v_r, v_th) || Magnitude from two perpendicular components.}};                  % m/s
+
+% ---- Acceleration: a = (r_ddot - r theta_dot^2) e_r + (r theta_ddot + 2 r_dot theta_dot) e_theta ----
+a_r   = {{r_ddot - r*theta_dot^2 || With r_ddot = 0 only the centripetal term -r*theta_dot^2 remains.}};        % m/s^2
+a_th  = {{r*theta_ddot + 2*r_dot*theta_dot || With theta_ddot = 0 only the Coriolis term 2*r_dot*theta_dot remains.}};        % m/s^2
+a_mag = hypot(a_r, a_th);                         % m/s^2
+
+fprintf('theta_dot = %.5f rad/s\\n', theta_dot);
+fprintf('v = %.4f e_r %+.4f e_theta m/s,   |v| = %.4f m/s\\n', v_r, v_th, v_mag);
+fprintf('a = %.5f e_r %+.5f e_theta m/s^2, |a| = %.5f m/s^2\\n', a_r, a_th, a_mag);`,
+  hints:(v,r)=>[
+    "Polar coordinates about the pivot: r is the ladder length and θ its elevation. Both rates are constant, so r̈ = 0 and θ̈ = 0, but do not conclude a = 0. The centripetal term −rθ̇² and the Coriolis term 2ṙθ̇ survive. Convert °/s to rad/s first; the value of θ itself never appears in the components.",
+    "Key equations: v_r = ṙ, v_θ = rθ̇; a_r = r̈ − rθ̇² = −rθ̇², a_θ = rθ̈ + 2ṙθ̇ = 2ṙθ̇; magnitudes by Pythagoras.",
+    `θ̇ = ${fmt(v.wdeg)}·π/180 = ${fmt(r.w)} rad/s. v_θ = ${fmt(v.r0)}(${fmt(r.w)}), a_r = −${fmt(v.r0)}(${fmt(r.w)})², a_θ = 2(${fmt(v.rd)})(${fmt(r.w)}).`],
+  sense:(v,r)=>[null, null, `a slow walk: the tip moves about ${fmt(r.V*60,3)} m per minute`, `about ${fmt(Math.abs(r.ar)/9.81*1000,3)} milli-g toward the pivot`, `the Coriolis term, ${fmt(Math.abs(r.at/r.ar),3)}× the centripetal term`, null],
+},
+
 };
 
 /* ---------- Hints, "what does it mean", and the MATLAB fill-in-the-blank panel ---------- */
@@ -1555,6 +1652,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  document.querySelectorAll(".schem svg").forEach(el=>D.tidy(el));
   fixSubs($("#sheet"));
   MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
@@ -1621,6 +1719,7 @@ window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ con
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
 let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Particle_Kinematics_Polar_Relative_Motion.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+try{ const hh=decodeURIComponent(location.hash.slice(1)); if(hh&&PROBLEMS.some(p=>p.id===hh)) start=hh; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet(); GAME.hud();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

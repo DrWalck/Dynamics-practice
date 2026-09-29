@@ -506,6 +506,63 @@ const PROBLEMS = [
   ];},
   takeaway:(v,r)=>`The acceleration changes suddenly at A even though a_t stays the same: a_n jumps from 0 to ${fmt(r.an,3)} m/s² the instant the path starts to curve. (Speed at A is about ${fmt(r.vA*2.23694,3)} mph.)`,
   plot(v,r){ const s=[[-v.L,0],[0,0]]; const arc=[]; for(let i=0;i<=40;i++){const a=Math.PI/2*i/40; arc.push([v.rho*Math.sin(a), v.rho-v.rho*Math.cos(a)]);} const up=[[v.rho,v.rho],[v.rho,v.rho+v.L*0.4]]; return {xl:"x (mi)", yl:"y (mi)", series:[{pts:s},{pts:arc,alt:true},{pts:up}], mark:[0,0], equal:true, cap:"Track layout to scale. Blue sections are straight (a_n = 0); the orange curve has radius ρ. The dot is point A, where a_n switches on."}; }
+},
+
+/* ---------- 5. Motorcycle on a circular track: a_t = c1 + c2 t ---------- */
+{
+  id:"moto", topic:"Particle Kinematics · Normal–Tangential", name:"Motorcycle Track", tag:"a_t(t)",
+  kind:"Circular motion (N–T)",
+  original:{ rho:300, c1:1.5, c2:0.3, t:8 },
+  randomize(){ return { rho:pick(200,500,25), c1:pick(1,3,0.25), c2:pick(0.1,0.5,0.05), t:pick(5,15,1) }; },
+  solve(v){ const vel=v.c1*v.t+0.5*v.c2*v.t*v.t, s=0.5*v.c1*v.t*v.t+v.c2*Math.pow(v.t,3)/6, at=v.c1+v.c2*v.t, an=vel*vel/v.rho, a=Math.hypot(at,an); return {vel,s,at,an,a,th:s/v.rho*180/Math.PI}; },
+  statement:(v)=>`A motorcycle starts from rest on a circular test track of radius ${N(v.rho,"m")}. Its tangential acceleration grows with time according to a_t = ${N(v.c1)} + ${N(v.c2)}t m/s², with t in seconds. At t = ${N(v.t,"s")}, find the motorcycle's speed, the distance it has traveled along the track, and the magnitude of its acceleration.`,
+  given:(v)=>[["ρ",`${fmt(v.rho)} m`],["a_t(t)",`${fmt(v.c1)} + ${fmt(v.c2)}t m/s²`],["v₀, s₀, t₀","0, 0, 0"],["t",`${fmt(v.t)} s`]],
+  find:["Speed v","Distance s along the track","|a|"],
+  method:"Known circular path, so use N–T. a_t is a function of time, so integrate a_t = dv/dt directly, then v = ds/dt. The normal component follows from the speed: a_n = v²/ρ.",
+  answers:(v,r)=>[
+    {label:"Speed v", unit:"m/s", val:r.vel},
+    {label:"Distance s", unit:"m", val:r.s},
+    {label:"Acceleration |a|", unit:"m/s²", val:r.a}],
+  steps(v,r){ return [
+    {t:"Tangential: integrate a_t = dv/dt", eq:T`\int_0^{v}dv=\int_0^{t}(${fmt(v.c1)}+${fmt(v.c2)}t)\,dt\;\Rightarrow\;v(t)=${fmt(v.c1)}t+${fmt(v.c2/2)}t^2`},
+    {t:"Speed at t", eq:T`v=${fmt(v.c1)}(${fmt(v.t)})+${fmt(v.c2/2)}(${fmt(v.t)})^2=${fmt(r.vel)}\ \text{m/s}`},
+    {t:"Distance: integrate v = ds/dt", eq:T`\int_0^{s}ds=\int_0^{t}(${fmt(v.c1)}t+${fmt(v.c2/2)}t^2)\,dt\;\Rightarrow\;s(t)=${fmt(v.c1/2)}t^2+${fmt(v.c2/6)}t^3`},
+    {t:"Distance at t", eq:T`s=${fmt(v.c1/2)}(${fmt(v.t)})^2+${fmt(v.c2/6)}(${fmt(v.t)})^3=${fmt(r.s)}\ \text{m}`,
+      note:`That is an angle of s/ρ = ${fmt(r.th,3)}° around the track.`},
+    {t:"Tangential and normal components at t", eq:T`a_t=${fmt(v.c1)}+${fmt(v.c2)}(${fmt(v.t)})=${fmt(r.at)}\ \text{m/s}^2,\qquad a_n=\frac{v^2}{\rho}=\frac{(${fmt(r.vel)})^2}{${fmt(v.rho)}}=${fmt(r.an)}\ \text{m/s}^2`},
+    {t:"Magnitude", eq:T`|\vec a|=\sqrt{a_t^2+a_n^2}=\sqrt{(${fmt(r.at)})^2+(${fmt(r.an)})^2}=${fmt(r.a)}\ \text{m/s}^2`}
+  ];},
+  takeaway:(v,r)=>`a_t is given as a function of t, so no chain rule is needed. The normal component is not given; it comes from the speed you just found. At this instant a_n is ${fmt(r.an/r.at,3)} times a_t${r.an>r.at?", so the acceleration already points mostly toward the center":""}.`,
+  plot(v,r){ const p1=[],p2=[]; const T2=v.t*1.4; for(let i=0;i<=80;i++){const t=T2*i/80, u=v.c1*t+0.5*v.c2*t*t, at=v.c1+v.c2*t, an=u*u/v.rho; p1.push([t,Math.hypot(at,an)]); p2.push([t,at]);} return {xl:"t (s)", yl:"a (m/s²)", series:[{pts:p1,label:"|a|"},{pts:p2,label:"a_t",alt:true}], mark:[v.t,r.a], mark2:[v.t,r.at], cap:"Total acceleration (blue) and tangential component (orange) vs. time. The gap between them is the growing normal acceleration v²/ρ."}; }
+},
+
+/* ---------- 6. Lab centrifuge design: n g at radius r, spin-up in time tau ---------- */
+{
+  id:"centrifuge", topic:"Particle Kinematics · Normal–Tangential", name:"Lab Centrifuge", tag:"a_n = rω²",
+  kind:"Circular motion (N–T, angular)",
+  original:{ n:1500, rmm:250, tau:90 },
+  randomize(){ return { n:pick(500,3000,100), rmm:pick(100,400,10), tau:pick(30,180,10) }; },
+  solve(v){ const r=v.rmm/1000, an=v.n*g, w=Math.sqrt(an/r), rpm=w*60/(2*Math.PI), al=w/v.tau, th=0.5*al*v.tau*v.tau, revs=th/(2*Math.PI), vt=r*w, at=r*al; return {r,an,w,rpm,al,th,revs,vt,at}; },
+  statement:(v)=>`A laboratory centrifuge is being designed so that a sample held ${N(v.rmm,"mm")} from the axis experiences a normal acceleration of ${N(v.n)} g at full speed. Find the required rotor speed in rpm. If the rotor must reach that speed from rest in ${N(v.tau,"s")} with constant angular acceleration, find the angular acceleration and the number of revolutions made during spin-up. Use g = 9.81 m/s².`,
+  given:(v)=>[["r",`${fmt(v.rmm)} mm = ${fmt(v.rmm/1000)} m`],["a_n required",`${fmt(v.n)} g`],["ω₀, θ₀","0, 0"],["τ (spin-up time)",`${fmt(v.tau)} s`]],
+  find:["Rotor speed (rpm)","Angular acceleration α","Revolutions during spin-up"],
+  method:"The sample moves on a circle of radius r, so a_n = v²/r = rω². Solve for ω, convert rad/s to rpm. Spin-up is constant-α rotation: α = dω/dt and ω = dθ/dt integrate exactly like straight-line constant-acceleration motion.",
+  answers:(v,r)=>[
+    {label:"Rotor speed", unit:"rpm", val:r.rpm},
+    {label:"Angular acceleration α", unit:"rad/s²", val:r.al},
+    {label:"Revolutions during spin-up", unit:"rev", val:r.revs}],
+  steps(v,r){ return [
+    {t:"Required normal acceleration in m/s²", eq:T`a_n=${fmt(v.n)}\,g=${fmt(v.n)}(${fmt(g)})=${fmt(r.an)}\ \text{m/s}^2`},
+    {t:"Normal acceleration on a circle, in terms of ω", eq:T`a_n=\frac{v^2}{r}=\frac{(r\omega)^2}{r}=r\omega^2\;\Rightarrow\;\omega=\sqrt{\frac{a_n}{r}}=\sqrt{\frac{${fmt(r.an)}}{${fmt(r.r)}}}=${fmt(r.w)}\ \text{rad/s}`,
+      note:"r must be in metres to match g in m/s²."},
+    {t:"Convert to rpm", eq:T`\omega=${fmt(r.w)}\,\tfrac{\text{rad}}{\text{s}}\cdot\tfrac{1\ \text{rev}}{2\pi\ \text{rad}}\cdot\tfrac{60\ \text{s}}{1\ \text{min}}=${fmt(r.rpm)}\ \text{rpm}`},
+    {t:"Spin-up: α = dω/dt with α constant", eq:T`\int_0^{\omega}d\omega=\int_0^{\tau}\alpha\,dt\;\Rightarrow\;\omega=\alpha\tau\;\Rightarrow\;\alpha=\frac{${fmt(r.w)}}{${fmt(v.tau)}}=${fmt(r.al)}\ \text{rad/s}^2`},
+    {t:"Revolutions: ω = dθ/dt", eq:T`\int_0^{\theta}d\theta=\int_0^{\tau}\alpha t\,dt\;\Rightarrow\;\theta=\tfrac12\alpha\tau^2=\tfrac12(${fmt(r.al)})(${fmt(v.tau)})^2=${fmt(r.th)}\ \text{rad}=${fmt(r.revs)}\ \text{rev}`},
+    {t:"Sample's tangential acceleration during spin-up", eq:T`a_t=r\alpha=(${fmt(r.r)})(${fmt(r.al)})=${fmt(r.at)}\ \text{m/s}^2`,
+      note:`Tiny compared with the final a_n of ${fmt(r.an,3)} m/s²: the acceleration of the sample is almost entirely normal once it is spinning.`}
+  ];},
+  takeaway:(v,r)=>`The rim speed is v = rω = ${fmt(r.vt,3)} m/s. Because a_n = rω², doubling the speed quadruples the g-load, which is why centrifuge rotors are rated by rpm and radius together.`,
+  plot(v,r){ const pts=[]; const T2=v.tau*1.15; for(let i=0;i<=80;i++){const t=T2*i/80, w=Math.min(t,v.tau)*r.al; pts.push([t, r.r*w*w/g]);} return {xl:"t (s)", yl:"a_n (g)", series:[{pts,label:"a_n/g"}], mark:[v.tau,v.n], cap:"Normal acceleration of the sample, in g's, during spin-up. It grows with ω², so most of the g-load appears late; the dot marks full speed at τ."}; }
 }
 
 ];
@@ -571,6 +628,32 @@ const RAD=Math.PI/180;
 const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+/* ---- runtime layout pass: move labels off lines/arrows/other labels, then grow the viewBox so nothing is clipped ---- */
+D.tidy=function(svg){
+  if(!svg||!svg.getBBox) return;
+  try{
+    const texts=[...svg.querySelectorAll("text")];
+    const gfx=[...svg.querySelectorAll("line,path,polyline,polygon,circle,rect")].filter(e=>!e.closest("marker")&&!e.closest("defs"));
+    /* sample outline points of every graphic once */
+    const pts=[]; gfx.forEach(g=>{ const tag=g.tagName.toLowerCase(); const cls=g.getAttribute("class")||""; const w=/\b(h|h2|ext|hatch|dimln)\b/.test(cls)?0.6:1;
+      if(tag==="circle"){ const cx=+g.getAttribute("cx"),cy=+g.getAttribute("cy"),r=+g.getAttribute("r"); if(r<5) return; for(let a=0;a<48;a++) pts.push([cx+r*Math.cos(a/48*6.2832),cy+r*Math.sin(a/48*6.2832),w]); return; }
+      if(tag==="rect"){ const b=g.getBBox(); const tr=g.transform.baseVal.consolidate(); const m=tr?tr.matrix:null; const c=[[b.x,b.y],[b.x+b.width,b.y],[b.x+b.width,b.y+b.height],[b.x,b.y+b.height]].map(([x,y])=>m?[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]:[x,y]); for(let e=0;e<4;e++){ const [x1,y1]=c[e],[x2,y2]=c[(e+1)%4]; const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/4)); for(let s=0;s<=n;s++) pts.push([x1+(x2-x1)*s/n,y1+(y2-y1)*s/n,w]); } return; }
+      let L=0; try{ L=g.getTotalLength(); }catch(e){} if(!L) return; const n=Math.max(3,Math.ceil(L/4)); for(let s=0;s<=n;s++){ const q=g.getPointAtLength(L*s/n); pts.push([q.x,q.y,w]); } });
+    const boxes=[]; const pad=1.5;
+    const cost=(b,self)=>{ let c=0; for(const o of boxes){ if(o===self) continue; if(b.x<o.x+o.w+pad&&o.x<b.x+b.w+pad&&b.y<o.y+o.h+pad&&o.y<b.y+b.h+pad) c+=3; } for(const [x,y,w] of pts){ if(x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad) c+=w; } return c; };
+    const cand=[]; for(const d of [7,14,21,30,40,52,66]) for(let a=0;a<8;a++){ const t=a*Math.PI/4; cand.push([Math.round(d*Math.cos(t)),Math.round(-d*Math.sin(t))]); }
+    texts.forEach(t=>{ const b=t.getBBox(); boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,el:t}); });
+    for(let pass=0;pass<2;pass++){
+      boxes.forEach(bx=>{ let c0=cost(bx,bx); if(c0<=0) return; let best=null, bc=c0;
+        for(const [dx,dy] of cand){ const nb={x:bx.x+dx,y:bx.y+dy,w:bx.w,h:bx.h}; const c=cost(nb,bx)+Math.hypot(dx,dy)*0.02; if(c<bc-0.01){ bc=c; best=[dx,dy]; if(c<0.5) break; } }
+        if(best){ const t=bx.el; const x=parseFloat(t.getAttribute("x"))||0, y=parseFloat(t.getAttribute("y"))||0; t.setAttribute("x",(x+best[0]).toFixed(1)); t.setAttribute("y",(y+best[1]).toFixed(1)); bx.x+=best[0]; bx.y+=best[1]; } });
+    }
+    /* grow the viewBox to fit everything (never shrink below the design size) */
+    const all=svg.getBBox(); const vb=svg.viewBox.baseVal; const P=6;
+    const x0=Math.min(vb.x,all.x-P), y0=Math.min(vb.y,all.y-P), x1=Math.max(vb.x+vb.width,all.x+all.width+P), y1=Math.max(vb.y+vb.height,all.y+all.height+P);
+    if(x0<vb.x||y0<vb.y||x1>vb.x+vb.width||y1>vb.y+vb.height) svg.setAttribute("viewBox",`${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1-x0).toFixed(1)} ${(y1-y0).toFixed(1)}`);
+  }catch(e){}
+};
 
 const DIAG = {
 robot(v,r){ const B=[120,175], L=120, ang=50, P=D.at(B[0],B[1],ang,L);
@@ -582,7 +665,11 @@ circle(v,r){ const C=[170,110], R=80, deg=(r.deg%360);
   const car=D.at(C[0],C[1],deg,R);
   return D.svg(D.circ(C[0],C[1],R,"s")+D.dot(C[0],C[1],2.5)+D.line(C[0],C[1],C[0]+R,C[1],"h")+D.text(C[0]+R/2,C[1]-9,`ρ = ${nf(v.rho)} ft`,"middle","tm")+D.rect(C[0]+R-7,C[1]-5,14,10,"body")+D.text(C[0]+R+12,C[1]+14,"A (start)","start")+D.arcArrow(C[0],C[1],R+14,5,55,"v","CCW","start")+D.text(20,24,`a_t = ${nf(v.at)} ft/s² (const)`,"start","tf")+D.text(20,44,`|a| target = ${nf(v.a)} ft/s²`,"start","tm")+D.text(C[0],C[1]+R+18,"θ = ? when |a| reaches the target","middle","tm")); },
 racetrack(v,r){ const y=175, xa=210, rp=75, x0=25;
-  return D.svg(D.line(x0,y,xa,y,"s")+D.path(`M${xa},${y} A${rp},${rp} 0 0 0 ${xa+rp},${y-rp}`,"s")+D.line(xa+rp,y-rp,xa+rp,15,"s")+D.dot(x0,y,3.5)+D.dot(xa,y,4.5,"dotf")+D.text(xa,y+14,"A")+D.text(x0,y+14,"start (rest)","start","tm")+D.dim(x0,y-18,xa,y-18,`${nf(v.L)} mi`)+D.line(xa,y,xa,y-rp,"h")+D.text(xa+8,y-rp/2,`ρ = ${nf(v.rho)} mi`,"start","tm")+D.arrow(120,y-44,170,y-44,"f","a_t const")+D.text(x0,20,`reaches A after ${nf(v.t)} s`,"start","tm")); }
+  return D.svg(D.line(x0,y,xa,y,"s")+D.path(`M${xa},${y} A${rp},${rp} 0 0 0 ${xa+rp},${y-rp}`,"s")+D.line(xa+rp,y-rp,xa+rp,15,"s")+D.dot(x0,y,3.5)+D.dot(xa,y,4.5,"dotf")+D.text(xa,y+14,"A")+D.text(x0,y+14,"start (rest)","start","tm")+D.dim(x0,y-18,xa,y-18,`${nf(v.L)} mi`)+D.line(xa,y,xa,y-rp,"h")+D.text(xa+8,y-rp/2,`ρ = ${nf(v.rho)} mi`,"start","tm")+D.arrow(120,y-44,170,y-44,"f","a_t const")+D.text(x0,20,`reaches A after ${nf(v.t)} s`,"start","tm")); },
+moto(v,r){ const C=[140,118], R=82, deg=45, P=D.at(C[0],C[1],deg,R), t=D.at(0,0,deg+90,1);
+  return D.svg(D.circ(C[0],C[1],R,"s")+D.dot(C[0],C[1],2.5)+D.line(C[0],C[1],C[0]+R,C[1],"h")+D.text(C[0]+R/2,C[1]+12,`ρ = ${nf(v.rho)} m`,"middle","tm")+D.rect(C[0]+R-6,C[1]-5,12,10,"body2")+D.text(C[0]+R+14,C[1]+16,"start (rest)","start","tm")+D.dot(P[0],P[1],5,"dotf")+D.arrow(P[0],P[1],P[0]+t[0]*46,P[1]+t[1]*46,"f",`a_t = ${nf(v.c1)} + ${nf(v.c2)}t m/s²`,P[0]+t[0]*46+6,P[1]+t[1]*46-10,"start")+D.arcArrow(C[0],C[1],R+14,5,40,"v","CCW","start")+D.text(20,208,`find v, s, |a| at t = ${nf(v.t)} s`,"start","tm")); },
+centrifuge(v,r){ const C=[118,118], R=88, deg=30, S=D.at(C[0],C[1],deg,68), M=D.at(C[0],C[1],deg,34), n=D.at(0,0,deg-90,1), S2=[S[0]+n[0]*16,S[1]+n[1]*16], E2=[S2[0]-44*Math.cos(deg*RAD),S2[1]+44*Math.sin(deg*RAD)];
+  return D.svg(D.circ(C[0],C[1],R,"body2")+D.circ(C[0],C[1],R,"s")+D.line(C[0],C[1],S[0],S[1],"s")+D.circ(C[0],C[1],5,"pinc")+D.collar(S[0],S[1],deg,22,12)+D.text(S[0]+4,S[1]-20,"sample","middle","tm")+D.text(M[0]-6,M[1]-14,`r = ${nf(v.rmm)} mm`,"middle","tm")+D.arcArrow(C[0],C[1],R+14,100,160,"v","ω = ? rpm","end")+D.arrow(S2[0],S2[1],E2[0],E2[1],"f",`a_n = ${nf(v.n)} g`,E2[0]-4,E2[1]+14,"end")+LG(228,34,[["spin-up from rest","tm"],[`in τ = ${nf(v.tau)} s`,"tm"],["α = constant","tf"]])); }
 };
 
 /* SCHEMATICS-END */
@@ -1023,6 +1110,76 @@ fprintf('just before A: a_n = 0;  just after A: a_n = %.3f m/s^2, |a| = %.3f m/s
     `a_t = 2(${fmt(v.L)})/${fmt(v.t)}² = ${fmt(r.at_mi,4)} mi/s², v_A = a_t·${fmt(v.t)} = ${fmt(r.vA_mi,4)} mi/s, a_n = v_A²/${fmt(v.rho)}. Multiply each by 1609.34.`],
 },
 
+moto:{
+  out:["v","s","a"],
+  code:(v,r)=>`% Motorcycle on a circular track: a_t = c1 + c2*t, find v, s and |a| at time t
+clc; clear;
+
+% ---- Given ----
+rho = ${v.rho};          % track radius, m
+c1  = ${v.c1};           % m/s^2,  a_t = c1 + c2*t
+c2  = ${v.c2};           % m/s^3
+t   = ${v.t};            % time of interest, s   (starts from rest at s = 0)
+
+% ---- Tangential: a_t = dv/dt, integrate from v = 0 at t = 0 ----
+v   = {{c1*t + 0.5*c2*t^2 || Integrate c1 + c2*t with respect to t from 0 to t.}};      % m/s
+
+% ---- Distance: v = ds/dt, integrate v(t) from s = 0 ----
+s   = {{0.5*c1*t^2 + c2*t^3/6 || Integrate c1*t + (c2/2) t^2 from 0 to t.}};      % m
+
+% ---- Components of acceleration at time t ----
+a_t = {{c1 + c2*t || Evaluate the given a_t(t) at this instant.}};          % m/s^2
+a_n = {{v^2/rho || Normal acceleration from the speed just found.}};          % m/s^2
+a   = {{sqrt(a_t^2 + a_n^2) || The components are perpendicular: Pythagoras.}};     % m/s^2
+
+fprintf('Speed at t = %g s:      v = %.3f m/s\\n', t, v);
+fprintf('Distance along track:   s = %.2f m  (%.1f deg around)\\n', s, rad2deg(s/rho));
+fprintf('a_t = %.3f m/s^2, a_n = %.3f m/s^2, |a| = %.3f m/s^2\\n', a_t, a_n, a);`,
+  hints:(v,r)=>[
+    "Circular path, so N–T. a_t is a function of time, so integrate it directly (no chain rule) to get v(t), then integrate again for s(t). The normal component is not given: it comes from a_n = v²/ρ with the speed at that instant.",
+    "Key equations: v = c₁t + ½c₂t², s = ½c₁t² + c₂t³/6, a_t = c₁ + c₂t, a_n = v²/ρ, |a| = √(a_t² + a_n²).",
+    `v = ${fmt(v.c1)}(${fmt(v.t)}) + ½(${fmt(v.c2)})(${fmt(v.t)})² = ${fmt(r.vel)} m/s; s = ½(${fmt(v.c1)})(${fmt(v.t)})² + (${fmt(v.c2)}/6)(${fmt(v.t)})³. Then a_n = ${fmt(r.vel)}²/${fmt(v.rho)} and a_t = ${fmt(v.c1)} + ${fmt(v.c2)}(${fmt(v.t)}).`],
+  sense:(v,r)=>[null, `${fmt(r.th,3)}° of the way around the track`, null],
+},
+
+centrifuge:{
+  out:["rpm","alpha","revs"],
+  code:(v,r)=>`% Lab centrifuge design: rpm for n g at radius r, then constant-alpha spin-up
+clc; clear;
+
+% ---- Given ----
+n    = ${v.n};           % required normal acceleration in g's
+r_mm = ${v.rmm};         % sample radius, mm
+tau  = ${v.tau};         % spin-up time from rest, s
+g    = 9.81;             % m/s^2
+
+r   = r_mm/1000;         % m (must match g in m/s^2)
+a_n = n*g;               % m/s^2
+
+% ---- Circular motion: a_n = v^2/r = r*omega^2 ----
+omega = {{sqrt(a_n/r) || Solve a_n = r*omega^2 for omega (r in metres).}};       % rad/s
+rpm   = {{omega*60/(2*pi) || 1 rev = 2*pi rad and 1 min = 60 s.}};       % rev/min
+
+% ---- Spin-up with constant angular acceleration: omega = alpha*tau ----
+alpha = {{omega/tau || alpha = d(omega)/dt is constant, so omega = alpha*tau from rest.}};             % rad/s^2
+
+% ---- Angle turned: theta = (1/2) alpha tau^2 (like s = (1/2) a t^2) ----
+theta = {{0.5*alpha*tau^2 || Integrate omega = alpha*t from 0 to tau.}};        % rad
+revs  = theta/(2*pi);    % rev
+
+% ---- Sample's tangential acceleration during spin-up (tiny next to a_n) ----
+a_t = r*alpha;           % m/s^2
+
+fprintf('Required omega = %.2f rad/s = %.0f rpm\\n', omega, rpm);
+fprintf('Spin-up: alpha = %.4f rad/s^2, %.1f revolutions in %g s\\n', alpha, revs, tau);
+fprintf('a_t during spin-up = %.4f m/s^2 vs a_n at full speed = %.0f m/s^2\\n', a_t, a_n);`,
+  hints:(v,r)=>[
+    "The sample runs on a circle, so a_n = v²/r = rω². Only the g-load and radius are given, so solve that for ω (put r in metres!) and convert to rpm. Spin-up is constant angular acceleration: the angular equations look exactly like straight-line constant-a kinematics, with θ, ω, α in place of s, v, a.",
+    "Key equations: rω² = n·g → ω = √(ng/r); rpm = ω·60/(2π); α = ω/τ; θ = ½ατ²; revolutions = θ/(2π).",
+    `a_n = ${fmt(v.n)}(9.81) = ${fmt(r.an)} m/s², so ω = √(${fmt(r.an)}/${fmt(r.r)}) = ${fmt(r.w)} rad/s. Convert with 60/(2π); then α = ${fmt(r.w)}/${fmt(v.tau)} and θ = ½α(${fmt(v.tau)})².`],
+  sense:(v,r)=>[null, `reaches ${fmt(r.rpm,3)} rpm in ${fmt(v.tau/60,2)} min`, `about ${fmt(r.revs/v.tau,3)} rev/s averaged over the spin-up`],
+},
+
 };
 
 /* ---------- Hints, "what does it mean", and the MATLAB fill-in-the-blank panel ---------- */
@@ -1254,6 +1411,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  document.querySelectorAll(".schem svg").forEach(el=>D.tidy(el));
   fixSubs($("#sheet"));
   MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
@@ -1320,6 +1478,7 @@ window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ con
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
 let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Particle_Kinematics_Normal_Tangential.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+try{ const hh=decodeURIComponent(location.hash.slice(1)); if(hh&&PROBLEMS.some(p=>p.id===hh)) start=hh; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet(); GAME.hud();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

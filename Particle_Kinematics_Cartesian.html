@@ -511,6 +511,155 @@ const PROBLEMS = [
   ];},
   takeaway:"Cartesian coordinates fit projectile motion because aₓ only affects vₓ and a_y only affects v_y. With drag, F_D = −c v|v| makes aₓ and a_y depend on both components, so the equations become coupled.",
   plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=r.t*i/60; pts.push([v.vx*t, v.h-0.5*g*t*t]);} return {xl:"x (m)", yl:"y (m)", series:[{pts,label:"path"}], mark:[r.d,0], equal:true, cap:"Trajectory drawn to scale. The dot marks the impact point at distance d."}; }
+},
+
+/* ---------- 6. Subway train braking into a station: constant a, km/h ---------- */
+{
+  id:"station", topic:"Particle Kinematics · Cartesian", name:"Subway Station", tag:"a = const, km/h",
+  kind:"Rectilinear motion",
+  original:{ kmh:72, a:-4 },
+  randomize(){ return { kmh:pick(45,100,5), a:-pick(2,8,0.5) }; },
+  solve(v){ const v1=v.kmh*1000/3600, A=-v.a, t2=v1/A, s2=v1*v1/(2*A); return {v1,A,t2,s2}; },
+  statement:(v)=>`A subway train approaches a station at ${N(v.kmh,"km/h")}. The driver applies the brakes, giving the train a constant deceleration of ${N(-v.a,"m/s²")}. How long does it take the train to stop, and how far from the point where braking began does it come to rest?`,
+  given:(v,r)=>[["v₁",`${fmt(v.kmh)} km/h`],["a",`${fmt(v.a)} m/s² (constant)`],["t₁, s₁","0, 0"],["v₂","0 (stopped)"]],
+  find:["Stopping time t₂","Stopping distance s₂"],
+  method:"Rectilinear motion with constant acceleration. Convert km/h to m/s first, then use a = dv/dt (separate, integrate, apply the stop condition) and v = ds/dt.",
+  answers:(v,r)=>[
+    {label:"Stopping time t₂", unit:"s", val:r.t2},
+    {label:"Stopping distance s₂", unit:"m", val:r.s2}],
+  steps(v,r){ return [
+    {t:"Convert the approach speed to m/s", eq:T`v_1=${fmt(v.kmh)}\,\tfrac{\text{km}}{\text{h}}\cdot\tfrac{1000\ \text{m}}{1\ \text{km}}\cdot\tfrac{1\ \text{h}}{3600\ \text{s}}=${fmt(r.v1)}\ \text{m/s}`,
+      note:"Dividing km/h by 3.6 gives m/s."},
+    {t:"Kinematic relation and separate variables", eq:T`a=\frac{dv}{dt}\;\Rightarrow\;a\,dt=dv`},
+    {t:"Integrate from the initial state", eq:T`\int_0^{t}(-${fmt(r.A)})\,dt=\int_{${fmt(r.v1)}}^{v}dv\;\Rightarrow\;v(t)=${fmt(r.v1)}-${fmt(r.A)}\,t`},
+    {t:"State 2: the train stops (v = 0)", eq:T`0=${fmt(r.v1)}-${fmt(r.A)}\,t_2\;\Rightarrow\;t_2=\frac{${fmt(r.v1)}}{${fmt(r.A)}}=${fmt(r.t2)}\ \text{s}`},
+    {t:"Repeat for position with v = ds/dt", eq:T`\int_0^{t}(${fmt(r.v1)}-${fmt(r.A)}\,t)\,dt=\int_0^{s}ds\;\Rightarrow\;s(t)=${fmt(r.v1)}\,t-${fmt(r.A/2)}\,t^2`},
+    {t:"Evaluate at t₂", eq:T`s_2=${fmt(r.v1)}(${fmt(r.t2)})-${fmt(r.A/2)}(${fmt(r.t2)})^2=${fmt(r.s2)}\ \text{m}`},
+    {t:"Check with v² = v₁² + 2aΔs", eq:T`0=${fmt(r.v1)}^2+2(-${fmt(r.A)})\,s_2\;\Rightarrow\;s_2=\frac{${fmt(r.v1)}^2}{2(${fmt(r.A)})}=${fmt(r.s2)}\ \text{m}\ \checkmark`}
+  ];},
+  takeaway:(v,r)=>`Stopping distance grows with the square of the speed: at twice the approach speed the train would need ${fmt(4*r.s2,3)} m, four times as far. Always convert to m/s before integrating; mixing km/h with m/s² is the classic slip.`,
+  plot(v,r){ const p1=[],p2=[]; for(let i=0;i<=60;i++){const t=r.t2*i/60; p1.push([t, r.v1-r.A*t]); p2.push([t, r.v1*t-0.5*r.A*t*t]);} return {xl:"t (s)", yl:"v (m/s), s (m)", series:[{pts:p1,label:"v(t)"},{pts:p2,label:"s(t)",alt:true}], mark:[r.t2,0], mark2:[r.t2,r.s2], cap:"Speed (blue) falls linearly to zero while position (orange) flattens out. The area under v(t) is the stopping distance s₂."}; }
+},
+
+/* ---------- 7. Trapezoidal v–t graph ---------- */
+{
+  id:"vtgraph", topic:"Particle Kinematics · Cartesian", name:"Tram v–t Graph", tag:"v–t graph",
+  kind:"Rectilinear motion (graphical)",
+  original:{ vmax:12, t1:8, t2:32, t3:40 },
+  randomize(){ const t1=pick(4,12,1), t2=t1+pick(10,40,2), t3=t2+pick(4,14,1); return { vmax:pick(8,20,1), t1, t2, t3 }; },
+  solve(v){ const a1=v.vmax/v.t1, a3=-v.vmax/(v.t3-v.t2), d1=0.5*v.vmax*v.t1, d2=v.vmax*(v.t2-v.t1), d3=0.5*v.vmax*(v.t3-v.t2), d=d1+d2+d3, vavg=d/v.t3; return {a1,a3,d1,d2,d3,d,vavg}; },
+  statement:(v)=>`A light-rail tram leaves a stop and travels in a straight line to the next one. Its speed follows a trapezoidal v–t graph: it accelerates uniformly from rest to ${N(v.vmax,"m/s")} in ${N(v.t1,"s")}, cruises at that speed until t = ${N(v.t2,"s")}, then brakes uniformly to rest at t = ${N(v.t3,"s")}. Find the acceleration in each phase, the distance between the stops, and the tram's average speed for the trip.`,
+  given:(v)=>[["v_max",`${fmt(v.vmax)} m/s`],["t₁ (end of speed-up)",`${fmt(v.t1)} s`],["t₂ (start of braking)",`${fmt(v.t2)} s`],["t₃ (stopped)",`${fmt(v.t3)} s`],["v(0), v(t₃)","0, 0"]],
+  find:["a in phases 1, 2, 3","Total distance d","Average speed"],
+  method:"On a v–t graph the slope is the acceleration and the area under the curve is the distance traveled. Split the trapezoid into a triangle, a rectangle and a triangle.",
+  answers:(v,r)=>[
+    {label:"a₁ (speed-up phase)", unit:"m/s²", val:r.a1},
+    {label:"a₃ (braking phase)", unit:"m/s²", val:r.a3},
+    {label:"Total distance d", unit:"m", val:r.d},
+    {label:"Average speed", unit:"m/s", val:r.vavg}],
+  steps(v,r){ return [
+    {t:"Slope = acceleration, phase 1 (0 to t₁)", eq:T`a_1=\frac{\Delta v}{\Delta t}=\frac{${fmt(v.vmax)}-0}{${fmt(v.t1)}-0}=${fmt(r.a1)}\ \text{m/s}^2`},
+    {t:"Phase 2 (t₁ to t₂): constant speed", eq:T`a_2=\frac{dv}{dt}=0`},
+    {t:"Phase 3 (t₂ to t₃): braking", eq:T`a_3=\frac{0-${fmt(v.vmax)}}{${fmt(v.t3)}-${fmt(v.t2)}}=${fmt(r.a3)}\ \text{m/s}^2`,
+      note:"Negative because the speed decreases; the slope of the graph is downward."},
+    {t:"Area = distance, phase 1 (triangle)", eq:T`d_1=\int_0^{t_1}v\,dt=\tfrac12(${fmt(v.t1)})(${fmt(v.vmax)})=${fmt(r.d1)}\ \text{m}`},
+    {t:"Phase 2 (rectangle)", eq:T`d_2=${fmt(v.vmax)}(${fmt(v.t2)}-${fmt(v.t1)})=${fmt(r.d2)}\ \text{m}`},
+    {t:"Phase 3 (triangle)", eq:T`d_3=\tfrac12(${fmt(v.t3)}-${fmt(v.t2)})(${fmt(v.vmax)})=${fmt(r.d3)}\ \text{m}`},
+    {t:"Total distance", eq:T`d=d_1+d_2+d_3=${fmt(r.d1)}+${fmt(r.d2)}+${fmt(r.d3)}=${fmt(r.d)}\ \text{m}`},
+    {t:"Average speed for the whole trip", eq:T`v_{avg}=\frac{d}{t_3}=\frac{${fmt(r.d)}}{${fmt(v.t3)}}=${fmt(r.vavg)}\ \text{m/s}`,
+      note:`Less than v_max because part of the time is spent speeding up and slowing down (${fmt(100*r.vavg/v.vmax,3)} % of v_max).`}
+  ];},
+  takeaway:"Reading a v–t graph: slope gives a, area gives Δs. A trapezoid is just a triangle + rectangle + triangle, so you never need to integrate formally. Average speed is total distance over total time, not the average of the phase speeds.",
+  plot(v,r){ const tr=[[0,0],[v.t1,v.vmax],[v.t2,v.vmax],[v.t3,0]]; return {xl:"t (s)", yl:"v (m/s)", series:[{pts:tr,label:"v(t)"},{pts:[[v.t1,0],[v.t1,v.vmax]],alt:true},{pts:[[v.t2,0],[v.t2,v.vmax]],alt:true}], mark:[v.t3,0], cap:`The v–t graph. Orange dividers split the area into a triangle (${fmt(r.d1)} m), a rectangle (${fmt(r.d2)} m) and a triangle (${fmt(r.d3)} m); the total area is the distance d.`}; }
+},
+
+/* ---------- 8. Motorcycle ramp jump: projectile from a height ---------- */
+{
+  id:"rampjump", topic:"Particle Kinematics · Cartesian", name:"Motorcycle Ramp Jump", tag:"projectile, quadratic in t",
+  kind:"Curvilinear motion (parabolic)",
+  original:{ h:1.5, v0:25, th:30 },
+  randomize(){ return { h:pick(0.5,3,0.25), v0:pick(20,30,1), th:pick(15,45,5) }; },
+  solve(v){ const th=v.th*Math.PI/180, vx=v.v0*Math.cos(th), vy=v.v0*Math.sin(th), disc=vy*vy+2*g*v.h, sq=Math.sqrt(disc), t=(vy+sq)/g, tneg=(vy-sq)/g, d=vx*t, tpk=vy/g, ypk=v.h+vy*vy/(2*g); return {th,vx,vy,disc,sq,t,tneg,d,tpk,ypk}; },
+  statement:(v)=>`A stunt rider leaves the end of a ramp ${N(v.h,"m")} above level ground with a speed of ${N(v.v0,"m/s")} directed ${N(v.th,"°")} above the horizontal. Neglecting air resistance, find the time the motorcycle is in the air and the horizontal distance from the end of the ramp to the landing point. Use g = 9.81 m/s².`,
+  given:(v)=>[["v₀",`${fmt(v.v0)} m/s at ${fmt(v.th)}° above horizontal`],["h (ramp height)",`${fmt(v.h)} m`],["a",`aₓ = 0, a_y = −g`],["Landing","y = 0 (ground)"]],
+  find:["Time of flight t","Horizontal distance d"],
+  method:"Fixed Cartesian frame with the origin on the ground directly below the ramp end. Integrate a = −g ĵ twice, split into î and ĵ equations. The ĵ equation is a quadratic in t; only one root is physical.",
+  answers:(v,r)=>[
+    {label:"Time of flight t", unit:"s", val:r.t},
+    {label:"Horizontal distance d", unit:"m", val:r.d}],
+  steps(v,r){ return [
+    {t:"Initial velocity components", eq:T`v_{0x}=${fmt(v.v0)}\cos ${fmt(v.th)}^\circ=${fmt(r.vx)}\ \text{m/s},\qquad v_{0y}=${fmt(v.v0)}\sin ${fmt(v.th)}^\circ=${fmt(r.vy)}\ \text{m/s}`},
+    {t:"Integrate the acceleration", eq:T`\vec a=-g\,\hat j\;\Rightarrow\;\vec v(t)=${fmt(r.vx)}\,\hat i+(${fmt(r.vy)}-${fmt(g)}\,t)\,\hat j`},
+    {t:"Integrate again from the ramp end (0, h)", eq:T`\vec r(t)=${fmt(r.vx)}\,t\,\hat i+\Big(${fmt(v.h)}+${fmt(r.vy)}\,t-\tfrac{${fmt(g)}}{2}t^2\Big)\hat j`},
+    {t:"ĵ equation: landing at y = 0 is a quadratic in t", eq:T`0=${fmt(v.h)}+${fmt(r.vy)}\,t-${fmt(g/2)}\,t^2`},
+    {t:"Quadratic formula", eq:T`t=\frac{${fmt(r.vy)}\pm\sqrt{${fmt(r.vy)}^2+4(${fmt(g/2)})(${fmt(v.h)})}}{2(${fmt(g/2)})}=\frac{${fmt(r.vy)}\pm ${fmt(r.sq)}}{${fmt(g)}}\;\Rightarrow\;t=${fmt(r.t)}\ \text{s}\ \text{ or }\ ${fmt(r.tneg)}\ \text{s}`,
+      note:`The negative root (${fmt(r.tneg)} s) is where the parabola would have crossed the ground before the jump if the rider had been flying all along. Only the positive root, t = ${fmt(r.t)} s, is physical.`},
+    {t:"î equation: horizontal distance", eq:T`d=v_{0x}\,t=${fmt(r.vx)}(${fmt(r.t)})=${fmt(r.d)}\ \text{m}`},
+    {t:"Bonus: peak of the jump", eq:T`v_y=0\;\Rightarrow\;t_{pk}=\frac{${fmt(r.vy)}}{${fmt(g)}}=${fmt(r.tpk)}\ \text{s},\qquad y_{max}=${fmt(v.h)}+\frac{${fmt(r.vy)}^2}{2(${fmt(g)})}=${fmt(r.ypk)}\ \text{m}`}
+  ];},
+  takeaway:(v,r)=>`Because the rider lands below the launch height, the flight time is longer than the symmetric 2v₀y/g = ${fmt(2*r.vy/g,3)} s. Always check which root of the quadratic is physical: here it is the positive one.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=60;i++){const t=r.t*i/60; pts.push([r.vx*t, v.h+r.vy*t-0.5*g*t*t]);} return {xl:"x (m)", yl:"y (m)", series:[{pts,label:"path"},{pts:[[0,0],[0,v.h]],alt:true}], mark:[r.d,0], mark2:[r.vx*r.tpk,r.ypk], cap:"Trajectory to scale. Orange is the ramp height; the orange dot is the peak and the blue dot is the landing point at distance d."}; }
+},
+
+/* ---------- 9. Field goal: height at the crossbar ---------- */
+{
+  id:"fieldgoal", topic:"Particle Kinematics · Cartesian", name:"Field Goal", tag:"projectile, y at x_c",
+  kind:"Curvilinear motion (parabolic)",
+  original:{ v0:22, th:38, xc:42, yc:3.05 },
+  randomize(){ const v0=pick(18,28,1), th=pick(30,50,2), R=v0*v0*Math.sin(2*th*Math.PI/180)/g; let xc=pick(30,50,2); if(xc>0.85*R) xc=Math.floor(0.85*R/2)*2; return { v0, th, xc, yc:pick(2.5,3.5,0.1) }; },
+  solve(v){ const th=v.th*Math.PI/180, vx=v.v0*Math.cos(th), vy0=v.v0*Math.sin(th), tc=v.xc/vx, y=vy0*tc-0.5*g*tc*tc, clr=y-v.yc, vy=vy0-g*tc, sp=Math.hypot(vx,vy), R=vx*2*vy0/g; return {th,vx,vy0,tc,y,clr,vy,sp,R}; },
+  statement:(v)=>`A football is kicked from ground level with an initial speed of ${N(v.v0,"m/s")} at ${N(v.th,"°")} above the horizontal, aimed straight at the goalposts ${N(v.xc,"m")} away. The crossbar is ${N(v.yc,"m")} above the ground. Find the height of the ball when it reaches the plane of the goalposts, by how much it clears (or misses) the crossbar, and the ball's speed at that point. Use g = 9.81 m/s².`,
+  given:(v)=>[["v₀",`${fmt(v.v0)} m/s at ${fmt(v.th)}°`],["x_c (distance to posts)",`${fmt(v.xc)} m`],["y_c (crossbar height)",`${fmt(v.yc)} m`],["a",`aₓ = 0, a_y = −g`],["Launch point","(0, 0)"]],
+  find:["Height y at x = x_c","Clearance y − y_c","Speed at x_c"],
+  method:"Cartesian frame at the kick. The î equation has no acceleration, so it gives the time to reach x_c; substitute that time into the ĵ equations for height and vertical velocity.",
+  answers:(v,r)=>[
+    {label:"Height at x_c", unit:"m", val:r.y},
+    {label:"Clearance (negative = misses)", unit:"m", val:r.clr, scale:v.yc},
+    {label:"Speed at x_c", unit:"m/s", val:r.sp}],
+  steps(v,r){ return [
+    {t:"Initial velocity components", eq:T`v_{0x}=${fmt(v.v0)}\cos ${fmt(v.th)}^\circ=${fmt(r.vx)}\ \text{m/s},\qquad v_{0y}=${fmt(v.v0)}\sin ${fmt(v.th)}^\circ=${fmt(r.vy0)}\ \text{m/s}`},
+    {t:"Integrate a = −g ĵ twice from (0, 0)", eq:T`\vec v(t)=${fmt(r.vx)}\,\hat i+(${fmt(r.vy0)}-${fmt(g)}\,t)\,\hat j,\qquad \vec r(t)=${fmt(r.vx)}\,t\,\hat i+\Big(${fmt(r.vy0)}\,t-\tfrac{${fmt(g)}}{2}t^2\Big)\hat j`},
+    {t:"î equation: time to reach the posts", eq:T`x=v_{0x}\,t\;\Rightarrow\;t_c=\frac{${fmt(v.xc)}}{${fmt(r.vx)}}=${fmt(r.tc)}\ \text{s}`},
+    {t:"ĵ equation: height at that time", eq:T`y_c'=${fmt(r.vy0)}(${fmt(r.tc)})-\tfrac{${fmt(g)}}{2}(${fmt(r.tc)})^2=${fmt(r.y)}\ \text{m}`},
+    {t:"Compare with the crossbar", eq:T`\Delta y=${fmt(r.y)}-${fmt(v.yc)}=${fmt(r.clr)}\ \text{m}`,
+      note: r.clr>=0 ? `Positive: the ball passes ${fmt(r.clr,3)} m above the bar. Good kick.` : `Negative: the ball is ${fmt(-r.clr,3)} m below the bar when it reaches the posts. No good.`},
+    {t:"Velocity at the posts", eq:T`v_y=${fmt(r.vy0)}-${fmt(g)}(${fmt(r.tc)})=${fmt(r.vy)}\ \text{m/s},\qquad |\vec v|=\sqrt{${fmt(r.vx)}^2+(${fmt(r.vy)})^2}=${fmt(r.sp)}\ \text{m/s}`,
+      note: r.vy<0 ? "v_y is negative: the ball is already on its way down when it reaches the posts." : "v_y is still positive: the ball is still rising at the posts."}
+  ];},
+  takeaway:(v,r)=>`The horizontal motion is a clock: x = v₀ₓ t links position to time, and everything else follows. The total range on level ground would be ${fmt(r.R,3)} m, so the posts are at ${fmt(100*v.xc/r.R,3)} % of the range.`,
+  plot(v,r){ const pts=[]; const T=Math.max(r.tc*1.15, 2*r.vy0/g); for(let i=0;i<=80;i++){const t=T*i/80; pts.push([r.vx*t, r.vy0*t-0.5*g*t*t]);} return {xl:"x (m)", yl:"y (m)", series:[{pts,label:"path"},{pts:[[v.xc,0],[v.xc,v.yc]],alt:true}], mark:[v.xc,r.y], mark2:[v.xc,v.yc], equal:true, cap:"Trajectory to scale. Orange is the goalpost up to the crossbar (orange dot); the blue dot is the ball as it crosses the plane of the posts."}; }
+},
+
+/* ---------- 10. Dependent motion: block on a table, movable pulley ---------- */
+{
+  id:"pulley", topic:"Particle Kinematics · Cartesian", name:"Table & Movable Pulley", tag:"dependent motion",
+  kind:"Rectilinear motion (constrained)",
+  original:{ vA:1.2, aA:0.4, t:3 },
+  randomize(){ return { vA:pick(0.5,3,0.1), aA:pick(0.2,1.5,0.1), t:pick(1,6,0.5) }; },
+  solve(v){ const vB=v.vA/2, aB=v.aA/2, dA=v.vA*v.t+0.5*v.aA*v.t*v.t, dB=dA/2; return {vB,aB,dA,dB}; },
+  statement:(v)=>`Block A slides on a horizontal table. A rope tied to A runs to the right over a small fixed pulley at the table edge, down and around a movable pulley that carries block B, and back up to a fixed anchor. At the instant shown, A moves to the right at ${N(v.vA,"m/s")} and is speeding up at ${N(v.aA,"m/s²")}. Find the velocity and acceleration of B, and how far B moves during the next ${N(v.t,"s")} if A keeps this acceleration.`,
+  given:(v)=>[["v_A",`${fmt(v.vA)} m/s (to the right, toward the pulley)`],["a_A",`${fmt(v.aA)} m/s² (same direction)`],["Rope","inextensible, one rope"],["t",`${fmt(v.t)} s`]],
+  find:["v_B","a_B","Distance B moves in t"],
+  method:"Dependent motion: write the length of the rope in terms of the position coordinates of A and B, then differentiate. Segments that wrap around pulleys are constant and drop out.",
+  answers:(v,r)=>[
+    {label:"v_B", unit:"m/s", val:r.vB},
+    {label:"a_B", unit:"m/s²", val:r.aB},
+    {label:"Distance B moves", unit:"m", val:r.dB}],
+  steps(v,r){ return [
+    {t:"Choose position coordinates from fixed datums", eq:T`x_A:\ \text{measured to the right from a fixed mark on the table},\qquad y_B:\ \text{measured downward from the fixed pulley}`,
+      note:"Both are measured from points that do not move, so their derivatives are true velocities."},
+    {t:"Write the rope length", eq:T`L=(D-x_A)+2\,y_B+\text{const}`,
+      note:"D is the fixed distance from the datum to the pulley, so D − x_A is the rope on the table. Two segments hang down to the movable pulley, hence 2y_B. The wraps around the pulleys are constant."},
+    {t:"Differentiate: L is constant", eq:T`0=-\dot x_A+2\,\dot y_B\;\Rightarrow\;\dot y_B=\tfrac12\dot x_A`,
+      note:"As A moves toward the pulley, rope is paid out to the hanging side, so B goes down—half as fast, because two segments must lengthen."},
+    {t:"Velocity of B", eq:T`v_B=\tfrac12 v_A=\tfrac12(${fmt(v.vA)})=${fmt(r.vB)}\ \text{m/s}\ \downarrow`},
+    {t:"Differentiate again for acceleration", eq:T`0=-\ddot x_A+2\,\ddot y_B\;\Rightarrow\;a_B=\tfrac12 a_A=\tfrac12(${fmt(v.aA)})=${fmt(r.aB)}\ \text{m/s}^2\ \downarrow`},
+    {t:"Displacement of A in t (constant a)", eq:T`\Delta x_A=v_A t+\tfrac12 a_A t^2=${fmt(v.vA)}(${fmt(v.t)})+\tfrac12(${fmt(v.aA)})(${fmt(v.t)})^2=${fmt(r.dA)}\ \text{m}`},
+    {t:"Displacement of B", eq:T`\Delta y_B=\tfrac12\Delta x_A=${fmt(r.dB)}\ \text{m}\ \downarrow`,
+      note:"The constraint x_A − 2y_B = const holds for positions too, not just rates."}
+  ];},
+  takeaway:"The whole problem is one equation: rope length = constant. Every derivative of it is another constraint (positions, velocities, accelerations). The factor of 2 comes from the two rope segments supporting the movable pulley.",
+  plot(v,r){ const p1=[],p2=[]; for(let i=0;i<=60;i++){const t=v.t*i/60, dA=v.vA*t+0.5*v.aA*t*t; p1.push([t,dA]); p2.push([t,dA/2]);} return {xl:"t (s)", yl:"displacement (m)", series:[{pts:p1,label:"Δx_A"},{pts:p2,label:"Δy_B",alt:true}], mark:[v.t,r.dA], mark2:[v.t,r.dB], cap:"Displacement of A (blue) and of B (orange) over time. B always moves exactly half as far as A."}; }
 }
 
 ];
@@ -575,6 +724,32 @@ const RAD=Math.PI/180;
 const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+/* ---- runtime layout pass: move labels off lines/arrows/other labels, then grow the viewBox so nothing is clipped ---- */
+D.tidy=function(svg){
+  if(!svg||!svg.getBBox) return;
+  try{
+    const texts=[...svg.querySelectorAll("text")];
+    const gfx=[...svg.querySelectorAll("line,path,polyline,polygon,circle,rect")].filter(e=>!e.closest("marker")&&!e.closest("defs"));
+    /* sample outline points of every graphic once */
+    const pts=[]; gfx.forEach(g=>{ const tag=g.tagName.toLowerCase(); const cls=g.getAttribute("class")||""; const w=/\b(h|h2|ext|hatch|dimln)\b/.test(cls)?0.6:1;
+      if(tag==="circle"){ const cx=+g.getAttribute("cx"),cy=+g.getAttribute("cy"),r=+g.getAttribute("r"); if(r<5) return; for(let a=0;a<48;a++) pts.push([cx+r*Math.cos(a/48*6.2832),cy+r*Math.sin(a/48*6.2832),w]); return; }
+      if(tag==="rect"){ const b=g.getBBox(); const tr=g.transform.baseVal.consolidate(); const m=tr?tr.matrix:null; const c=[[b.x,b.y],[b.x+b.width,b.y],[b.x+b.width,b.y+b.height],[b.x,b.y+b.height]].map(([x,y])=>m?[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]:[x,y]); for(let e=0;e<4;e++){ const [x1,y1]=c[e],[x2,y2]=c[(e+1)%4]; const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/4)); for(let s=0;s<=n;s++) pts.push([x1+(x2-x1)*s/n,y1+(y2-y1)*s/n,w]); } return; }
+      let L=0; try{ L=g.getTotalLength(); }catch(e){} if(!L) return; const n=Math.max(3,Math.ceil(L/4)); for(let s=0;s<=n;s++){ const q=g.getPointAtLength(L*s/n); pts.push([q.x,q.y,w]); } });
+    const boxes=[]; const pad=1.5;
+    const cost=(b,self)=>{ let c=0; for(const o of boxes){ if(o===self) continue; if(b.x<o.x+o.w+pad&&o.x<b.x+b.w+pad&&b.y<o.y+o.h+pad&&o.y<b.y+b.h+pad) c+=3; } for(const [x,y,w] of pts){ if(x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad) c+=w; } return c; };
+    const cand=[]; for(const d of [7,14,21,30,40,52,66]) for(let a=0;a<8;a++){ const t=a*Math.PI/4; cand.push([Math.round(d*Math.cos(t)),Math.round(-d*Math.sin(t))]); }
+    texts.forEach(t=>{ const b=t.getBBox(); boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,el:t}); });
+    for(let pass=0;pass<2;pass++){
+      boxes.forEach(bx=>{ let c0=cost(bx,bx); if(c0<=0) return; let best=null, bc=c0;
+        for(const [dx,dy] of cand){ const nb={x:bx.x+dx,y:bx.y+dy,w:bx.w,h:bx.h}; const c=cost(nb,bx)+Math.hypot(dx,dy)*0.02; if(c<bc-0.01){ bc=c; best=[dx,dy]; if(c<0.5) break; } }
+        if(best){ const t=bx.el; const x=parseFloat(t.getAttribute("x"))||0, y=parseFloat(t.getAttribute("y"))||0; t.setAttribute("x",(x+best[0]).toFixed(1)); t.setAttribute("y",(y+best[1]).toFixed(1)); bx.x+=best[0]; bx.y+=best[1]; } });
+    }
+    /* grow the viewBox to fit everything (never shrink below the design size) */
+    const all=svg.getBBox(); const vb=svg.viewBox.baseVal; const P=6;
+    const x0=Math.min(vb.x,all.x-P), y0=Math.min(vb.y,all.y-P), x1=Math.max(vb.x+vb.width,all.x+all.width+P), y1=Math.max(vb.y+vb.height,all.y+all.height+P);
+    if(x0<vb.x||y0<vb.y||x1>vb.x+vb.width||y1>vb.y+vb.height) svg.setAttribute("viewBox",`${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1-x0).toFixed(1)} ${(y1-y0).toFixed(1)}`);
+  }catch(e){}
+};
 
 const DIAG = {
 plane(v,r){ const g=165; const plane=(x)=>D.rect(x-28,g-22,56,14,"body")+D.poly([[x-28,g-22],[x-40,g-36],[x-32,g-36],[x-20,g-22]],"body",true)+D.poly([[x-6,g-15],[x+4,g-15],[x-2,g-6]],"s")+D.circ(x-14,g-4,4,"body2")+D.circ(x+14,g-4,4,"body2");
@@ -586,7 +761,17 @@ chute(v,r){ const cx=180;
 gasgun(v,r){ const x0=30, x1=330, sc=(x1-x0-20)/v.sf, y=110, ps=(s)=>x0+s*sc;
   return D.svg(D.rect(x0,y-20,x1-x0,40,"body2")+D.rect(x0-8,y-26,8,52,"body")+D.rect(ps(v.s0)-10,y-14,20,28,"h")+D.rect(ps(v.sf)-10,y-14,20,28,"body")+D.text(ps(v.s0),y,"start","middle","tm")+D.arrow(ps(v.sf)+14,y,ps(v.sf)+40,y,"v","v_f",ps(v.sf)+28,y-24)+D.arrow(ps(v.s0)+16,y-32,ps(v.s0)+60,y-32,"f","a = C/s",ps(v.s0)+40,y-44)+D.dim(x0,y+36,ps(v.s0),y+36,`s₀ = ${nf(v.s0)} m`)+D.dim(x0,y+62,ps(v.sf),y+62,`s_f = ${nf(v.sf)} m`)+D.text(x0-4,y-38,"breech","start","tm")); },
 survey(v,r){ const g=190, top=45, H=g-top, W=Math.min(235,H*r.d/v.h), x0=90; const pts=[]; for(let i=0;i<=30;i++){const s=i/30; pts.push([x0+W*s, top+H*s*s]);}
-  return D.svg(D.ground(20,345,g)+D.poly(pts,"h")+D.rect(x0-22,top-8,40,10,"body")+D.poly([[x0-22,top-8],[x0-30,top-18],[x0-24,top-18],[x0-14,top-8]],"body",true)+D.dot(x0,top+6,4,"dotf")+D.arrow(x0+24,top-3,x0+70,top-3,"v",`v₀ = ${nf(v.vx)} m/s`)+D.dim(x0-34,top+6,x0-34,g,`h = ${nf(v.h)} m`,0)+D.dim(x0,g+16,x0+W,g+16,"d = ?")+D.dot(x0+W,g,4,"dotf")); }
+  return D.svg(D.ground(20,345,g)+D.poly(pts,"h")+D.rect(x0-22,top-8,40,10,"body")+D.poly([[x0-22,top-8],[x0-30,top-18],[x0-24,top-18],[x0-14,top-8]],"body",true)+D.dot(x0,top+6,4,"dotf")+D.arrow(x0+24,top-3,x0+70,top-3,"v",`v₀ = ${nf(v.vx)} m/s`)+D.dim(x0-34,top+6,x0-34,g,`h = ${nf(v.h)} m`,0)+D.dim(x0,g+16,x0+W,g+16,"d = ?")+D.dot(x0+W,g,4,"dotf")); },
+station(v,r){ const g=165; const train=(x)=>D.rect(x-42,g-30,84,24,"body")+D.poly([[x+42,g-30],[x+54,g-18],[x+42,g-6]],"body",true)+D.rect(x-34,g-25,12,9,"h")+D.rect(x-16,g-25,12,9,"h")+D.rect(x+2,g-25,12,9,"h")+D.rect(x+20,g-25,12,9,"h")+D.circ(x-28,g-4,5,"body2")+D.circ(x-8,g-4,5,"body2")+D.circ(x+12,g-4,5,"body2")+D.circ(x+32,g-4,5,"body2");
+  return D.svg(D.ground(20,345,g)+train(75)+D.rect(300,g-10,45,10,"body2")+D.text(322,g-18,"platform","middle","tm")+D.arrow(140,g-44,200,g-44,"v",`v₁ = ${nf(v.kmh)} km/h`)+D.arrow(190,g-68,140,g-68,"f",`a = ${nf(v.a)} m/s²`,165,g-82)+D.line(300,g-40,300,g,"h")+D.text(300,g-50,"stop (v₂ = 0)","middle","tm")+D.dim(75,g+22,300,g+22,"s₂ = ?")); },
+vtgraph(v,r){ const ox=50, oy=175, W=270, H=95, X=(t)=>ox+W*t/v.t3, Y=(u)=>oy-H*u/v.vmax; const x1=X(v.t1), x2=X(v.t2), x3=X(v.t3), yv=Y(v.vmax);
+  return D.svg(D.arrow(ox,oy,ox,oy-H-32,"s","v (m/s)",ox+8,oy-H-28,"start")+D.arrow(ox,oy,x3+28,oy,"s","t (s)",x3+34,oy,"start")+D.poly([[ox,oy],[x1,yv],[x2,yv],[x3,oy]],"v")+D.line(x1,oy,x1,yv,"h")+D.line(x2,oy,x2,yv,"h")+D.line(ox,yv,x1,yv,"h")+D.text(ox-6,yv,`v_max = ${nf(v.vmax)}`,"end","tv")+D.text(x1,oy+12,`t₁ = ${nf(v.t1)}`,"middle","tm")+D.text(x2,oy+12,`t₂ = ${nf(v.t2)}`,"middle","tm")+D.text(x3,oy+28,`t₃ = ${nf(v.t3)}`,"middle","tm")+D.line(x3,oy,x3,oy+18,"h")+D.text(ox,oy+12,"0","middle","tm")+D.text((ox+x1)/2+8,(oy+yv)/2+16,"A₁","middle","tm")+D.text((x1+x2)/2,(oy+yv)/2,"A₂","middle","tm")+D.text((x2+x3)/2-8,(oy+yv)/2+16,"A₃","middle","tm")+D.text((x1+x2)/2,yv-14,"slope = a, area = Δs","middle","tm")); },
+rampjump(v,r){ const g=190, x0=110, hp=30+20*v.h, top=g-hp, xl=320, P=Math.min(130,Math.max(40,210*Math.tan(v.th*RAD)*0.7)); const pts=[]; for(let i=0;i<=40;i++){const s=i/40; pts.push([x0+(xl-x0)*s, top-(P*s-(P+hp)*s*s)]);} const V=D.at(x0,top-10,v.th,60);
+  return D.svg(D.ground(20,345,g)+D.poly([[30,g],[x0,g],[x0,top],[x0-40,top]],"body2",true)+D.poly(pts,"h")+D.circ(x0-30,top-6,6,"body")+D.circ(x0-8,top-6,6,"body")+D.line(x0-28,top-14,x0-8,top-14,"s")+D.line(x0-14,top-14,x0-10,top-22,"s")+D.arrow(x0,top-10,V[0],V[1],"v",`v₀ = ${nf(v.v0)} m/s`,V[0]+6,V[1]-14,"start")+D.angle(x0,top-10,30,0,v.th,`θ = ${nf(v.th)}°`)+D.dim(20,top,20,g,`h = ${nf(v.h)} m`,0)+D.dot(xl,g,4,"dotf")+D.dim(x0,g+20,xl,g+20,"d = ?")); },
+fieldgoal(v,r){ const g=190, x0=40, xc=270, sx=(xc-x0)/v.xc, ymax=Math.max(r.vy0*r.vy0/(2*9.81), v.yc*1.5), sy=110/ymax, X=(x)=>x0+x*sx, Y=(y)=>g-y*sy, xend=Math.min(r.R, v.xc*1.28); const pts=[]; for(let i=0;i<=50;i++){const x=xend*i/50; pts.push([X(x), Y(Math.max(0,x*Math.tan(r.th)-9.81*x*x/(2*r.vx*r.vx)))]);} const V=D.at(x0,g-6,v.th,55), yb=Y(v.yc);
+  return D.svg(D.ground(20,345,g)+D.poly(pts,"h")+D.line(xc,g,xc,yb,"s")+D.line(xc-16,yb,xc+16,yb,"s")+D.line(xc-16,yb,xc-16,yb-40,"s")+D.line(xc+16,yb,xc+16,yb-40,"s")+D.dim(xc+42,g,xc+42,yb,`y_c = ${nf(v.yc)} m`,0)+D.dim(x0,g+20,xc,g+20,`x_c = ${nf(v.xc)} m`)+D.circ(x0,g-6,5,"body")+D.arrow(x0,g-6,V[0],V[1],"v",`v₀ = ${nf(v.v0)} m/s`,V[0]+8,V[1]-8,"start")+D.angle(x0,g-6,26,0,v.th,`${nf(v.th)}°`)+D.dot(xc,Y(r.y),4,"dotf")+D.text(xc+8,Y(r.y)-12,"y = ?","start","tm")); },
+pulley(v,r){ const ty=120, A=[70,96,36,24], P=[212,108], Q=[232,165], ax=A[0]+A[2]/2;
+  return D.svg(D.rect(30,ty,180,8,"body2")+D.line(45,ty+8,45,212,"s")+D.line(195,ty+8,195,212,"s")+D.rect(A[0],A[1],A[2],A[3],"body")+D.text(ax,A[1]+A[3]/2,"A")+D.line(A[0]+A[2],P[1]-8,P[0],P[1]-8,"s")+D.circ(P[0],P[1],8,"body2")+D.pinj(P[0],P[1])+D.line(P[0]+8,P[1],P[0]+8,Q[1],"s")+D.path(`M${P[0]+8},${Q[1]} A12,12 0 0 0 ${Q[0]+12},${Q[1]}`,"s")+D.circ(Q[0],Q[1],12,"body2")+D.pinj(Q[0],Q[1])+D.line(Q[0]+12,Q[1],Q[0]+12,60,"s")+D.rect(Q[0]+2,50,20,10,"body2")+D.line(Q[0],Q[1]+12,Q[0],188,"s")+D.rect(Q[0]-14,188,28,20,"body")+D.text(Q[0],198,"B")+D.arrow(ax-10,A[1]-14,ax+40,A[1]-14,"v",`v_A = ${nf(v.vA)} m/s`)+D.arrow(ax-10,A[1]-40,ax+40,A[1]-40,"f",`a_A = ${nf(v.aA)} m/s²`)+D.dim(45,ty+30,ax,ty+30,"x_A")+D.text(45,ty+44,"datum","middle","tm")+D.dim(275,P[1],275,Q[1],"y_B",0)+D.text(300,200,`t = ${nf(v.t)} s`,"middle","tm")); }
 };
 
 /* SCHEMATICS-END */
@@ -1060,6 +1245,184 @@ fprintf('Horizontal distance:  d  = %.2f m  (y at impact = %.2f m)\\n', d, r2(2)
     `t₂ = √(2·${fmt(v.h)}/9.81) = √(${fmt(2*v.h/9.81)}) s, then d = ${fmt(v.vx)}·t₂.`],
 },
 
+station:{
+  out:["t2","s2"],
+  code:(v,r)=>`% Subway train braking into a station: constant deceleration, stopping time and distance
+clc; clear;
+
+% ---- Given ----
+v_kmh = ${v.kmh};        % approach speed, km/h
+a     = ${v.a};          % acceleration, m/s^2 (negative = braking, constant)
+
+% ---- Unit conversion: km/h -> m/s ----
+v1 = {{v_kmh*1000/3600 || 1 km = 1000 m and 1 h = 3600 s (dividing by 3.6 does the same).}};      % m/s
+
+% ---- a = dv/dt, a constant: v(t) = v1 + a*t; the train stops when v = 0 ----
+t2 = {{-v1/a || Set v(t2) = v1 + a*t2 = 0 and solve for t2 (a < 0, so t2 > 0).}};       % s
+
+% ---- v = ds/dt: s(t) = v1*t + (1/2) a t^2, evaluate at t2 ----
+s2 = {{v1*t2 + 0.5*a*t2^2 || Integrate v(t) = v1 + a*t from 0 to t2 with s(0) = 0.}};       % m
+
+% ---- Check with v2^2 = v1^2 + 2 a (s2 - s1) ----
+s2_check = {{-v1^2/(2*a) || Solve 0 = v1^2 + 2*a*s2 for s2.}};     % m
+
+fprintf('Approach speed:     v1 = %.3f m/s\\n', v1);
+fprintf('Stopping time:      t2 = %.3f s\\n', t2);
+fprintf('Stopping distance:  s2 = %.2f m  (check: %.2f m)\\n', s2, s2_check);`,
+  hints:(v,r)=>[
+    "Straight-line motion with constant acceleration. Convert km/h to m/s first (divide by 3.6), then use a = dv/dt: separate, integrate from the initial state, and apply v = 0 at the stop. Then repeat with v = ds/dt. The sign of a is negative because the train slows down.",
+    "Key equations: v(t) = v₁ + a·t → t₂ = −v₁/a; s(t) = v₁t + ½at² → s₂ = v₁t₂ + ½at₂²; check with 0 = v₁² + 2a·s₂.",
+    `v₁ = ${fmt(v.kmh)}·1000/3600 = ${fmt(r.v1)} m/s. Then 0 = ${fmt(r.v1)} − ${fmt(r.A)}·t₂, and s₂ = ${fmt(r.v1)}·t₂ − ½(${fmt(r.A)})t₂².`],
+  sense:(v,r)=>[null, `about ${fmt(r.s2/25,2)} subway-car lengths (25 m each)`],
+},
+
+vtgraph:{
+  out:["a1","a3","d","v_avg"],
+  code:(v,r)=>`% Tram with a trapezoidal v-t graph: accelerations from slopes, distance from area
+clc; clear;
+
+% ---- Given ----
+v_max = ${v.vmax};       % cruising speed, m/s
+t1    = ${v.t1};         % end of the speed-up phase, s
+t2    = ${v.t2};         % start of braking, s
+t3    = ${v.t3};         % tram stopped, s
+
+% ---- Accelerations = slopes of the v-t graph ----
+a1 = {{v_max/t1 || Slope of the first segment: rise v_max over run t1 (from rest).}};             % m/s^2, phase 1 (0 to t1)
+a2 = 0;                       % m/s^2, phase 2: constant speed, so zero slope
+a3 = {{-v_max/(t3 - t2) || Slope of the last segment: the speed drops from v_max to 0 over t3 - t2, so it is negative.}};      % m/s^2, phase 3 (t2 to t3)
+
+% ---- Distances = areas under the v-t graph ----
+d1 = {{0.5*v_max*t1 || Triangle: half base times height.}};             % m, triangle
+d2 = {{v_max*(t2 - t1) || Rectangle: speed times the cruising time.}};      % m, rectangle
+d3 = {{0.5*v_max*(t3 - t2) || Triangle again, base t3 - t2.}};      % m, triangle
+d  = d1 + d2 + d3;            % m, total distance between stops
+
+% ---- Average speed = total distance / total time ----
+v_avg = {{d/t3 || Average speed is the whole distance divided by the whole time t3, not the average of the phase speeds.}};                 % m/s
+
+fprintf('Accelerations: a1 = %.3f, a2 = %.3f, a3 = %.3f m/s^2\\n', a1, a2, a3);
+fprintf('Areas: d1 = %.1f m, d2 = %.1f m, d3 = %.1f m\\n', d1, d2, d3);
+fprintf('Total distance: d = %.1f m\\n', d);
+fprintf('Average speed:  v_avg = %.3f m/s (%.1f percent of v_max)\\n', v_avg, 100*v_avg/v_max);`,
+  hints:(v,r)=>[
+    "Nothing to integrate formally: on a v–t graph the slope is the acceleration and the area under the curve is the displacement. Split the trapezoid into a triangle (speed-up), a rectangle (cruise) and a triangle (braking). The braking slope is negative. Average speed uses the total time, including the cruise.",
+    "Key equations: a₁ = v_max/t₁, a₂ = 0, a₃ = −v_max/(t₃ − t₂); d = ½v_max t₁ + v_max(t₂ − t₁) + ½v_max(t₃ − t₂); v_avg = d/t₃.",
+    `a₁ = ${fmt(v.vmax)}/${fmt(v.t1)}, a₃ = −${fmt(v.vmax)}/(${fmt(v.t3)} − ${fmt(v.t2)}). Areas: ½(${fmt(v.vmax)})(${fmt(v.t1)}) = ${fmt(r.d1)} m, ${fmt(v.vmax)}(${fmt(v.t2)} − ${fmt(v.t1)}) = ${fmt(r.d2)} m, and the last triangle. Divide the total by ${fmt(v.t3)} s.`],
+  sense:(v,r)=>[null, null, `about ${fmt(r.d/100,2)} football-field lengths (100 m)`, `${fmt(100*r.vavg/v.vmax,3)} % of the cruising speed`],
+},
+
+rampjump:{
+  out:["t_fl","d"],
+  code:(v,r)=>`% Motorcycle ramp jump: projectile launched from a height, quadratic in t
+clc; clear;
+
+% ---- Given ----
+h     = ${v.h};          % ramp height above the ground, m
+v0    = ${v.v0};         % launch speed, m/s
+th    = deg2rad(${v.th});  % launch angle above horizontal, rad
+g     = 9.81;            % m/s^2
+
+% ---- Initial velocity components ----
+v0x = {{v0*cos(th) || Horizontal component of the launch velocity.}};        % m/s
+v0y = {{v0*sin(th) || Vertical component of the launch velocity.}};        % m/s
+
+% ---- j equation: y(t) = h + v0y t - (1/2) g t^2 = 0 at landing ----
+%   Written as a polynomial in t: (-g/2) t^2 + v0y t + h = 0
+tt = {{roots([-g/2, v0y, h]) || roots() takes the polynomial coefficients from highest power down: -g/2, v0y, h.}};     % s, both roots of the quadratic
+t_fl = max(tt);           % s, the positive root is the physical one (the negative root is before the jump)
+
+% ---- i equation: no horizontal acceleration ----
+d = {{v0x*t_fl || x = v0x * t with the flight time just found.}};             % m
+
+% ---- Bonus: peak of the jump (v_y = 0) ----
+t_pk  = {{v0y/g || Set v_y = v0y - g t = 0.}};             % s
+y_max = {{h + v0y^2/(2*g) || Start at h and add the rise v0y^2/(2g).}};       % m
+
+fprintf('v0 = (%.3f i + %.3f j) m/s\\n', v0x, v0y);
+fprintf('Roots of the landing equation: %.3f s and %.3f s -> use %.3f s\\n', tt(1), tt(2), t_fl);
+fprintf('Time of flight:      t = %.3f s\\n', t_fl);
+fprintf('Horizontal distance: d = %.2f m\\n', d);
+fprintf('Peak height %.2f m at t = %.3f s\\n', y_max, t_pk);`,
+  hints:(v,r)=>[
+    "Projectile motion in a fixed x–y frame with the origin on the ground under the ramp end. The vertical equation sets the landing time, but because the rider lands below the launch point it is a full quadratic with two roots; keep the positive one. The horizontal equation then gives d because v_x never changes.",
+    "Key equations: y(t) = h + v₀ sin θ·t − ½gt² = 0 → t = [v₀ sin θ + √((v₀ sin θ)² + 2gh)]/g; d = v₀ cos θ·t.",
+    `v₀ₓ = ${fmt(v.v0)} cos ${fmt(v.th)}° = ${fmt(r.vx)} m/s, v₀y = ${fmt(r.vy)} m/s. Solve 0 = ${fmt(v.h)} + ${fmt(r.vy)}t − 4.905t²: the discriminant is ${fmt(r.vy)}² + 2(9.81)(${fmt(v.h)}) = ${fmt(r.disc)}. Take the positive root, then d = ${fmt(r.vx)}·t.`],
+  sense:(v,r)=>[null, `about ${fmt(r.d/4.5,2)} parked cars end to end`],
+},
+
+fieldgoal:{
+  out:["y_c","clr","speed"],
+  code:(v,r)=>`% Field goal: height of the ball at the goalposts, clearance over the crossbar, speed there
+clc; clear;
+
+% ---- Given ----
+v0  = ${v.v0};           % kick speed, m/s
+th  = deg2rad(${v.th});  % kick angle above horizontal, rad
+x_c = ${v.xc};           % distance to the goalposts, m
+y_bar = ${v.yc};         % crossbar height, m
+g   = 9.81;              % m/s^2
+
+% ---- Initial velocity components ----
+v0x = v0*cos(th);        % m/s
+v0y = v0*sin(th);        % m/s
+
+% ---- i equation (no horizontal acceleration): time to reach the posts ----
+t_c = {{x_c/v0x || x = v0x * t, so t = x_c / v0x.}};          % s
+
+% ---- j equation: height and vertical velocity at that time ----
+y_c = {{v0y*t_c - 0.5*g*t_c^2 || y(t) = v0y t - (1/2) g t^2 from y(0) = 0.}};        % m, height of the ball at x_c
+v_y = {{v0y - g*t_c || v_y(t) = v0y - g t.}};        % m/s, vertical velocity at x_c (negative = coming down)
+
+% ---- Clearance over the crossbar (negative = misses) ----
+clr = {{y_c - y_bar || Ball height minus crossbar height.}};          % m
+
+% ---- Speed at the posts ----
+speed = {{sqrt(v0x^2 + v_y^2) || v_x is unchanged; combine it with v_y.}};      % m/s
+
+fprintf('Time to reach the posts: t = %.3f s\\n', t_c);
+fprintf('Ball height at x_c:      y = %.3f m  (crossbar at %.2f m)\\n', y_c, y_bar);
+fprintf('Clearance:               %.3f m  (negative = misses)\\n', clr);
+fprintf('Velocity there: (%.2f i %+.2f j) m/s, |v| = %.2f m/s\\n', v0x, v_y, speed);`,
+  hints:(v,r)=>[
+    "Use the horizontal motion as a clock: x = v₀ₓt has no acceleration, so the distance to the posts fixes the time. Substitute that time into the vertical position and velocity equations. Clearance is simply ball height minus bar height; the sign tells you whether it is good.",
+    "Key equations: t_c = x_c/(v₀ cos θ); y = v₀ sin θ·t_c − ½gt_c²; v_y = v₀ sin θ − g t_c; |v| = √(v₀ₓ² + v_y²).",
+    `v₀ₓ = ${fmt(v.v0)} cos ${fmt(v.th)}° = ${fmt(r.vx)} m/s, v₀y = ${fmt(r.vy0)} m/s, so t_c = ${fmt(v.xc)}/${fmt(r.vx)} = ${fmt(r.tc)} s. Then y = ${fmt(r.vy0)}(${fmt(r.tc)}) − 4.905(${fmt(r.tc)})², and subtract ${fmt(v.yc)} m.`],
+  sense:(v,r)=>[null, r.clr>=0?`good: clears the bar by about ${fmt(r.clr/0.28,2)} football lengths`:`no good: ${fmt(-r.clr,2)} m below the bar`, null],
+},
+
+pulley:{
+  out:["v_B","a_B","dy_B"],
+  code:(v,r)=>`% Dependent motion: block A on a table, rope over a fixed pulley to a movable pulley carrying B
+clc; clear;
+
+% ---- Given ----
+v_A = ${v.vA};           % m/s, A moves right (toward the pulley)
+a_A = ${v.aA};           % m/s^2, A speeding up in the same direction
+t   = ${v.t};            % s
+
+% ---- Constraint: rope length L = (D - x_A) + 2*y_B + const, with x_A to the right, y_B down ----
+%   Differentiating: 0 = -x_A_dot + 2*y_B_dot  ->  y_B_dot = x_A_dot / 2
+n_seg = 2;               % rope segments supporting the movable pulley
+
+% ---- Velocity and acceleration of B (positive = downward) ----
+v_B = {{v_A/n_seg || From 0 = -v_A + 2 v_B: B moves at half the speed of A.}};          % m/s
+a_B = {{a_A/n_seg || Differentiate the velocity constraint once more.}};          % m/s^2
+
+% ---- Displacements over time t (constant acceleration) ----
+dx_A = {{v_A*t + 0.5*a_A*t^2 || Constant-acceleration displacement of A.}};    % m
+dy_B = {{dx_A/n_seg || The position constraint holds too: B moves half as far as A.}};             % m
+
+fprintf('Constraint: x_A - 2 y_B = const  ->  v_B = v_A/2, a_B = a_A/2\\n');
+fprintf('v_B = %.3f m/s (down), a_B = %.3f m/s^2 (down)\\n', v_B, a_B);
+fprintf('In %g s: A moves %.3f m, B drops %.3f m\\n', t, dx_A, dy_B);`,
+  hints:(v,r)=>[
+    "Dependent motion: write the rope length in terms of coordinates measured from fixed points (x_A along the table, y_B down from the fixed pulley), then differentiate. The rope on the table shortens as A moves right, and the movable pulley is held by two segments, which is where the factor of 2 comes from. Watch the signs: A moving toward the pulley makes B go down.",
+    "Key equations: L = (D − x_A) + 2y_B + const → −ẋ_A + 2ẏ_B = 0 → v_B = v_A/2, a_B = a_A/2; Δx_A = v_A t + ½a_A t², Δy_B = Δx_A/2.",
+    `v_B = ${fmt(v.vA)}/2 and a_B = ${fmt(v.aA)}/2, both downward. Δx_A = ${fmt(v.vA)}(${fmt(v.t)}) + ½(${fmt(v.aA)})(${fmt(v.t)})² = ${fmt(r.dA)} m, then halve it for B.`],
+  sense:(v,r)=>[`half of v_A: two rope segments share A's motion`, `half of a_A`, null],
+},
+
 };
 
 /* ---------- Hints, "what does it mean", and the MATLAB fill-in-the-blank panel ---------- */
@@ -1291,6 +1654,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  document.querySelectorAll(".schem svg").forEach(el=>D.tidy(el));
   fixSubs($("#sheet"));
   MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
@@ -1357,6 +1721,7 @@ window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ con
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
 let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Particle_Kinematics_Cartesian.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+try{ const hh=decodeURIComponent(location.hash.slice(1)); if(hh&&PROBLEMS.some(p=>p.id===hh)) start=hh; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet(); GAME.hud();
 </script>

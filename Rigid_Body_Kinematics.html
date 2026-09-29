@@ -614,6 +614,109 @@ const PROBLEMS = [
   ];},
   takeaway:(v,r)=>`The disk turns ${ccw(r.wd)}${Math.abs(r.ad)>1e-9?` and α_disk is ${ccw(r.ad)}, so it is ${Math.sign(r.ad)===Math.sign(r.wd)?"speeding up":"slowing down"}`:""}. The contact point has zero velocity but not zero acceleration, which is why the IC can't be used for accelerations.`,
   plot(v,r){ const B=[1,-2], C=[4,-2]; const d=[],s=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; d.push([C[0]+v.r*Math.cos(a), C[1]+v.r*Math.sin(a)]);} const R=2+v.r; for(let i=0;i<=60;i++){const a=-Math.PI*0.95+Math.PI*0.6*i/60; s.push([4+R*Math.cos(a), R*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:[[0,0],B],alt:true},{pts:[B,C]},{pts:d},{pts:s,alt:true}], mark:[4,-2-v.r], mark2:[0,0], equal:true, cap:"To scale: AB (orange), BC and the disk (blue), the circular surface (orange). The blue dot is the contact point."}; }
+},
+
+{
+  id:"slidercrank", topic:K3, name:"Slider-Crank with Law of Sines", tag:"ω_AB, v_B, α_AB, a_B",
+  kind:"General plane motion: velocity and acceleration",
+  original:{ rc:80, L:250, phi:55, w:85 },
+  randomize(){ return resample(()=>({ rc:pick(50,120,5), L:pick(200,400,10), phi:pick(30,80,5), w:pick(40,120,5) }), v=>v.rc/v.L<=0.4); },
+  solve(v){ const rc=v.rc/1000, L=v.L/1000, phi=v.phi*D2R;
+    const Ax=-rc*Math.cos(phi), Ay=rc*Math.sin(phi);
+    const sth=rc*Math.sin(phi)/L, th=Math.asin(sth), cth=Math.cos(th);
+    const rx=-L*cth, ry=-L*sth;                       // r_B/A: B down and to the left of A
+    const vAx=v.w*Ay, vAy=-v.w*Ax;                    // -w k x r_A/O = (w y, -w x)
+    const wAB=-vAy/rx;                                // j: 0 = vAy + wAB*rx
+    const vB=vAx-wAB*ry;                              // i: vB = vAx - wAB*ry
+    const aAx=-v.w*v.w*Ax, aAy=-v.w*v.w*Ay;           // alpha_OA = 0: a_A = -w^2 r_A/O
+    const aAB=-(aAy-wAB*wAB*ry)/rx;                   // j: 0 = aAy + aAB*rx - wAB^2*ry
+    const aB=aAx-aAB*ry-wAB*wAB*rx;                   // i
+    const th3=180-v.phi, loopNum=rc*(-v.w)*Math.cos(th3*D2R), loopDen=L*cth;
+    return {rc,L,Ax,Ay,sth,th:th/D2R,cth,rx,ry,vAx,vAy,wAB,vB,aAx,aAy,aAB,aB,th3,loopNum,loopDen,w2:wAB*wAB}; },
+  statement:(v)=>`Crank OA (length r_c = ${N(v.rc,"mm")}) rotates clockwise at a constant ${N(v.w,"rad/s")} about the fixed pin O. At the instant shown OA makes φ = ${N(v.phi,"°")} above the horizontal, with A up and to the left of O. Connecting rod AB (L = ${N(v.L,"mm")}) is pinned to slider B, which moves along the horizontal line through O; B is to the left of A. Find ω_AB and v_B, then α_AB and a_B.`,
+  given:(v)=>[["OA",`r_c = ${fmt(v.rc)} mm, ω = ${fmt(v.w)} rad/s CW, α_OA = 0`],["φ (OA above horizontal)",`${fmt(v.phi)}°, A up-left of O`],["AB",`L = ${fmt(v.L)} mm`],["B","slides on the horizontal line through O, left of A"]],
+  find:["Rod angle θ_AB","ω_AB, v_B","α_AB, a_B"],
+  method:"Geometry first: A and B are both a known height apart, so the law of sines gives the rod angle, sin θ = r_c sin φ / L. Then v_B = v_A + ω_AB × r_B/A and a_B = a_A + α_AB × r_B/A − ω_AB² r_B/A, matching î and ĵ; B moves horizontally so the ĵ components of v_B and a_B are zero.",
+  answers:(v,r)=>[
+    {label:"ω_AB (CCW +)", unit:"rad/s", val:r.wAB},
+    {label:"v_B (right +)", unit:"m/s", val:r.vB},
+    {label:"α_AB (CCW +)", unit:"rad/s²", val:r.aAB},
+    {label:"a_B (right +)", unit:"m/s²", val:r.aB}],
+  steps(v,r){ return [
+    {t:"Geometry: law of sines for the rod angle", eq:T`\frac{\sin\theta}{r_c}=\frac{\sin\phi}{L}\;\Rightarrow\;\sin\theta=\frac{${fmt(r.rc)}\sin${fmt(v.phi)}^\circ}{${fmt(r.L)}}=${fmt(r.sth)}\;\Rightarrow\;\theta=${fmt(r.th)}^\circ`,
+      note:"A is r_c sin φ above the line of B; the rod covers the same height, L sin θ."},
+    {t:"Position vectors (m)", eq:T`\vec r_{A/O}=${fmt(r.Ax)}\,\hat i+${fmt(r.Ay)}\,\hat j,\qquad \vec r_{B/A}=-L\cos\theta\,\hat i-L\sin\theta\,\hat j=${fmt(r.rx)}\,\hat i${sgn(r.ry)}\,\hat j`},
+    {t:"Velocity of A (CW crank: ω = −ω k̂)", eq:T`\vec v_A=-${fmt(v.w)}\hat k\times(${fmt(r.Ax)}\hat i+${fmt(r.Ay)}\hat j)=${fmt(r.vAx)}\,\hat i+${fmt(r.vAy)}\,\hat j\ \text{m/s}`},
+    {t:"v_B = v_A + ω_AB k̂ × r_B/A", eq:T`v_B\hat i=${fmt(r.vAx)}\hat i+${fmt(r.vAy)}\hat j+\omega_{AB}\big(${fmt(-r.ry)}\,\hat i${sgn(r.rx)}\,\hat j\big)`},
+    {t:"ĵ: B has no vertical velocity", eq:T`0=${fmt(r.vAy)}${sgn(r.rx)}\,\omega_{AB}\;\Rightarrow\;\omega_{AB}=${fmt(r.wAB)}\ \text{rad/s}\ (${ccw(r.wAB)})`},
+    {t:"î: slider velocity", eq:T`v_B=${fmt(r.vAx)}+${fmt(-r.ry)}(${fmt(r.wAB)})=${fmt(r.vB)}\ \text{m/s}\ (${r.vB>0?"\\rightarrow":"\\leftarrow"})`},
+    {t:"Acceleration of A (α_OA = 0, only the normal part)", eq:T`\vec a_A=-\omega^2\vec r_{A/O}=-(${fmt(v.w)})^2(${fmt(r.Ax)}\hat i+${fmt(r.Ay)}\hat j)=${fmt(r.aAx)}\,\hat i${sgn(r.aAy)}\,\hat j\ \text{m/s}^2`},
+    {t:"a_B = a_A + α_AB k̂ × r_B/A − ω_AB² r_B/A", eq:T`a_B\hat i=(${fmt(r.aAx)}\hat i${sgn(r.aAy)}\hat j)+\alpha_{AB}(${fmt(-r.ry)}\hat i${sgn(r.rx)}\hat j)-${fmt(r.w2)}(${fmt(r.rx)}\hat i${sgn(r.ry)}\hat j)`},
+    {t:"ĵ: B has no vertical acceleration", eq:T`0=${fmt(r.aAy)}${sgn(r.rx)}\,\alpha_{AB}+${fmt(-r.w2*r.ry)}\;\Rightarrow\;\alpha_{AB}=${fmt(r.aAB)}\ \text{rad/s}^2\ (${ccw(r.aAB)})`},
+    {t:"î: slider acceleration", eq:T`a_B=${fmt(r.aAx)}+${fmt(-r.ry)}${P(r.aAB)}+${fmt(-r.w2*r.rx)}=${fmt(r.aB)}\ \text{m/s}^2`},
+    {t:"Loop-closure check (velocity loop, imaginary part)", eq:T`r_1+r_2e^{j\theta_2}=r_3e^{j\theta_3}\;\Rightarrow\;\dot r_1+jr_2\dot\theta_2e^{j\theta_2}=jr_3\dot\theta_3e^{j\theta_3};\quad \text{Im: } r_2\dot\theta_2\cos\theta_2=r_3\dot\theta_3\cos\theta_3`,
+      note:`r₁ = OB (real), r₂ = L at θ₂ = ${fmt(r.th)}° (B→A), r₃ = r_c at θ₃ = 180° − φ = ${fmt(r.th3)}°, θ̇₃ = −${fmt(v.w)} rad/s (CW).`},
+    {t:"Same ω_AB", eq:T`\dot\theta_2=\frac{r_3\dot\theta_3\cos\theta_3}{r_2\cos\theta_2}=\frac{${fmt(r.rc)}(-${fmt(v.w)})\cos${fmt(r.th3)}^\circ}{${fmt(r.L)}\cos${fmt(r.th)}^\circ}=\frac{${fmt(r.loopNum)}}{${fmt(r.loopDen)}}=${fmt(r.wAB)}\ \text{rad/s}\ \checkmark`}
+  ];},
+  takeaway:(v,r)=>`ω_AB is ${ccw(r.wAB)} while α_AB is ${ccw(r.aAB)}: the rod's spin is ${Math.sign(r.wAB)===Math.sign(r.aAB)?"speeding up":"slowing down"}, even though the crank turns at constant speed. B moves to the ${r.vB>0?"right":"left"}. The same problem can be solved by loop closure with complex exponentials, r₁ + r₂e^{jθ₂} = r₃e^{jθ₃}: differentiating once gives the velocity loop, twice the acceleration loop, and their real and imaginary parts are exactly the î and ĵ equations above, so both methods give identical results.`,
+  plot(v,r){ const A=[r.Ax,r.Ay], B=[r.Ax+r.rx,0]; const c=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; c.push([r.rc*Math.cos(a), r.rc*Math.sin(a)]);} return {xl:"x (m)", yl:"y (m)", series:[{pts:c,alt:true},{pts:[[0,0],A],alt:true},{pts:[A,B]},{pts:[[B[0]-0.03,0],[B[0]+0.03,0]],alt:true}], mark:B, mark2:[0,0], equal:true, cap:"Slider-crank to scale: crank OA and its circle (orange), rod AB (blue), slider at B (blue dot) on the line through O."}; }
+},
+
+{
+  id:"rollwheel", topic:K3, name:"Rolling Wheel: Top and Contact Points", tag:"v = rω, a_contact = rω²",
+  kind:"Rolling without slipping",
+  original:{ r:0.3, w:8, a:4 },
+  randomize(){ return { r:pick(0.15,0.6,0.05), w:pick(2,15,1), a:pick(1,12,1) }; },
+  solve(v){ const vG=v.r*v.w, aG=v.r*v.a, vT=2*v.r*v.w, aTx=2*v.r*v.a, aTy=-v.r*v.w*v.w, aT=Math.hypot(aTx,aTy), aC=v.r*v.w*v.w; return {vG,aG,vT,aTx,aTy,aT,aC}; },
+  statement:(v)=>`A wheel of radius ${N(v.r,"m")} rolls without slipping to the right on a horizontal floor. At this instant its angular velocity is ${N(v.w,"rad/s")} and its angular acceleration is ${N(v.a,"rad/s²")}, both clockwise. Find the velocity and acceleration of the center G, the velocity and the magnitude of the acceleration of the point T at the top of the wheel, and the acceleration of the contact point C.`,
+  given:(v)=>[["r",`${fmt(v.r)} m`],["ω",`${fmt(v.w)} rad/s CW`],["α",`${fmt(v.a)} rad/s² CW`],["Contact","rolls without slipping"]],
+  find:["v_G, a_G","v_T, a_T","a_C"],
+  method:"Rolling without slipping means v_G = rω and a_G = rα. Every other point follows from v_P = v_G + ω × r_P/G and a_P = a_G + α × r_P/G − ω² r_P/G. The contact point is the velocity IC but not an acceleration IC.",
+  answers:(v,r)=>[
+    {label:"v_G", unit:"m/s", val:r.vG},
+    {label:"a_G", unit:"m/s²", val:r.aG},
+    {label:"v_T (top)", unit:"m/s", val:r.vT},
+    {label:"|a_T| (top)", unit:"m/s²", val:r.aT},
+    {label:"a_C (contact, up)", unit:"m/s²", val:r.aC}],
+  steps(v,r){ return [
+    {t:"Center (no slip)", eq:T`v_G=r\omega=${fmt(v.r)}(${fmt(v.w)})=${fmt(r.vG)}\ \text{m/s}\ (\rightarrow),\qquad a_G=r\alpha=${fmt(v.r)}(${fmt(v.a)})=${fmt(r.aG)}\ \text{m/s}^2\ (\rightarrow)`,
+      note:"Clockwise rotation with G moving right: ω = −ω k̂, α = −α k̂."},
+    {t:"Top point T: velocity", eq:T`\vec v_T=\vec v_G+\vec\omega\times\vec r_{T/G}=${fmt(r.vG)}\hat i+(-${fmt(v.w)}\hat k)\times(${fmt(v.r)}\hat j)=${fmt(r.vG)}\hat i+${fmt(r.vG)}\hat i=${fmt(r.vT)}\,\hat i\ \text{m/s}`},
+    {t:"Top point T: acceleration", eq:T`\vec a_T=\vec a_G+\vec\alpha\times\vec r_{T/G}-\omega^2\vec r_{T/G}=${fmt(r.aG)}\hat i+${fmt(r.aG)}\hat i-${fmt(v.w*v.w)}(${fmt(v.r)})\hat j=${fmt(r.aTx)}\,\hat i${sgn(r.aTy)}\,\hat j`},
+    {t:"Magnitude", eq:T`|\vec a_T|=\sqrt{${fmt(r.aTx)}^2+${fmt(r.aTy)}^2}=${fmt(r.aT)}\ \text{m/s}^2`},
+    {t:"Contact point C: r_C/G = −r ĵ", eq:T`\vec a_C=${fmt(r.aG)}\hat i+(-${fmt(v.a)}\hat k)\times(-${fmt(v.r)}\hat j)-${fmt(v.w*v.w)}(-${fmt(v.r)}\hat j)=${fmt(r.aG)}\hat i-${fmt(r.aG)}\hat i+${fmt(r.aC)}\hat j=${fmt(r.aC)}\,\hat j\ \text{m/s}^2`,
+      note:"The α terms cancel: a_C = rω² straight up, toward G, for any α."}
+  ];},
+  takeaway:(v,r)=>`The top of the wheel moves at twice the speed of the center (${fmt(r.vT,3)} vs ${fmt(r.vG,3)} m/s). The contact point has zero velocity but accelerates upward at rω² = ${fmt(r.aC,3)} m/s², so the IC is only a velocity shortcut, never an acceleration one.`,
+  plot(v,r){ const c=[]; for(let i=0;i<=60;i++){const a=2*Math.PI*i/60; c.push([v.r*Math.cos(a), v.r+v.r*Math.sin(a)]);} const k=0.5*v.r/Math.max(r.vT,1e-9); return {xl:"x (m)", yl:"y (m)", series:[{pts:c},{pts:[[-1.6*v.r,0],[1.6*v.r,0]]},{pts:[[0,v.r],[k*r.vG,v.r]],alt:true},{pts:[[0,2*v.r],[k*r.vT,2*v.r]],alt:true},{pts:[[-v.r,v.r],[-v.r+k*r.vG,v.r+k*r.vG]],alt:true}], mark:[0,0], mark2:[0,v.r], equal:true, cap:"Wheel to scale with velocities of G, the top T and the left-most point (orange, same scale): all as if rotating about the contact point (blue dot)."}; }
+},
+
+{
+  id:"geartrain", topic:K1, name:"Compound Gear Train", tag:"rpm, ratio, direction",
+  kind:"Rotation about a fixed axis",
+  original:{ NA:20, rA:40, n:1800, NB:60, NC:24, ND:72, rD:144 },
+  randomize(){ const m=pick(2,5,0.5), NA=pick(16,30,2), ND=pick(48,96,4); return { NA, rA:+(m*NA/2).toFixed(3), n:pick(600,3600,100), NB:pick(40,80,4), NC:pick(16,30,2), ND, rD:+(m*ND/2).toFixed(3) }; },
+  solve(v){ const nB=v.n*v.NA/v.NB, nD=nB*v.NC/v.ND, ratio=v.NB*v.ND/(v.NA*v.NC), wD=nD*2*Math.PI/60, vT=v.rD/1000*wD, vP=v.rA/1000*v.n*2*Math.PI/60; return {nB,nD,ratio,wD,vT,vP}; },
+  statement:(v)=>`In a compound gear train the driver gear A (${N(v.NA)} teeth, pitch radius ${N(v.rA,"mm")}) turns at ${N(v.n,"rpm")} and meshes with gear B (${N(v.NB)} teeth). Gear C (${N(v.NC)} teeth) is keyed to the same shaft as B, and meshes with the output gear D (${N(v.ND)} teeth, pitch radius ${N(v.rD,"mm")}). Find the speed of the B–C shaft, the speed of D in rpm, the overall speed ratio ω_A/ω_D, and the speed of a tooth on D's pitch circle. Does D turn the same way as A?`,
+  given:(v)=>[["Gear A",`N_A = ${fmt(v.NA)}, r_A = ${fmt(v.rA)} mm, ${fmt(v.n)} rpm`],["Gear B",`N_B = ${fmt(v.NB)}, meshes with A`],["Gear C",`N_C = ${fmt(v.NC)}, on B's shaft`],["Gear D",`N_D = ${fmt(v.ND)}, r_D = ${fmt(v.rD)} mm, meshes with C`]],
+  find:["ω_B (= ω_C)","ω_D","Ratio ω_A/ω_D","Tooth speed on D"],
+  method:"Meshing gears have equal pitch-line speeds, and since teeth are equally spaced the radii are proportional to tooth counts: N_A ω_A = N_B ω_B. Gears on the same shaft share ω. Each external mesh reverses the direction of rotation.",
+  answers:(v,r)=>[
+    {label:"ω_B", unit:"rpm", val:r.nB},
+    {label:"ω_D", unit:"rpm", val:r.nD},
+    {label:"Ratio ω_A/ω_D", unit:"", val:r.ratio},
+    {label:"Tooth speed on D", unit:"m/s", val:r.vT}],
+  steps(v,r){ return [
+    {t:"Mesh A–B: equal pitch-line speeds", eq:T`r_A\omega_A=r_B\omega_B,\quad \frac{r_B}{r_A}=\frac{N_B}{N_A}\;\Rightarrow\;\omega_B=\frac{N_A}{N_B}\omega_A=\frac{${fmt(v.NA)}}{${fmt(v.NB)}}(${fmt(v.n)})=${fmt(r.nB)}\ \text{rpm}`,
+      note:`Pitch-line speed at the A–B contact: v = r_Aω_A = (${fmt(v.rA/1000)})(${fmt(v.n*2*Math.PI/60)}) = ${fmt(r.vP)} m/s.`},
+    {t:"Same shaft", eq:T`\omega_C=\omega_B=${fmt(r.nB)}\ \text{rpm}`},
+    {t:"Mesh C–D", eq:T`\omega_D=\frac{N_C}{N_D}\omega_C=\frac{${fmt(v.NC)}}{${fmt(v.ND)}}(${fmt(r.nB)})=${fmt(r.nD)}\ \text{rpm}`},
+    {t:"Overall ratio", eq:T`\frac{\omega_A}{\omega_D}=\frac{N_B}{N_A}\cdot\frac{N_D}{N_C}=\frac{${fmt(v.NB)}\times${fmt(v.ND)}}{${fmt(v.NA)}\times${fmt(v.NC)}}=${fmt(r.ratio)}`},
+    {t:"Tooth speed on D (convert rpm to rad/s)", eq:T`\omega_D=${fmt(r.nD)}\cdot\frac{2\pi}{60}=${fmt(r.wD)}\ \text{rad/s},\qquad v=r_D\omega_D=(${fmt(v.rD/1000)})(${fmt(r.wD)})=${fmt(r.vT)}\ \text{m/s}`},
+    {t:"Direction", eq:T`A\to B\ \text{reverses},\quad C\to D\ \text{reverses again}\;\Rightarrow\;D\ \text{turns the same way as }A`}
+  ];},
+  takeaway:(v,r)=>`Two external meshes, so D turns the same way as A but ${fmt(r.ratio,3)} times slower. Every external mesh flips the direction: an odd number of meshes reverses the output, an even number does not. Only tooth counts matter for the ratio; the radii only set the tooth speed.`,
+  plot(v,r){ const pts=[]; for(let i=0;i<=40;i++){const n=v.n*1.2*i/40; pts.push([n, n/r.ratio]);} return {xl:"ω_A (rpm)", yl:"ω_D (rpm)", series:[{pts}], mark:[v.n,r.nD], cap:"Output speed vs. input speed: a straight line with slope 1/ratio."}; }
 }
 
 ];
@@ -679,10 +782,36 @@ const RAD=Math.PI/180;
 const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+/* ---- runtime layout pass: move labels off lines/arrows/other labels, then grow the viewBox so nothing is clipped ---- */
+D.tidy=function(svg){
+  if(!svg||!svg.getBBox) return;
+  try{
+    const texts=[...svg.querySelectorAll("text")];
+    const gfx=[...svg.querySelectorAll("line,path,polyline,polygon,circle,rect")].filter(e=>!e.closest("marker")&&!e.closest("defs"));
+    /* sample outline points of every graphic once */
+    const pts=[]; gfx.forEach(g=>{ const tag=g.tagName.toLowerCase(); const cls=g.getAttribute("class")||""; const w=/\b(h|h2|ext|hatch|dimln)\b/.test(cls)?0.6:1;
+      if(tag==="circle"){ const cx=+g.getAttribute("cx"),cy=+g.getAttribute("cy"),r=+g.getAttribute("r"); if(r<5) return; for(let a=0;a<48;a++) pts.push([cx+r*Math.cos(a/48*6.2832),cy+r*Math.sin(a/48*6.2832),w]); return; }
+      if(tag==="rect"){ const b=g.getBBox(); const tr=g.transform.baseVal.consolidate(); const m=tr?tr.matrix:null; const c=[[b.x,b.y],[b.x+b.width,b.y],[b.x+b.width,b.y+b.height],[b.x,b.y+b.height]].map(([x,y])=>m?[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]:[x,y]); for(let e=0;e<4;e++){ const [x1,y1]=c[e],[x2,y2]=c[(e+1)%4]; const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/4)); for(let s=0;s<=n;s++) pts.push([x1+(x2-x1)*s/n,y1+(y2-y1)*s/n,w]); } return; }
+      let L=0; try{ L=g.getTotalLength(); }catch(e){} if(!L) return; const n=Math.max(3,Math.ceil(L/4)); for(let s=0;s<=n;s++){ const q=g.getPointAtLength(L*s/n); pts.push([q.x,q.y,w]); } });
+    const boxes=[]; const pad=1.5;
+    const cost=(b,self)=>{ let c=0; for(const o of boxes){ if(o===self) continue; if(b.x<o.x+o.w+pad&&o.x<b.x+b.w+pad&&b.y<o.y+o.h+pad&&o.y<b.y+b.h+pad) c+=3; } for(const [x,y,w] of pts){ if(x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad) c+=w; } return c; };
+    const cand=[]; for(const d of [7,14,21,30,40,52,66]) for(let a=0;a<8;a++){ const t=a*Math.PI/4; cand.push([Math.round(d*Math.cos(t)),Math.round(-d*Math.sin(t))]); }
+    texts.forEach(t=>{ const b=t.getBBox(); boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,el:t}); });
+    for(let pass=0;pass<2;pass++){
+      boxes.forEach(bx=>{ let c0=cost(bx,bx); if(c0<=0) return; let best=null, bc=c0;
+        for(const [dx,dy] of cand){ const nb={x:bx.x+dx,y:bx.y+dy,w:bx.w,h:bx.h}; const c=cost(nb,bx)+Math.hypot(dx,dy)*0.02; if(c<bc-0.01){ bc=c; best=[dx,dy]; if(c<0.5) break; } }
+        if(best){ const t=bx.el; const x=parseFloat(t.getAttribute("x"))||0, y=parseFloat(t.getAttribute("y"))||0; t.setAttribute("x",(x+best[0]).toFixed(1)); t.setAttribute("y",(y+best[1]).toFixed(1)); bx.x+=best[0]; bx.y+=best[1]; } });
+    }
+    /* grow the viewBox to fit everything (never shrink below the design size) */
+    const all=svg.getBBox(); const vb=svg.viewBox.baseVal; const P=6;
+    const x0=Math.min(vb.x,all.x-P), y0=Math.min(vb.y,all.y-P), x1=Math.max(vb.x+vb.width,all.x+all.width+P), y1=Math.max(vb.y+vb.height,all.y+all.height+P);
+    if(x0<vb.x||y0<vb.y||x1>vb.x+vb.width||y1>vb.y+vb.height) svg.setAttribute("viewBox",`${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1-x0).toFixed(1)} ${(y1-y0).toFixed(1)}`);
+  }catch(e){}
+};
 
 const DIAG = {
 hook(v,r){ const A=[70,70], rA=26, B=[70+rA+70,70], rB=70, rD=35;
-  return D.svg(D.circ(A[0],A[1],rA,"body2")+D.circ(B[0],B[1],rB,"body2")+D.circ(B[0],B[1],rD,"body")+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0],A[1]-rA-10,"A")+D.text(B[0]+rB*0.6,B[1]-rB*0.9,"B")+D.text(B[0]-8,B[1]+14,"D","end","tm")+D.line(B[0]+rD,B[1],B[0]+rD,190,"s")+D.path(`M${B[0]+rD-8},190 q0,14 8,14 q8,0 8,-8`,"s")+D.text(B[0]+rD+14,196,"hook","start")+D.dot(A[0]+rA,A[1],3.5,"dotf")+D.text(A[0]+rA+4,A[1]+14,"P","start","tf")+D.arcArrow(A[0],A[1],rA+10,200,270,"v","α_A")+LG(245,110,[[`α_A = ${nf(v.c)}t rad/s²`,"tv"],[`r_A = ${nf(v.rA)} mm`],[`r_B = ${nf(v.rB)} mm`],[`r_D = ${nf(v.rD)} mm`],[`find v_H at ${nf(v.t)} s`]])); },
+  return D.svg(D.circ(A[0],A[1],rA,"body2")+D.circ(B[0],B[1],rB,"body2")+D.circ(B[0],B[1],rD,"body")+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0],A[1]-rA-10,"A")+D.text(B[0]+rB*0.6,B[1]-rB*0.9,"B")+D.text(B[0]-8,B[1]+14,"D","end","tm")+D.line(B[0]+rD,B[1],B[0]+rD,190,"s")+D.path(`M${B[0]+rD-8},190 q0,14 8,14 q8,0 8,-8`,"s")+D.text(B[0]+rD+14,196,"hook","start")+D.dot(A[0]+rA,A[1],3.5,"dotf")+D.text(A[0]+rA-2,A[1]+rA*0.35+14,"P","end","tf")+D.arcArrow(A[0],A[1],rA+10,200,270,"v","α_A")+LG(245,110,[[`α_A = ${nf(v.c)}t rad/s²`,"tv"],[`r_A = ${nf(v.rA)} mm`],[`r_B = ${nf(v.rB)} mm`],[`r_D = ${nf(v.rD)} mm`],[`find v_H at ${nf(v.t)} s`]])); },
 slidebar(v,r){ const th=v.th*RAD, Lp=150, W=[70,30], B=[W[0]+Lp*Math.cos(th), W[1]+Lp*Math.sin(th)+Math.max(0,(160-Lp*Math.sin(th)))], A=[W[0], B[1]-Lp*Math.sin(th)];
   return D.svg(D.wall(W[0],10,B[1],-1)+D.ground(W[0],330,B[1])+D.line(A[0],A[1],B[0],B[1],"s")+D.bar(A[0],A[1],B[0],B[1],8)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.text(A[0]+10,A[1]-6,"A","start")+D.text(B[0],B[1]+16,"B")+D.angle(B[0],B[1],32,180-v.th,180,`θ = ${nf(v.th)}°`)+D.arrow(B[0]+8,B[1]-10,B[0]+60,B[1]-10,"v",`v_B = ${nf(v.vB)} m/s`,B[0]+34,B[1]-24)+D.arrow(A[0]+14,A[1],A[0]+14,A[1]+38,"v","v_A = ?",A[0]+20,A[1]+30,"start")+D.text(W[0]+(B[0]-W[0])/2+20,(A[1]+B[1])/2-10,`L = ${nf(v.L)} m`,"start","tm")); },
 rack(v,r){ const B=[v.bx,v.by], C=[v.bx+v.cx,v.by-v.cy], Dd=[C[0]+6,C[1]-10], P=[Dd[0]+v.rD,Dd[1]]; const T=FIT([[0,0],B,C,[Dd[0]-v.rD,Dd[1]-v.rD],[P[0]+2,Dd[1]+v.rD]],[25,20,320,195]); const a=T([0,0]),b=T(B),c=T(C),d=T(Dd),p=T(P), rr=p[0]-d[0];
@@ -694,7 +823,13 @@ flywheel(v,r){ const th=v.th*RAD, cx=v.l*Math.cos(th), cy=v.l*Math.sin(th); cons
 piston(v,r){ const A=[-v.p,v.q], Bm=[-v.p+r.rx,0]; const T=FIT([[-v.p,0],A,Bm,[0,-1.5],[Bm[0]+2,1.5]],[30,25,320,170]); const O=T([0,0]),a=T(A),b=T(Bm);
   return D.svg(D.line(O[0]-20,O[1],335,O[1],"h")+D.rect(b[0]-16,b[1]-11,32,22,"body")+D.line(b[0]-40,b[1]-14,335,b[1]-14,"thin")+D.line(b[0]-40,b[1]+14,335,b[1]+14,"thin")+D.bar(O[0],O[1],a[0],a[1],7)+D.bar(a[0],a[1],b[0],b[1],7)+D.pin(O[0],O[1])+D.pinj(a[0],a[1])+D.pinj(b[0],b[1])+D.text(O[0]+2,O[1]+26,"O")+D.text(a[0]-8,a[1]-10,"A","end")+D.text(b[0],b[1]-24,"B")+D.arcArrow(O[0],O[1],26,60,-20,"v",`ω = ${nf(v.w1)} CW`,"start")+D.text(20,205,`r_A/O = (−${nf(v.p)}, ${nf(v.q)}) in,  AB = ${nf(v.L)} in,  α = ${nf(v.a1)}`,"start","tm")); },
 diskroll(v,r){ const T=FIT([[0,0],[1,-2],[4,-2],[4-(2+v.r),0],[4+(2+v.r)*0.9,-(2+v.r)*0.5],[4,-2-v.r]],[20,20,340,195]); const A=T([0,0]),B=T([1,-2]),C=T([4,-2]),Cn=T([4,0]), rr=C[0]-T([4-v.r,-2])[0], Rs=C[0]-T([4-(2+v.r),0])[0];
-  return D.svg(D.path(`M${Cn[0]-Rs*0.95},${Cn[1]+Rs*0.3} A${Rs},${Rs} 0 0 0 ${Cn[0]+Rs*0.8},${Cn[1]+Rs*0.6}`,"s")+D.dot(Cn[0],Cn[1],2)+D.circ(C[0],C[1],rr,"body2")+D.bar(A[0],A[1],B[0],B[1],7)+D.bar(B[0],B[1],C[0],C[1],7)+D.wall(A[0]-8,A[1]-25,A[1]+25,-1)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]+10,A[1]-10,"A","start")+D.text(B[0]-10,B[1],"B","end")+D.text(C[0]+8,C[1]-10,"C","start")+D.arcArrow(A[0],A[1],28,-80,-10,"v")+D.text(A[0]+40,A[1]+18,`ω = ${nf(v.w)} CCW, α = ${nf(v.a)}`,"start","tv")+D.text(20,205,`BC = 3 m, disk r = ${nf(v.r)} m, path of C: ρ = 2 m`,"start","tm")); }
+  return D.svg(D.path(`M${Cn[0]-Rs*0.95},${Cn[1]+Rs*0.3} A${Rs},${Rs} 0 0 0 ${Cn[0]+Rs*0.8},${Cn[1]+Rs*0.6}`,"s")+D.dot(Cn[0],Cn[1],2)+D.circ(C[0],C[1],rr,"body2")+D.bar(A[0],A[1],B[0],B[1],7)+D.bar(B[0],B[1],C[0],C[1],7)+D.wall(A[0]-8,A[1]-25,A[1]+25,-1)+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.pinj(C[0],C[1])+D.text(A[0]+10,A[1]-10,"A","start")+D.text(B[0]-10,B[1],"B","end")+D.text(C[0]+8,C[1]-10,"C","start")+D.arcArrow(A[0],A[1],28,-80,-10,"v")+D.text(A[0]+40,A[1]+18,`ω = ${nf(v.w)} CCW, α = ${nf(v.a)}`,"start","tv")+D.text(20,205,`BC = 3 m, disk r = ${nf(v.r)} m, path of C: ρ = 2 m`,"start","tm")); },
+slidercrank(v,r){ const Am=[r.Ax,r.Ay], Bm=[r.Ax+r.rx,0]; const T=FIT([[0,0],Am,Bm,[Bm[0]-0.04,-0.03],[r.rc*0.6,r.rc*0.4]],[40,40,320,150]); const O=T([0,0]),a=T(Am),b=T(Bm);
+  return D.svg(D.line(b[0]-45,O[1],O[0]+50,O[1],"h")+D.line(b[0]-45,b[1]-13,O[0]-10,b[1]-13,"thin")+D.line(b[0]-45,b[1]+13,O[0]-10,b[1]+13,"thin")+D.rect(b[0]-15,b[1]-10,30,20,"body")+D.bar(O[0],O[1],a[0],a[1],7,"body2")+D.bar(a[0],a[1],b[0],b[1],7)+D.pin(O[0],O[1])+D.pinj(a[0],a[1])+D.pinj(b[0],b[1])+D.text(O[0]+12,O[1]-10,"O","start")+D.text(a[0],a[1]-14,"A")+D.text(b[0],b[1]+24,"B")+D.angle(O[0],O[1],26,180-v.phi,180,`φ = ${nf(v.phi)}°`)+D.arcArrow(O[0],O[1],40,110,30,"v",`ω = ${nf(v.w)} rad/s CW`,"start")+D.text((a[0]+b[0])/2-6,(a[1]+b[1])/2+16,`L = ${nf(v.L)} mm`,"middle","tm")+D.text(O[0]+14,O[1]+22,`r_c = ${nf(v.rc)} mm`,"start","tm")+D.arrow(b[0]+22,b[1]-24,b[0]+56,b[1]-24,"v","v_B?",b[0]+40,b[1]-36)+D.text(20,205,"crank at constant speed (α_OA = 0); B slides on the line through O","start","tm")); },
+rollwheel(v,r){ const G=[150,110], R=70, gy=G[1]+R;
+  return D.svg(D.ground(30,340,gy)+D.circ(G[0],G[1],R,"body2")+D.dot(G[0],G[1],4,"dotf")+D.text(G[0]+10,G[1]+12,"G","start")+D.dot(G[0],G[1]-R,3.5,"dotf")+D.text(G[0]-10,G[1]-R-10,"T","end")+D.dot(G[0],gy,3.5,"dotf")+D.text(G[0]+10,gy-10,"C","start")+D.line(G[0],G[1],G[0],gy,"h")+D.text(G[0]+8,G[1]+R/2,`r = ${nf(v.r)} m`,"start","tm")+D.arcArrow(G[0],G[1],R*0.55,150,30,"v",`ω = ${nf(v.w)} rad/s`,"middle")+D.arcArrow(G[0],G[1],R*0.42,330,210,"f",`α = ${nf(v.a)} rad/s²`,"middle")+D.arrow(G[0]+R+10,G[1],G[0]+R+60,G[1],"v","rolls →",G[0]+R+35,G[1]-14)+D.text(20,205,"rolls without slipping; ω and α both clockwise","start","tm")); },
+geartrain(v,r){ const s=Math.min(2.2, 300/(v.NA+2*v.NB+v.NC+v.ND+8)); const rA=v.NA*s/2, rB=v.NB*s/2, rC=v.NC*s/2, rD=v.ND*s/2; const y=100; const A=[30+rA,y], B=[A[0]+rA+rB,y], Dd=[B[0]+rC+rD,y];
+  return D.svg(D.circ(Dd[0],Dd[1],rD,"body2")+D.circ(A[0],A[1],rA,"body")+D.circ(B[0],B[1],rB,"body2")+D.circ(B[0],B[1],rC,"body")+D.pinj(A[0],A[1])+D.pinj(B[0],B[1])+D.pinj(Dd[0],Dd[1])+D.text(A[0],A[1]-rA-10,`A (${nf(v.NA)})`)+D.text(B[0],B[1]-rB-10,`B (${nf(v.NB)})`)+D.text(B[0]+rC+4,B[1]+rC+6,`C (${nf(v.NC)})`,"start")+D.text(Dd[0],Dd[1]-rD-10,`D (${nf(v.ND)})`)+D.arcArrow(A[0],A[1],rA+8,200,300,"v",`${nf(v.n)} rpm`,"middle")+D.arcArrow(Dd[0],Dd[1],rD+8,240,300,"v","ω_D?","middle")+D.text(20,205,`r_A = ${nf(v.rA)} mm, r_D = ${nf(v.rD)} mm; B and C share a shaft`,"start","tm")); }
 };
 
 /* SCHEMATICS-END */
@@ -1316,6 +1451,141 @@ fprintf('alpha_BC = %.3f rad/s^2, alpha_disk = %.2f rad/s^2 (CCW +)\\n', alpha_B
     `v_B = (${fmt(r.vBx)}, ${fmt(r.vBy)}) m/s. y: ${fmt(r.vBy)} + 3ω_BC = 0; x: ${fmt(r.vBx)} = −(${fmt(v.r)})ω_disk. Then a_B = (${fmt(r.aBx)}, ${fmt(r.aBy)}) m/s², a_Cn = ${fmt(r.vBx)}²/2 = ${fmt(r.an)} m/s², and x: ${fmt(r.aBx)} − 3ω_BC² = −(${fmt(v.r)})α_disk.`],
 },
 
+slidercrank:{
+  out:["w_AB","v_B","alpha_AB","a_B"],
+  code:(v,r)=>`% Slider-crank: rod angle by the law of sines, then relative velocity and acceleration
+clc; clear;
+
+% ---- Given ----
+r_c   = ${v.rc}/1000;    % crank length OA, mm -> m
+L     = ${v.L}/1000;     % rod length AB, mm -> m
+phi   = deg2rad(${v.phi});   % crank angle above horizontal (A up and to the LEFT of O)
+w     = ${v.w};          % crank speed, rad/s, clockwise (alpha_OA = 0)
+
+% ---- Geometry (O at the origin, x right, y up) ----
+r_AO  = [-r_c*cos(phi), r_c*sin(phi), 0];              % A relative to O, m
+theta = {{asin(r_c*sin(phi)/L) || Law of sines: A is r_c sin(phi) above the slider line and the rod covers the same height, L sin(theta).}};   % rod angle to the horizontal, rad
+r_BA  = {{[-L*cos(theta), -L*sin(theta), 0] || B is down and to the LEFT of A: both components of r_B/A are negative.}};   % B relative to A, m
+
+% ---- Crank OA: clockwise, so omega_OA = -w k ----
+omega_OA = [0, 0, -w];
+v_A = {{cross(omega_OA, r_AO) || O is fixed: v_A = omega_OA x r_A/O.}};                 % m/s
+a_A = {{-w^2*r_AO || Constant crank speed: only the normal part, a_A = -w^2 r_A/O (toward O).}};                 % m/s^2 (alpha_OA = 0)
+
+% ---- Velocity: v_B = v_A + omega_AB x r_BA, with v_B horizontal (y-component = 0) ----
+% k x (rx, ry) = (-ry, rx), so the y-equation is 0 = v_A(2) + w_AB*r_BA(1)
+w_AB = {{-v_A(2)/r_BA(1) || Set the y-component of v_A + w_AB k x r_BA to zero and solve for w_AB.}};       % rad/s, CCW positive
+omega_AB = [0, 0, w_AB];
+v_Bv = v_A + cross(omega_AB, r_BA);      % m/s, v_Bv(2) should be ~0
+v_B  = v_Bv(1);                          % slider velocity, right positive
+
+% ---- Acceleration: a_B = a_A + alpha_AB x r_BA - w_AB^2 r_BA, with a_B horizontal ----
+% y-equation: 0 = a_A(2) + alpha_AB*r_BA(1) - w_AB^2*r_BA(2)
+alpha_AB = {{-(a_A(2) - w_AB^2*r_BA(2))/r_BA(1) || Set the y-component of a_B to zero; the normal term -w_AB^2 r_BA has a y part too.}};   % rad/s^2, CCW positive
+alpha_ABv = [0, 0, alpha_AB];
+a_Bv = {{a_A + cross(alpha_ABv, r_BA) - w_AB^2*r_BA || Relative acceleration: a_B = a_A + alpha_AB x r_B/A - w_AB^2 r_B/A.}};   % m/s^2
+a_B  = a_Bv(1);                          % slider acceleration, right positive
+
+% ---- Loop-closure check: r1 + r2 e^(j th2) = r3 e^(j th3), imaginary part of the velocity loop ----
+% r2 = L at th2 = theta (B -> A), r3 = r_c at th3 = pi - phi (O -> A), th3dot = -w (CW)
+th3   = pi - phi;
+w_AB_loop = {{r_c*(-w)*cos(th3)/(L*cos(theta)) || Im part: r2*th2dot*cos(th2) = r3*th3dot*cos(th3), solve for th2dot.}};   % rad/s, should equal w_AB
+
+fprintf('Rod angle theta = %.3f deg\\n', rad2deg(theta));
+fprintf('v_A = (%.3f, %.3f) m/s, a_A = (%.1f, %.1f) m/s^2\\n', v_A(1), v_A(2), a_A(1), a_A(2));
+fprintf('w_AB = %.3f rad/s (CCW +)   [loop closure: %.3f rad/s]\\n', w_AB, w_AB_loop);
+fprintf('v_B = %.3f m/s (right +)\\n', v_B);
+fprintf('alpha_AB = %.1f rad/s^2 (CCW +), a_B = %.1f m/s^2 (right +)\\n', alpha_AB, a_B);`,
+  hints:(v,r)=>[
+    "Three stages. Geometry: the pin A sits r_c sin φ above the slider line, and the rod must span that same height, so sin θ = r_c sin φ / L (law of sines). Watch the signs of r_B/A: B is down AND to the left of A. Velocity: the crank gives v_A completely (CW, so ω = −ω k̂); the rod adds ω_AB k̂ × r_B/A, and the ĵ component of v_B must vanish. Acceleration: same idea, but a_A is purely normal (α_OA = 0) and the rod adds both α_AB k̂ × r_B/A and −ω_AB² r_B/A.",
+    "Key equations: sin θ = r_c sin φ / L; r_B/A = (−L cos θ, −L sin θ); v_A = −ω k̂ × r_A/O; 0 = v_Ay + ω_AB r_Bx (ĵ), v_B = v_Ax − ω_AB r_By (î); a_A = −ω² r_A/O; 0 = a_Ay + α_AB r_Bx − ω_AB² r_By (ĵ); a_B = a_Ax − α_AB r_By − ω_AB² r_Bx (î). Loop closure: Im[velocity loop] gives L ω_AB cos θ = r_c(−ω) cos(180° − φ).",
+    `sin θ = ${fmt(r.rc)} sin ${fmt(v.phi)}°/${fmt(r.L)} = ${fmt(r.sth)}, so θ = ${fmt(r.th)}° and r_B/A = (${fmt(r.rx)}, ${fmt(r.ry)}) m. v_A = (${fmt(r.vAx)}, ${fmt(r.vAy)}) m/s, so the ĵ equation is 0 = ${fmt(r.vAy)} + (${fmt(r.rx)})ω_AB. Then a_A = (${fmt(r.aAx)}, ${fmt(r.aAy)}) m/s² and 0 = ${fmt(r.aAy)} + (${fmt(r.rx)})α_AB + ${fmt(-r.w2*r.ry)}.`],
+  sense:(v,r)=>[`${fmt(Math.abs(r.wAB)/v.w,3)}× the crank speed`, null, `the rod's spin is ${Math.sign(r.wAB)===Math.sign(r.aAB)?"speeding up":"slowing down"} this instant`, `${fmt(r.aB/9.81,3)} g on the slider`],
+},
+
+rollwheel:{
+  out:["v_G","a_G","v_T","a_T_mag","a_C_up"],
+  code:(v,r)=>`% Rolling wheel: velocity and acceleration of the center, the top point and the contact point
+clc; clear;
+
+% ---- Given ----
+r     = ${v.r};      % wheel radius, m
+w     = ${v.w};      % angular velocity, rad/s, clockwise
+alpha = ${v.a};      % angular acceleration, rad/s^2, clockwise
+
+% ---- Vectors (x right, y up; clockwise = -k) ----
+omega_v = [0, 0, -w];
+alpha_v = [0, 0, -alpha];
+r_TG = [0,  r, 0];   % top point relative to G, m
+r_CG = [0, -r, 0];   % contact point relative to G, m
+
+% ---- Center G: rolling without slipping ----
+v_G = {{r*w || No slip: the center moves at r*omega.}};              % m/s, to the right
+a_G = {{r*alpha || Differentiate v_G = r*omega: a_G = r*alpha (still true while rolling without slip).}};          % m/s^2, to the right
+v_Gv = [v_G, 0, 0];
+a_Gv = [a_G, 0, 0];
+
+% ---- Top point T ----
+v_Tv = {{v_Gv + cross(omega_v, r_TG) || Relative velocity: v_T = v_G + omega x r_T/G.}};                       % m/s
+a_Tv = {{a_Gv + cross(alpha_v, r_TG) - w^2*r_TG || Relative acceleration: a_T = a_G + alpha x r_T/G - omega^2 r_T/G.}};     % m/s^2
+v_T     = v_Tv(1);                        % m/s (horizontal)
+a_T_mag = norm(a_Tv);                     % m/s^2
+
+% ---- Contact point C (velocity IC, but NOT an acceleration IC) ----
+v_Cv = v_Gv + cross(omega_v, r_CG);       % should be zero
+a_Cv = {{a_Gv + cross(alpha_v, r_CG) - w^2*r_CG || Same formula with r_C/G = -r j: the alpha terms cancel and only r*omega^2 (up) is left.}};     % m/s^2
+a_C_up = a_Cv(2);                         % m/s^2, upward
+
+fprintf('Center:  v_G = %.3f m/s, a_G = %.3f m/s^2 (to the right)\\n', v_G, a_G);
+fprintf('Top:     v_T = %.3f m/s, a_T = (%.3f, %.3f) m/s^2, |a_T| = %.3f m/s^2\\n', v_T, a_Tv(1), a_Tv(2), a_T_mag);
+fprintf('Contact: v_C = (%.3f, %.3f) m/s, a_C = (%.3f, %.3f) m/s^2 -> %.3f m/s^2 upward\\n', v_Cv(1), v_Cv(2), a_Cv(1), a_Cv(2), a_C_up);`,
+  hints:(v,r)=>[
+    "Rolling without slipping ties the center to the rotation: v_G = rω and a_G = rα, both to the right for clockwise rotation. Every other point is then a relative-motion problem from G. The trap is the contact point: its velocity is zero (it is the IC), but its acceleration is not; the α parts cancel and rω² upward remains.",
+    "Key equations: v_G = rω, a_G = rα; v_P = v_G + ω × r_P/G; a_P = a_G + α × r_P/G − ω² r_P/G, with ω = −ω k̂ and α = −α k̂ for clockwise.",
+    `v_G = ${fmt(v.r)}(${fmt(v.w)}) = ${fmt(r.vG)} m/s and a_G = ${fmt(v.r)}(${fmt(v.a)}) = ${fmt(r.aG)} m/s². Top: v_T = ${fmt(r.vG)} + ${fmt(v.w)}(${fmt(v.r)}) and a_T = (${fmt(r.aG)} + ${fmt(v.a)}(${fmt(v.r)}), −${fmt(v.w)}²(${fmt(v.r)})). Contact: a_C = (${fmt(r.aG)} − ${fmt(r.aG)}, +${fmt(v.w)}²(${fmt(v.r)})).`],
+  sense:(v,r)=>[null, `${fmt(r.aG/9.81,3)} g`, `exactly twice v_G`, `${fmt(r.aT/9.81,3)} g, mostly the centripetal part`, `${fmt(r.aC/9.81,3)} g straight up, even though v_C = 0`],
+},
+
+geartrain:{
+  out:["n_B","n_D","ratio","v_tooth"],
+  code:(v,r)=>`% Compound gear train: A drives B, C (on B's shaft) drives D
+clc; clear;
+
+% ---- Given ----
+N_A = ${v.NA};      % teeth on A (driver)
+r_A = ${v.rA};      % pitch radius of A, mm
+n_A = ${v.n};       % speed of A, rpm
+N_B = ${v.NB};      % teeth on B (meshes with A)
+N_C = ${v.NC};      % teeth on C (same shaft as B)
+N_D = ${v.ND};      % teeth on D (meshes with C)
+r_D = ${v.rD};      % pitch radius of D, mm
+
+% ---- Mesh A-B: equal pitch-line speeds, and radii are proportional to tooth counts ----
+n_B = {{n_A*N_A/N_B || r_A*w_A = r_B*w_B with r_B/r_A = N_B/N_A, so w_B = w_A*N_A/N_B.}};           % rpm (rpm is fine here: the units cancel)
+v_P = r_A/1000*n_A*2*pi/60;          % pitch-line speed at the A-B contact, m/s
+
+% ---- Same shaft: C turns with B ----
+n_C = n_B;                           % rpm
+
+% ---- Mesh C-D ----
+n_D = {{n_C*N_C/N_D || Same rule for the second mesh: w_D = w_C*N_C/N_D.}};           % rpm
+
+% ---- Overall ratio and the tooth speed on D (needs rad/s and metres) ----
+ratio   = {{n_A/n_D || Speed ratio input/output = (N_B/N_A)*(N_D/N_C).}};              % omega_A / omega_D
+w_D     = {{n_D*2*pi/60 || Convert rpm to rad/s: multiply by 2*pi/60.}};       % rad/s
+v_tooth = {{r_D/1000*w_D || A point on the pitch circle moves at r*omega (r in metres).}};       % m/s
+
+fprintf('Pitch-line speed at the A-B mesh: %.3f m/s\\n', v_P);
+fprintf('n_B = n_C = %.1f rpm,  n_D = %.2f rpm\\n', n_B, n_D);
+fprintf('Overall ratio omega_A/omega_D = %.3f\\n', ratio);
+fprintf('Tooth speed on D: %.3f m/s  (D turns the same way as A: two reversals)\\n', v_tooth);`,
+  hints:(v,r)=>[
+    "Two external meshes with a shared shaft in the middle. At each mesh the pitch circles roll on each other, so r_A ω_A = r_B ω_B; because teeth are equally spaced, r ∝ N and you can use tooth counts directly. Gears on one shaft have the same ω. rpm can be carried through the ratios; convert to rad/s only for the tooth speed. Each external mesh reverses the direction, so two of them bring it back.",
+    "Key equations: ω_B = ω_A N_A/N_B; ω_C = ω_B; ω_D = ω_C N_C/N_D; ratio = ω_A/ω_D = (N_B N_D)/(N_A N_C); v = r_D ω_D with ω_D in rad/s.",
+    `ω_B = ${fmt(v.n)}(${fmt(v.NA)}/${fmt(v.NB)}) = ${fmt(r.nB)} rpm, then ω_D = ${fmt(r.nB)}(${fmt(v.NC)}/${fmt(v.ND)}). Convert: ω_D × 2π/60 rad/s, and v = (${fmt(v.rD/1000)} m) ω_D.`],
+  sense:(v,r)=>[null, null, `every ${fmt(r.ratio,3)} turns of A give one turn of D`, null],
+},
+
 };
 
 /* ---------- Hints, "what does it mean", and the MATLAB fill-in-the-blank panel ---------- */
@@ -1547,6 +1817,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  document.querySelectorAll(".schem svg").forEach(el=>D.tidy(el));
   fixSubs($("#sheet"));
   MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
@@ -1613,6 +1884,7 @@ window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ con
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
 let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Rigid_Body_Kinematics.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+try{ const hh=decodeURIComponent(location.hash.slice(1)); if(hh&&PROBLEMS.some(p=>p.id===hh)) start=hh; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet(); GAME.hud();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

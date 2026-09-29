@@ -579,6 +579,32 @@ const RAD=Math.PI/180;
 const LG=(x,y,lines)=>lines.map((l,i)=>D.text(x,y+i*19,l[0],"start",l[1]||"tm")).join("");
 /* map model coordinates (x right, y up) into the box [x0,y0,x1,y1] */
 const FIT=(pts,box=[20,20,340,200])=>{ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity; pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}); const s=Math.min((box[2]-box[0])/Math.max(x1-x0,1e-9),(box[3]-box[1])/Math.max(y1-y0,1e-9)); const ox=box[0]+((box[2]-box[0])-(x1-x0)*s)/2, oy=box[3]-((box[3]-box[1])-(y1-y0)*s)/2; return (p)=>[ox+(p[0]-x0)*s, oy-(p[1]-y0)*s]; };
+/* ---- runtime layout pass: move labels off lines/arrows/other labels, then grow the viewBox so nothing is clipped ---- */
+D.tidy=function(svg){
+  if(!svg||!svg.getBBox) return;
+  try{
+    const texts=[...svg.querySelectorAll("text")];
+    const gfx=[...svg.querySelectorAll("line,path,polyline,polygon,circle,rect")].filter(e=>!e.closest("marker")&&!e.closest("defs"));
+    /* sample outline points of every graphic once */
+    const pts=[]; gfx.forEach(g=>{ const tag=g.tagName.toLowerCase(); const cls=g.getAttribute("class")||""; const w=/\b(h|h2|ext|hatch|dimln)\b/.test(cls)?0.6:1;
+      if(tag==="circle"){ const cx=+g.getAttribute("cx"),cy=+g.getAttribute("cy"),r=+g.getAttribute("r"); if(r<5) return; for(let a=0;a<48;a++) pts.push([cx+r*Math.cos(a/48*6.2832),cy+r*Math.sin(a/48*6.2832),w]); return; }
+      if(tag==="rect"){ const b=g.getBBox(); const tr=g.transform.baseVal.consolidate(); const m=tr?tr.matrix:null; const c=[[b.x,b.y],[b.x+b.width,b.y],[b.x+b.width,b.y+b.height],[b.x,b.y+b.height]].map(([x,y])=>m?[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]:[x,y]); for(let e=0;e<4;e++){ const [x1,y1]=c[e],[x2,y2]=c[(e+1)%4]; const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/4)); for(let s=0;s<=n;s++) pts.push([x1+(x2-x1)*s/n,y1+(y2-y1)*s/n,w]); } return; }
+      let L=0; try{ L=g.getTotalLength(); }catch(e){} if(!L) return; const n=Math.max(3,Math.ceil(L/4)); for(let s=0;s<=n;s++){ const q=g.getPointAtLength(L*s/n); pts.push([q.x,q.y,w]); } });
+    const boxes=[]; const pad=1.5;
+    const cost=(b,self)=>{ let c=0; for(const o of boxes){ if(o===self) continue; if(b.x<o.x+o.w+pad&&o.x<b.x+b.w+pad&&b.y<o.y+o.h+pad&&o.y<b.y+b.h+pad) c+=3; } for(const [x,y,w] of pts){ if(x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad) c+=w; } return c; };
+    const cand=[]; for(const d of [7,14,21,30,40,52,66]) for(let a=0;a<8;a++){ const t=a*Math.PI/4; cand.push([Math.round(d*Math.cos(t)),Math.round(-d*Math.sin(t))]); }
+    texts.forEach(t=>{ const b=t.getBBox(); boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,el:t}); });
+    for(let pass=0;pass<2;pass++){
+      boxes.forEach(bx=>{ let c0=cost(bx,bx); if(c0<=0) return; let best=null, bc=c0;
+        for(const [dx,dy] of cand){ const nb={x:bx.x+dx,y:bx.y+dy,w:bx.w,h:bx.h}; const c=cost(nb,bx)+Math.hypot(dx,dy)*0.02; if(c<bc-0.01){ bc=c; best=[dx,dy]; if(c<0.5) break; } }
+        if(best){ const t=bx.el; const x=parseFloat(t.getAttribute("x"))||0, y=parseFloat(t.getAttribute("y"))||0; t.setAttribute("x",(x+best[0]).toFixed(1)); t.setAttribute("y",(y+best[1]).toFixed(1)); bx.x+=best[0]; bx.y+=best[1]; } });
+    }
+    /* grow the viewBox to fit everything (never shrink below the design size) */
+    const all=svg.getBBox(); const vb=svg.viewBox.baseVal; const P=6;
+    const x0=Math.min(vb.x,all.x-P), y0=Math.min(vb.y,all.y-P), x1=Math.max(vb.x+vb.width,all.x+all.width+P), y1=Math.max(vb.y+vb.height,all.y+all.height+P);
+    if(x0<vb.x||y0<vb.y||x1>vb.x+vb.width||y1>vb.y+vb.height) svg.setAttribute("viewBox",`${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1-x0).toFixed(1)} ${(y1-y0).toFixed(1)}`);
+  }catch(e){}
+};
 
 const SHN=["solid cylinder","thin hoop","solid sphere","thin shell"];
 const DIAG = {
@@ -1294,6 +1320,7 @@ function renderSheet(){
   $("#all").onclick=()=>{ state.shown=steps.length; drawSolution(p,v,r,ans,steps); };
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
+  document.querySelectorAll(".schem svg").forEach(el=>D.tidy(el));
   fixSubs($("#sheet"));
   MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
@@ -1360,6 +1387,7 @@ window.addEventListener("resize",()=>{ if(state.shown && !$("#sol").hidden){ con
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>window.dispatchEvent(new Event("resize")));
 
 let start=PROBLEMS[0].id; try{ const s=localStorage.getItem("dpl-last-Rolling_Bodies.html"); if(s && PROBLEMS.some(p=>p.id===s)) start=s; }catch(e){}
+try{ const hh=decodeURIComponent(location.hash.slice(1)); if(hh&&PROBLEMS.some(p=>p.id===hh)) start=hh; }catch(e){}
 state.id=start; state.vars={...cur().original};
 renderNav(); renderSheet(); GAME.hud();
 function renderConcepts(){ document.querySelectorAll('.ceq').forEach(el=>el.innerHTML=tex(el.dataset.tex)); }

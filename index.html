@@ -73,7 +73,7 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 <div class="wrap">
   <header>
     <div>
-      <a class="kicker" href="../">&larr; ATLAS · Engineering Dynamics</a>
+      <a class="kicker" href="../">&larr; ATLAS · Engineering Dynamics</a> <a class="kicker" href="../setup/" style="margin-left:14px;color:#7cff6b">Setup Lab &rarr;</a>
       <h1>Dynamics Practice</h1>
       <p>Pick a topic. Every problem gets new numbers each time, so you can play it as many times as you like. Earn XP for correct answers and keep your streak alive.</p>
       <ul class="how">
@@ -117,7 +117,12 @@ const TOPICS = [
       ["Scotch Yoke", "a(t)"],
       ["Parachute", "a(v)"],
       ["Gas Gun", "a(s)"],
-      ["Survey Plane Drop", "2-D projectile"]
+      ["Survey Plane Drop", "2-D projectile"],
+      ["Subway Station", "a = const, km/h"],
+      ["Tram v–t Graph", "v–t graph"],
+      ["Motorcycle Ramp Jump", "projectile"],
+      ["Field Goal", "y at x_c"],
+      ["Table & Movable Pulley", "dependent motion"]
     ]
   },
   {
@@ -128,7 +133,9 @@ const TOPICS = [
       ["Robot Arm", "a_t const"],
       ["Crank AB", "v = rω"],
       ["Circle Track", "find t, s"],
-      ["Race Track", "ρ → ∞ vs. ρ"]
+      ["Race Track", "ρ → ∞ vs. ρ"],
+      ["Motorcycle Track", "a_t(t)"],
+      ["Lab Centrifuge", "a_n = rω²"]
     ]
   },
   {
@@ -143,7 +150,8 @@ const TOPICS = [
       ["Survey Boat Spiral", "r = bθ"],
       ["Intersection", "relative"],
       ["Trains", "relative, curved"],
-      ["Carrier & Jet", "relative velocity"]
+      ["Carrier & Jet", "relative velocity"],
+      ["Fire-Truck Ladder", "ṙ, θ̇ const"]
     ]
   },
   {
@@ -155,6 +163,10 @@ const TOPICS = [
       ["Sliding Box with Friction", "ΣF = ma"],
       ["Space Shuttle Payload", "ΣF = ma"],
       ["Comparison: Newton vs. Impulse", "both"],
+      ["Two Blocks & Movable Pulley", "ΣF = ma"],
+      ["Block on a Sliding Wedge", "ΣF = ma"],
+      ["Traction-Limited Car", "ΣF = ma"],
+      ["Satellite Thruster Burn", "ΣF = ma"],
       ["Collar & Spring: Max Speed", "work–energy"],
       ["Collar & Spring: 2-D", "work–energy"],
       ["Satellite Orbit Transfer", "work–energy"],
@@ -174,6 +186,8 @@ const TOPICS = [
       ["Vertical Pole", "ΣF_n, ΣF_b"],
       ["Boat in a Turn", "constant speed"],
       ["Banked Off-Ramp", "max speed, μ_s"],
+      ["Pendulum Bob Tension", "ΣF_n, ΣF_t"],
+      ["Banked Highway Curve", "rated speed"],
       ["Released Ball", "W–E + ΣF_n"],
       ["Stunt Driver Loop", "W–E + ΣF_n"],
       ["Sun-Powered Car", "a_t, then a_n"],
@@ -186,6 +200,7 @@ const TOPICS = [
     title: "Polar Coordinates",
     problems: [
       ["Smooth Bar in a Horizontal Plane", "Newton"],
+      ["Collar Released on a Rotating Arm", "Newton"],
       ["Spatial Disorientation Trainer", "Newton"],
       ["Moon's Orbit", "Newton"],
       ["Satellite in Low Orbit", "Newton"],
@@ -209,7 +224,10 @@ const TOPICS = [
       ["Four-Bar Linkage", "acceleration"],
       ["Flywheel Linkage", "acceleration"],
       ["Linear Acceleration of a Piston", "acceleration"],
-      ["Disk Rolling on a Curved Surface", "acceleration"]
+      ["Disk Rolling on a Curved Surface", "acceleration"],
+      ["Slider-Crank with Law of Sines", "acceleration"],
+      ["Rolling Wheel: Top and Contact Points", "acceleration"],
+      ["Compound Gear Train", "fixed axis"]
     ]
   },
   {
@@ -248,7 +266,9 @@ const TOPICS = [
       ["Unknown Spring Force", "work–energy"],
       ["Force of a Club on a Ball", "impulse"],
       ["Three Disks in Contact", "impulse"],
-      ["Gravity Research Satellites", "conservation"]
+      ["Gravity Research Satellites", "conservation"],
+      ["Satellite Side Thruster", "impulse"],
+      ["Pulley, Hanging Mass & Spring", "ΣM = Iα"]
     ]
   },
   {
@@ -272,7 +292,8 @@ const TOPICS = [
       ["Oblique Impact of Two Pucks", "n–t"],
       ["Ball Hits a Wall", "n–t"],
       ["Ball Strikes a Pinned Bar", "rigid body"],
-      ["Bullet into a Hanging Bar", "rigid body"]
+      ["Bullet into a Hanging Bar", "rigid body"],
+      ["Ball Strikes a Free Rod", "rigid body"]
     ]
   }
 ];
