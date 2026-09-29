@@ -166,6 +166,56 @@ sub{font-size:.72em;line-height:0;vertical-align:-.25em}
 .diag text{font-family:var(--body);font-size:12.5px}
 .diag .t,.diag .ts{fill:var(--ink)} .diag .tv{fill:var(--accent);font-weight:600} .diag .tf{fill:var(--plot-2);font-weight:600} .diag .tm{fill:var(--muted)}
 /* SCHEM-CSS-END */
+/* MLAB-CSS-START */
+/* ---------- hints ---------- */
+.hints{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.hintcard{border:1px solid rgba(255,210,63,.35);background:rgba(255,210,63,.06);border-radius:10px;padding:10px 14px;font-size:.95rem}
+.hintcard .hk{display:block;font-family:var(--display);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#ffe27a;margin-bottom:3px}
+#hintbtn{border-color:rgba(255,210,63,.5);color:#ffe27a}
+#hintbtn:hover{box-shadow:0 0 16px -4px #ffd23f}
+#hintbtn:disabled{opacity:.5;cursor:default;box-shadow:none}
+/* ---------- meaning ---------- */
+.arow{grid-template-rows:auto auto}
+.sense{grid-column:1/-1;font-size:.9rem;color:#c9d6f2;padding:2px 0 4px;border-left:2px solid var(--good);padding-left:10px;margin-top:-2px}
+.sense .sk,.final .mean .sk{font-family:var(--display);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--good);margin-right:6px}
+.final .ans{max-width:100%}
+.final .mean{font-size:.82rem;color:#c9d6f2;margin-top:6px;max-width:30ch;line-height:1.35}
+/* ---------- MATLAB panel ---------- */
+#mlab:empty{display:none}
+.mlab{border:1px solid #2a3f70;border-radius:12px;background:rgba(8,14,30,.75);overflow:hidden}
+.mlab summary{cursor:pointer;padding:12px 16px;font-family:var(--display);font-weight:600;letter-spacing:.03em;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mlab summary::marker{color:#ff8a3d}
+.mlt{background:#ff8a3d;color:#1a0a00;font-size:.7rem;letter-spacing:.14em;padding:3px 8px;border-radius:6px;font-weight:700}
+.mlsub{color:var(--muted);font-weight:500;font-size:.85rem;letter-spacing:.02em}
+.mlbody{padding:0 16px 16px;display:flex;flex-direction:column;gap:12px}
+.mlhelp{margin:0;font-size:.9rem;color:var(--muted)}
+.mlhelp code{font-family:var(--mono);font-size:.85em;color:#ffe27a;background:rgba(255,210,63,.1);padding:0 .3em;border-radius:3px}
+.mlcode{font-family:var(--mono);font-size:.86rem;line-height:1.75;background:#070c19;border:1px solid #1e2d52;border-radius:10px;padding:10px 0;overflow-x:auto;white-space:pre}
+.mlcode .cl{display:flex;gap:12px;padding:0 12px;min-height:1.75em}
+.mlcode .cl.err{background:rgba(255,92,138,.14);box-shadow:inset 3px 0 0 var(--bad)}
+.mlcode .ln{color:#3f5382;min-width:2ch;text-align:right;user-select:none;flex:none}
+.mlcode .ct{color:#d6e2ff;white-space:pre}
+.mlcode .c{color:#6ea86e;font-style:italic}
+.mlcode .s{color:#c39dff}
+.mlcode .n{color:#ffb35c}
+.mlcode .k{color:#5eeaff}
+.mlcode .f{color:#8ee7ff}
+.blank{position:relative;display:inline-flex;align-items:center;gap:2px;vertical-align:baseline}
+.mb{font:inherit;color:#fff;background:#0d1a3a;border:1px dashed #5a78c4;border-radius:6px;padding:0 8px;height:1.55em;line-height:1.55em;transition:border-color .15s,box-shadow .15s}
+.mb:focus{outline:none;border-style:solid;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.18)}
+.mb.ok{border-style:solid;border-color:var(--good);background:rgba(124,255,107,.1);box-shadow:0 0 10px -3px var(--good)}
+.mb.bad{border-style:solid;border-color:var(--bad);background:rgba(255,92,138,.1)}
+.mbh{font:700 .72rem var(--display);width:1.4em;height:1.4em;border-radius:50%;border:1px solid rgba(255,210,63,.6);background:rgba(255,210,63,.12);color:#ffe27a;cursor:pointer;padding:0;line-height:1}
+.mbh:hover{background:rgba(255,210,63,.3)}
+.mbtip{position:absolute;left:0;top:calc(100% + 6px);z-index:5;background:#141b33;border:1px solid rgba(255,210,63,.5);color:#ffe9a8;font:.8rem var(--body);line-height:1.35;padding:8px 10px;border-radius:8px;white-space:normal;width:max-content;max-width:min(360px,80vw);box-shadow:0 10px 30px -10px #000}
+.mlbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mlbar .hint.good{color:var(--good)}
+.mlout{border:1px solid #1e2d52;border-radius:10px;background:#03060f;overflow:hidden}
+.mlouth{font-family:var(--display);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:6px 12px;border-bottom:1px solid #1e2d52;background:#0a1226}
+.mlout pre{margin:0;padding:10px 12px;font:.86rem/1.5 var(--mono);color:#d6e2ff;white-space:pre-wrap;overflow-x:auto}
+.mlout pre.haserr{color:#ffb4c6}
+@media (max-width:600px){.mlcode{font-size:.8rem}.mb{max-width:60vw}}
+/* MLAB-CSS-END */
 /* GAME-CSS-START */
 /* ---------- Neon "game" theme (overrides everything above) ---------- */
 :root:root:root{
@@ -721,6 +771,809 @@ tangimp(v,r){ const O=[40,200], deg=22, s=ARM(O,deg,300,0.6), et=D.at(0,0,deg+90
 };
 
 /* SCHEMATICS-END */
+/* MLAB-JS-START */
+/* ===================== MINI-MATLAB (scalar + small matrix) =====================
+   Enough of MATLAB to run the fill-in-the-blank scripts in the browser:
+   assignments, arithmetic (+ - * / ^ \ .* ./ .^ '), comparisons, matrix
+   literals [a b; c d], indexing x(i) / A(i,j) / end, common math functions,
+   cross/dot/norm, A\b, fprintf/disp. No control flow (scripts are linear).
+   Values: JS number, or {r,c,d:number[]} row-major matrix.                     */
+const ML=(()=>{
+  const isM=(x)=>x&&typeof x==="object"&&"d" in x;
+  const M=(r,c,d)=>({r,c,d});
+  const scalar=(x)=>isM(x)?(x.r*x.c===1?x.d[0]:null):x;
+  const toM=(x)=>isM(x)?x:M(1,1,[x]);
+  const err=(m)=>{ throw new Error(m); };
+  /* ---------- tokenizer ---------- */
+  function lex(src){
+    const t=[]; let i=0; const n=src.length; let depth=0;
+    const isD=(c)=>c>="0"&&c<="9", isA=(c)=>/[A-Za-z_]/.test(c);
+    while(i<n){
+      const c=src[i];
+      if(c===" "||c==="\t"){ i++; continue; }
+      if(c==="%"){ break; }
+      if(src.startsWith("...",i)){ break; }
+      if(isD(c)||(c==="."&&isD(src[i+1]||""))){ let j=i; while(j<n&&(isD(src[j])||src[j]===".")) j++; if((src[j]==="e"||src[j]==="E")&&(isD(src[j+1]||"")||((src[j+1]==="-"||src[j+1]==="+")&&isD(src[j+2]||"")))){ j+=2; while(j<n&&isD(src[j])) j++; } t.push({k:"num",v:parseFloat(src.slice(i,j)),s:i}); i=j; continue; }
+      if(isA(c)){ let j=i; while(j<n&&/[A-Za-z0-9_]/.test(src[j])) j++; t.push({k:"id",v:src.slice(i,j),s:i}); i=j; continue; }
+      if(c==="'"){ const prev=t[t.length-1]; const tr=prev&&(prev.k==="num"||prev.k==="id"||prev.v===")"||prev.v==="]"||prev.k==="tr"); if(tr){ t.push({k:"tr",v:"'",s:i}); i++; continue; } let j=i+1, s=""; while(j<n){ if(src[j]==="'"){ if(src[j+1]==="'"){ s+="'"; j+=2; continue; } break; } s+=src[j]; j++; } if(j>=n) err("unterminated string"); t.push({k:"str",v:s,s:i}); i=j+1; continue; }
+      if(c==='"'){ let j=i+1, s=""; while(j<n&&src[j]!=='"'){ s+=src[j]; j++; } t.push({k:"str",v:s,s:i}); i=j+1; continue; }
+      if((c==="-"||c==="+")&&depth>0&&i>0&&(src[i-1]===" "||src[i-1]==="\t")&&src[i+1]!==" "&&src[i+1]!==undefined){ const prev=t[t.length-1]; if(prev&&(prev.k==="num"||prev.k==="id"||prev.k==="tr"||prev.v===")"||prev.v==="]")) t.push({k:"op",v:",",s:i}); }
+      if(c==="[") depth++; if(c==="]") depth--;
+      const two=src.substr(i,2);
+      if([".*","./",".^",".\\","==","~=","<=",">=","&&","||"].includes(two)){ t.push({k:"op",v:two,s:i}); i+=2; continue; }
+      if("+-*/^\\()[],;=:<>~&|".includes(c)){ t.push({k:"op",v:c,s:i}); i++; continue; }
+      err("unexpected character '"+c+"'");
+    }
+    return t;
+  }
+  /* ---------- parser (Pratt) ---------- */
+  const PREC={"||":1,"&&":2,"==":3,"~=":3,"<":3,">":3,"<=":3,">=":3,":":4,"+":5,"-":5,"*":6,"/":6,"\\":6,".*":6,"./":6,".\\":6,"^":8,".^":8};
+  function parse(tokens){
+    let p=0; const peek=()=>tokens[p], next=()=>tokens[p++];
+    const expect=(v)=>{ const t=next(); if(!t||t.v!==v) err("expected '"+v+"'"); };
+    function primary(){
+      const t=next(); if(!t) err("unexpected end of expression");
+      let node;
+      if(t.k==="num") node={t:"num",v:t.v};
+      else if(t.k==="str") node={t:"str",v:t.v};
+      else if(t.k==="id"){ node={t:"id",v:t.v}; if(peek()&&peek().v==="("){ next(); const args=[]; if(peek()&&peek().v!==")"){ do{ args.push(expr()); }while(peek()&&peek().v===","&&next()); } expect(")"); node={t:"call",f:t.v,args}; } }
+      else if(t.v==="("){ node=expr(); expect(")"); }
+      else if(t.v==="["){ const rows=[[]]; while(peek()&&peek().v!=="]"){ if(peek().v===";"){ next(); rows.push([]); continue; } if(peek().v===","){ next(); continue; } rows[rows.length-1].push(expr()); } expect("]"); node={t:"mat",rows:rows.filter(r=>r.length)}; }
+      else if(t.v==="-"){ node={t:"neg",a:unaryOperand()}; }
+      else if(t.v==="+"){ node=unaryOperand(); }
+      else if(t.v==="~"){ node={t:"not",a:unaryOperand()}; }
+      else err("unexpected '"+t.v+"'");
+      while(peek()&&peek().k==="tr"){ next(); node={t:"tr",a:node}; }
+      return node;
+    }
+    function unaryOperand(){ /* unary minus binds looser than ^ but tighter than * */ let a=primary(); while(peek()&&(peek().v==="^"||peek().v===".^")){ const op=next().v; a={t:"bin",op,a,b:unaryOperand()}; } return a; }
+    function expr(minP=0){
+      let left=primary();
+      while(true){
+        const t=peek(); if(!t||t.k!=="op"||!(t.v in PREC)) break;
+        const pr=PREC[t.v]; if(pr<minP) break; next();
+        const right = (t.v==="^"||t.v===".^") ? unaryOperand() : expr(pr+1);
+        left={t:"bin",op:t.v,a:left,b:right};
+      }
+      return left;
+    }
+    const e=expr(); if(p<tokens.length) err("unexpected '"+tokens[p].v+"'"); return e;
+  }
+  /* ---------- evaluation ---------- */
+  const map1=(x,f)=>isM(x)?M(x.r,x.c,x.d.map(f)):f(x);
+  function bin(op,a,b){
+    const sa=!isM(a), sb=!isM(b);
+    const ew=(f)=>{ if(sa&&sb) return f(a,b); if(sa) return M(b.r,b.c,b.d.map(y=>f(a,y))); if(sb) return M(a.r,a.c,a.d.map(x=>f(x,b))); if(a.r!==b.r||a.c!==b.c) err("matrix sizes don't match ("+a.r+"×"+a.c+" vs "+b.r+"×"+b.c+")"); return M(a.r,a.c,a.d.map((x,i)=>f(x,b.d[i]))); };
+    switch(op){
+      case "+": return ew((x,y)=>x+y); case "-": return ew((x,y)=>x-y);
+      case ".*": return ew((x,y)=>x*y); case "./": return ew((x,y)=>x/y); case ".^": return ew(Math.pow); case ".\\": return ew((x,y)=>y/x);
+      case "*": if(sa||sb) return ew((x,y)=>x*y); return matmul(a,b);
+      case "/": if(sb) return ew((x,y)=>x/y); if(sa&&b.r*b.c===1) return a/b.d[0]; err("use ./ for element-wise division");
+      case "^": if(sa&&sb) return Math.pow(a,b); if(!sa&&sb&&a.r===a.c&&Number.isInteger(b)&&b>=0){ let r=eye(a.r); for(let i=0;i<b;i++) r=matmul(r,a); return r; } err("use .^ for element-wise power");
+      case "\\": if(sa){ return ew((x,y)=>y/x); } return solve(a,toM(b));
+      case "==": return ew((x,y)=>+(x===y)); case "~=": return ew((x,y)=>+(x!==y));
+      case "<": return ew((x,y)=>+(x<y)); case ">": return ew((x,y)=>+(x>y)); case "<=": return ew((x,y)=>+(x<=y)); case ">=": return ew((x,y)=>+(x>=y));
+      case "&&": return +(truthy(a)&&truthy(b)); case "||": return +(truthy(a)||truthy(b));
+      case ":": { const x=scalar(a), y=scalar(b); const d=[]; for(let k=x;k<=y+1e-12;k++) d.push(k); return M(1,d.length,d); }
+    }
+    err("unknown operator "+op);
+  }
+  const truthy=(x)=>isM(x)?x.d.every(v=>v!==0):x!==0;
+  const eye=(n)=>{ const d=new Array(n*n).fill(0); for(let i=0;i<n;i++) d[i*n+i]=1; return M(n,n,d); };
+  function matmul(a,b){ if(a.c!==b.r) err("inner matrix dimensions must agree ("+a.r+"×"+a.c+" times "+b.r+"×"+b.c+")"); const d=new Array(a.r*b.c).fill(0); for(let i=0;i<a.r;i++) for(let j=0;j<b.c;j++){ let s=0; for(let k=0;k<a.c;k++) s+=a.d[i*a.c+k]*b.d[k*b.c+j]; d[i*b.c+j]=s; } return M(a.r,b.c,d); }
+  function transpose(a){ if(!isM(a)) return a; const d=new Array(a.r*a.c); for(let i=0;i<a.r;i++) for(let j=0;j<a.c;j++) d[j*a.r+i]=a.d[i*a.c+j]; return M(a.c,a.r,d); }
+  function solve(A,b){ if(A.r!==A.c) err("A\\b needs a square A here"); if(b.r!==A.r) err("A\\b: b must have "+A.r+" rows"); const n=A.r, m=b.c; const a=A.d.slice(), x=b.d.slice();
+    for(let k=0;k<n;k++){ let piv=k; for(let i=k+1;i<n;i++) if(Math.abs(a[i*n+k])>Math.abs(a[piv*n+k])) piv=i; if(Math.abs(a[piv*n+k])<1e-14) err("matrix is singular"); if(piv!==k){ for(let j=0;j<n;j++){ [a[k*n+j],a[piv*n+j]]=[a[piv*n+j],a[k*n+j]]; } for(let j=0;j<m;j++){ [x[k*m+j],x[piv*m+j]]=[x[piv*m+j],x[k*m+j]]; } }
+      for(let i=k+1;i<n;i++){ const f=a[i*n+k]/a[k*n+k]; for(let j=k;j<n;j++) a[i*n+j]-=f*a[k*n+j]; for(let j=0;j<m;j++) x[i*m+j]-=f*x[k*m+j]; } }
+    for(let i=n-1;i>=0;i--){ for(let j=0;j<m;j++){ let s=x[i*m+j]; for(let k=i+1;k<n;k++) s-=a[i*n+k]*x[k*m+j]; x[i*m+j]=s/a[i*n+i]; } }
+    return M(n,m,x); }
+  function ew2(a,b,f){ if(!isM(a)&&!isM(b)) return f(a,b); if(!isM(a)) return M(b.r,b.c,b.d.map(y=>f(a,y))); if(!isM(b)) return M(a.r,a.c,a.d.map(x=>f(x,b))); if(a.r!==b.r||a.c!==b.c) err("matrix sizes don't match"); return M(a.r,a.c,a.d.map((x,i)=>f(x,b.d[i]))); }
+  const vec3=(x)=>{ if(!isM(x)||x.r*x.c!==3) err("cross needs 3-element vectors"); return x.d; };
+  const FN={
+    sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,
+    sqrt:Math.sqrt,abs:Math.abs,exp:Math.exp,log:Math.log,log10:Math.log10,log2:Math.log2,floor:Math.floor,ceil:Math.ceil,round:Math.round,fix:Math.trunc,sign:Math.sign,
+    sind:(x)=>Math.sin(x*Math.PI/180),cosd:(x)=>Math.cos(x*Math.PI/180),tand:(x)=>Math.tan(x*Math.PI/180),asind:(x)=>Math.asin(x)*180/Math.PI,acosd:(x)=>Math.acos(x)*180/Math.PI,atand:(x)=>Math.atan(x)*180/Math.PI,
+    deg2rad:(x)=>x*Math.PI/180,rad2deg:(x)=>x*180/Math.PI
+  };
+  const FN2={atan2:Math.atan2,atan2d:(y,x)=>Math.atan2(y,x)*180/Math.PI,mod:(a,b)=>a-Math.floor(a/b)*b,rem:(a,b)=>a%b,hypot:Math.hypot,power:Math.pow,nthroot:(x,n)=>x<0&&n%2?-Math.pow(-x,1/n):Math.pow(x,1/n)};
+  function call(f,args,scope){
+    if(scope.has(f)){ /* indexing */ const x=scope.get(f); if(!isM(x)){ if(args.every(a=>a===1)) return x; err("index out of range for scalar "+f); } if(args.length===1){ const i=args[0]; if(isM(i)) return M(1,i.d.length,i.d.map(k=>idx1(x,k,f))); return idx1(x,i,f); } if(args.length===2){ const i=args[0], j=args[1]; if(i<1||i>x.r||j<1||j>x.c||!Number.isInteger(i)||!Number.isInteger(j)) err("index ("+i+","+j+") out of range for "+f); return x.d[(i-1)*x.c+(j-1)]; } err("too many indices"); }
+    if(f in FN){ if(args.length!==1) err(f+" takes one argument"); return map1(args[0],FN[f]); }
+    if(f in FN2){ if(args.length!==2) err(f+" takes two arguments"); return ew2(args[0],args[1],FN2[f]); }
+    switch(f){
+      case "pi": return Math.PI; case "Inf": case "inf": return Infinity; case "eps": return 2.2e-16;
+      case "cross": { const a=vec3(args[0]), b=vec3(args[1]); return M(args[0].r,args[0].c,[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]); }
+      case "dot": { const a=toM(args[0]).d, b=toM(args[1]).d; if(a.length!==b.length) err("dot: vectors must be the same length"); return a.reduce((s,x,i)=>s+x*b[i],0); }
+      case "norm": { const a=toM(args[0]).d; return Math.sqrt(a.reduce((s,x)=>s+x*x,0)); }
+      case "sum": { const a=toM(args[0]); if(a.r===1||a.c===1||args.length>1) return a.d.reduce((s,x)=>s+x,0); const d=[]; for(let j=0;j<a.c;j++){ let s=0; for(let i=0;i<a.r;i++) s+=a.d[i*a.c+j]; d.push(s); } return M(1,a.c,d); }
+      case "prod": return toM(args[0]).d.reduce((s,x)=>s*x,1);
+      case "mean": { const a=toM(args[0]).d; return a.reduce((s,x)=>s+x,0)/a.length; }
+      case "max": if(args.length===2) return ew2(args[0],args[1],Math.max); return Math.max(...toM(args[0]).d);
+      case "min": if(args.length===2) return ew2(args[0],args[1],Math.min); return Math.min(...toM(args[0]).d);
+      case "numel": return toM(args[0]).d.length; case "length": { const a=toM(args[0]); return Math.max(a.r,a.c); }
+      case "size": { const a=toM(args[0]); return args.length>1?(args[1]===1?a.r:a.c):M(1,2,[a.r,a.c]); }
+      case "zeros": { const r=args[0], c=args.length>1?args[1]:args[0]; return M(r,c,new Array(r*c).fill(0)); }
+      case "ones": { const r=args[0], c=args.length>1?args[1]:args[0]; return M(r,c,new Array(r*c).fill(1)); }
+      case "eye": return eye(args[0]);
+      case "det": { const a=args[0]; if(!isM(a)||a.r!==a.c) err("det needs a square matrix"); const n=a.r, d=a.d.slice(); let det=1; for(let k=0;k<n;k++){ let piv=k; for(let i=k+1;i<n;i++) if(Math.abs(d[i*n+k])>Math.abs(d[piv*n+k])) piv=i; if(Math.abs(d[piv*n+k])<1e-300) return 0; if(piv!==k){ for(let j=0;j<n;j++){ [d[k*n+j],d[piv*n+j]]=[d[piv*n+j],d[k*n+j]]; } det=-det; } det*=d[k*n+k]; for(let i=k+1;i<n;i++){ const f=d[i*n+k]/d[k*n+k]; for(let j=k;j<n;j++) d[i*n+j]-=f*d[k*n+j]; } } return det; }
+      case "inv": return solve(args[0],eye(args[0].r));
+      case "linspace": { const [a,b]=args, n=args.length>2?args[2]:100; const d=[]; for(let i=0;i<n;i++) d.push(a+(b-a)*i/(n-1)); return M(1,n,d); }
+      case "num2str": return isM(args[0])?"["+args[0].d.map(fmtG).join(" ")+"]":fmtG(args[0]);
+      case "roots": { const c=toM(args[0]).d; if(c.length===3){ const [a,b,cc]=c, D=b*b-4*a*cc; if(D<0) err("roots: complex roots are not supported here"); return M(2,1,[(-b+Math.sqrt(D))/(2*a),(-b-Math.sqrt(D))/(2*a)]); } err("roots: only quadratics are supported here"); }
+      case "isempty": return +(toM(args[0]).d.length===0);
+    }
+    err("unknown function or variable '"+f+"'");
+  }
+  function idx1(x,k,f){ if(!Number.isInteger(k)||k<1||k>x.d.length) err("index "+k+" out of range for "+f+" ("+x.d.length+" elements)"); return x.d[k-1]; }
+  function evalNode(n,scope){
+    switch(n.t){
+      case "num": return n.v; case "str": return n.v;
+      case "id": if(scope.has(n.v)) return scope.get(n.v); if(n.v==="pi") return Math.PI; if(n.v==="end") return scope.get("__end")??err("'end' used outside an index"); if(n.v==="Inf"||n.v==="inf") return Infinity; if(n.v==="g"&&!scope.has("g")) err("'g' is not defined yet — assign g = 9.81 first"); err("undefined variable '"+n.v+"'");
+      case "neg": return map1(evalNode(n.a,scope),x=>-x);
+      case "not": return map1(evalNode(n.a,scope),x=>+(x===0));
+      case "tr": return transpose(evalNode(n.a,scope));
+      case "bin": return bin(n.op,evalNode(n.a,scope),evalNode(n.b,scope));
+      case "call": { if(scope.has(n.f)&&n.args.length){ const x=scope.get(n.f); const sc=new Map(scope); sc.set("__end",isM(x)?(n.args.length===1?x.d.length:0):1); const args=n.args.map((a,i)=>{ if(isM(x)&&n.args.length===2) sc.set("__end",i===0?x.r:x.c); return evalNode(a,sc); }); return call(n.f,args,scope); } return call(n.f,n.args.map(a=>evalNode(a,scope)),scope); }
+      case "mat": { if(!n.rows.length) return M(0,0,[]); const rows=n.rows.map(r=>{ let acc=null; r.forEach(e=>{ const v=toM(evalNode(e,scope)); if(!acc){ acc=v; return; } if(acc.r!==v.r) err("matrix rows have different heights"); const d=[]; for(let i=0;i<acc.r;i++) d.push(...acc.d.slice(i*acc.c,(i+1)*acc.c),...v.d.slice(i*v.c,(i+1)*v.c)); acc=M(acc.r,acc.c+v.c,d); }); return acc; }); let out=rows[0]; for(let i=1;i<rows.length;i++){ if(rows[i].c!==out.c) err("matrix rows have different lengths"); out=M(out.r+rows[i].r,out.c,out.d.concat(rows[i].d)); } return out; }
+    }
+    err("bad expression");
+  }
+  const fmtG=(x)=>{ if(!isFinite(x)) return String(x); if(x===0) return "0"; const a=Math.abs(x); if(a>=1e5||a<1e-4) return x.toExponential(4).replace(/\.?0+e/,"e").replace("e+","e+").replace(/e([+-])(\d)$/,"e$10$2"); return String(Number(x.toPrecision(5))); };
+  function fprintf(args){
+    const f=args[0]; if(typeof f!=="string") err("fprintf needs a format string first");
+    const vals=[]; args.slice(1).forEach(a=>{ if(isM(a)){ for(let j=0;j<a.c;j++) for(let i=0;i<a.r;i++) vals.push(a.d[i*a.c+j]); } else vals.push(a); });
+    const fmt=f.replace(/\\n/g,"\n").replace(/\\t/g,"\t").replace(/\\\\/g,"\\");
+    const specs=[...fmt.matchAll(/%([-+ 0#]*)(\d+)?(?:\.(\d+))?([dfgeEisc%])/g)];
+    if(!specs.length||specs.every(s=>s[4]==="%")) return fmt.replace(/%%/g,"%");
+    let out="", vi=0, guard=0;
+    do{
+      let last=0; let consumed=false;
+      for(const s of specs){ out+=fmt.slice(last,s.index); last=s.index+s[0].length; if(s[4]==="%"){ out+="%"; continue; } if(vi>=vals.length){ if(consumed||vi>0){ last=fmt.length; break; } out+=""; continue; } const x=vals[vi++]; consumed=true; out+=fmtSpec(x,s); }
+      out+=fmt.slice(last);
+      guard++;
+    }while(vi<vals.length&&guard<50);
+    return out;
+  }
+  function fmtSpec(x,s){ const [_,flags,w,p,c]=s; let str; const prec=p!==undefined?+p:6;
+    if(c==="d"||c==="i"){ str=Number.isInteger(x)?String(x):(p!==undefined?x.toFixed(prec):String(Number(x.toPrecision(6)))); }
+    else if(c==="f") str=x.toFixed(prec);
+    else if(c==="e"||c==="E"){ str=x.toExponential(prec).replace(/e([+-])(\d)$/,"e$10$2"); if(c==="E") str=str.toUpperCase(); }
+    else if(c==="g"){ str=gfmt(x,p!==undefined?Math.max(prec,1):6); }
+    else if(c==="s") str=typeof x==="string"?x:gfmt(x,6);
+    else str=String(x);
+    if(flags.includes("+")&&x>=0&&c!=="s") str="+"+str;
+    if(w){ const W=+w; if(str.length<W) str=flags.includes("-")?str.padEnd(W):flags.includes("0")&&c!=="s"?(str[0]==="-"?"-"+str.slice(1).padStart(W-1,"0"):str.padStart(W,"0")):str.padStart(W); }
+    return str; }
+  function gfmt(x,P){ if(x===0) return "0"; if(!isFinite(x)) return String(x); const e=Math.floor(Math.log10(Math.abs(x))); if(e<-5||e>=P){ let s=x.toExponential(P-1); s=s.replace(/\.?0+e/,"e"); return s.replace(/e([+-])(\d)$/,"e$10$2"); } return String(Number(x.toPrecision(P))); }
+  function show(name,x){ if(isM(x)){ if(x.r*x.c===1) return name+" = "+fmtG(x.d[0])+"\n"; let s=name+" =\n"; for(let i=0;i<x.r;i++){ s+="   "+x.d.slice(i*x.c,(i+1)*x.c).map(v=>fmtG(v).padStart(9)).join("  ")+"\n"; } return s; } if(typeof x==="string") return name+" = '"+x+"'\n"; return name+" = "+fmtG(x)+"\n"; }
+  /* ---------- statements ---------- */
+  function splitStatements(src){
+    const lines=src.split("\n"); const out=[]; let buf="", start=0;
+    lines.forEach((ln,i)=>{ const code=stripComment(ln); if(code.trim().endsWith("...")){ if(!buf) start=i; buf+=code.replace(/\.\.\.\s*$/," "); return; } const full=buf+code, line=(buf?start:i)+1; buf=""; splitTop(full).forEach(t=>out.push({line,text:t})); });
+    return out;
+  }
+  function stripComment(ln){ let inStr=false; for(let i=0;i<ln.length;i++){ const c=ln[i]; if(inStr){ if(c==="'") inStr=false; continue; } if(c==="'"){ const p=ln[i-1]||" "; if(!/[\w)\]']/.test(p)) inStr=true; continue; } if(c==="%") return ln.slice(0,i); } return ln; }
+  /* split "a = 1; b = 2, c" at top-level ; and , (keeping the ; so silent-ness survives) */
+  function splitTop(s){ const parts=[]; let depth=0, cur="", inStr=false; for(let i=0;i<s.length;i++){ const c=s[i]; if(inStr){ cur+=c; if(c==="'") inStr=false; continue; } if(c==="'"){ const p=s[i-1]||" "; if(!/[\w)\]']/.test(p)) inStr=true; cur+=c; continue; } if("([{".includes(c)) depth++; if(")]}".includes(c)) depth--; if(depth===0&&(c===";"||c===",")){ cur+=c===";"?";":""; if(cur.trim()) parts.push(cur); cur=""; continue; } cur+=c; } if(cur.trim()) parts.push(cur); return parts; }
+  function execStmt(text,scope,out){
+    let code=text.trim(); if(!code) return;
+    let silent=false; if(code.endsWith(";")){ silent=true; code=code.slice(0,-1).trim(); }
+    if(/^(clc|clear|close all|clear all|format \w+|hold on|hold off|grid on|figure)\s*$/.test(code)) return;
+    const mc0=code.match(/^(fprintf|disp|display)\s*\((.*)\)$/s);
+    if(mc0){ const args=parseArgs(mc0[2]).map(a=>evalNode(parse(lex(a)),scope)); if(mc0[1]==="fprintf") out.push(fprintf(args)); else out.push(isM(args[0])?show("",args[0]).replace(/^ =\n/,""):typeof args[0]==="string"?args[0]+"\n":fmtG(args[0])+"\n"); return; }
+    const q=code.search(/['"]/), eqp=code.search(/=(?!=)/); const asg=eqp>=0&&(q<0||eqp<q);
+    const m=asg&&code.match(/^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$/s);
+    if(m){ const val=evalNode(parse(lex(m[2])),scope); if(typeof val==="string"&&!/^\s*'/.test(m[2])&&!/^\s*"/.test(m[2])) {} scope.set(m[1],val); if(!silent) out.push(show(m[1],val)); return; }
+    const mi=asg&&code.match(/^([A-Za-z_]\w*)\s*\(([^)]*)\)\s*=(?!=)\s*(.*)$/s);
+    if(mi){ const val=evalNode(parse(lex(mi[3])),scope); const idx=mi[2].split(",").map(s=>evalNode(parse(lex(s)),scope)); let x=scope.has(mi[1])?toM(scope.get(mi[1])):M(0,0,[]); if(idx.length===1){ const k=idx[0]; const d=x.d.slice(); while(d.length<k) d.push(0); d[k-1]=scalar(val); x=M(x.r||1,d.length,d); } else { const [i,j]=idx; const r=Math.max(x.r,i), c=Math.max(x.c,j); const d=new Array(r*c).fill(0); for(let a=0;a<x.r;a++) for(let b=0;b<x.c;b++) d[a*c+b]=x.d[a*x.c+b]; d[(i-1)*c+(j-1)]=scalar(val); x=M(r,c,d); } scope.set(mi[1],x); if(!silent) out.push(show(mi[1],x)); return; }
+    const mc=code.match(/^(fprintf|disp|display)\s*\((.*)\)$/s);
+    if(mc){ const args=parseArgs(mc[2]).map(a=>evalNode(parse(lex(a)),scope)); if(mc[1]==="fprintf") out.push(fprintf(args)); else out.push(isM(args[0])?show("",args[0]).replace(/^ =\n/,""):typeof args[0]==="string"?args[0]+"\n":fmtG(args[0])+"\n"); return; }
+    const val=evalNode(parse(lex(code)),scope); if(!silent) out.push(show("ans",val)); scope.set("ans",val);
+  }
+  function parseArgs(s){ const args=[]; let depth=0, cur="", inStr=false; for(let i=0;i<s.length;i++){ const c=s[i]; if(inStr){ cur+=c; if(c==="'"&&s[i+1]==="'"){ cur+="'"; i++; } else if(c==="'") inStr=false; continue; } if(c==="'"&&(i===0||/[\s,(\[]/.test(s[i-1]))){ inStr=true; cur+=c; continue; } if("([".includes(c)) depth++; if(")]".includes(c)) depth--; if(c===","&&depth===0){ args.push(cur); cur=""; continue; } cur+=c; } if(cur.trim()) args.push(cur); return args; }
+  /* run a whole script; returns {out, scope, error:{line,msg}|null, scopes:[Map before each stmt]} */
+  function run(src,{snapshots=false}={}){
+    const scope=new Map(); const out=[]; const stmts=splitStatements(src); const scopes=[];
+    for(const s of stmts){ if(snapshots) scopes[s.line]=new Map(scope); try{ execStmt(s.text,scope,out); }catch(e){ return {out:out.join(""),scope,scopes,error:{line:s.line,msg:e.message,text:s.text.trim()}}; } }
+    return {out:out.join(""),scope,scopes,error:null};
+  }
+  function evalIn(exprSrc,scope){ return evalNode(parse(lex(exprSrc)),scope); }
+  function same(a,b,tol=1e-4){ if(isM(a)!==isM(b)){ const sa=scalar(a), sb=scalar(b); if(sa===null||sb===null) return false; a=sa; b=sb; } if(isM(a)){ if(a.d.length!==b.d.length) return false; return a.d.every((x,i)=>close(x,b.d[i],tol)); } return close(a,b,tol); }
+  const close=(x,y,tol)=>Math.abs(x-y)<=tol*Math.max(Math.abs(x),Math.abs(y),1e-9)+1e-12;
+  return {run,evalIn,same,isM,scalar,fmtG,lex,parse};
+})();
+
+/* ===================== FILL-IN-THE-BLANK TEMPLATES =====================
+   A template is MATLAB source with blanks written as {{expr}} or {{expr || hint}}.
+   The expr is the reference answer for that blank (also used to check).        */
+const MLT=(()=>{
+  const RE=/\{\{([\s\S]*?)\}\}/g;
+  function parseTemplate(src){
+    const blanks=[]; let n=0;
+    const lines=src.split("\n");
+    const plain=lines.map((ln,li)=>ln.replace(RE,(m,body)=>{ const [ans,hint]=body.split("||").map(s=>s.trim()); blanks.push({i:n,line:li+1,ans,hint:hint||""}); return "\u0000"+(n++)+"\u0000"; }));
+    return {lines:plain,blanks};
+  }
+  const fill=(lines,f)=>lines.map(l=>l.replace(/\u0000(\d+)\u0000/g,(m,i)=>f(+i))).join("\n");
+  /* reference run: fill every blank with its answer */
+  function reference(tpl){ return fill(tpl.lines,i=>tpl.blanks[i].ans); }
+  function student(tpl,vals){ return fill(tpl.lines,i=>(vals[i]||"").trim()||"____"); }
+  /* check one blank: evaluate student text in the scope just before that line */
+  function checkBlank(tpl,ref,i,text){
+    const b=tpl.blanks[i]; const sc=ref.scopes[b.line]; if(!sc) return {ok:false,msg:"reference failed"};
+    if(!text.trim()) return {ok:false,msg:"empty"};
+    try{ const want=ML.evalIn(b.ans,sc); const got=ML.evalIn(text,sc); if(ML.same(got,want)) return {ok:true}; return {ok:false,msg:"gives "+(ML.isM(got)?"a "+got.r+"×"+got.c+" matrix":ML.fmtG(got))+", expected "+(ML.isM(want)?"a "+want.r+"×"+want.c+" matrix":ML.fmtG(want))}; }
+    catch(e){ return {ok:false,msg:e.message}; }
+  }
+  return {parseTemplate,reference,student,checkBlank,fill};
+})();
+
+/* ===================== "WHAT DOES THIS NUMBER MEAN?" =====================
+   SENSE(val, unit, label) -> short real-world comparison string (or "").
+   Each quantity has a ladder of everyday references; we pick the nearest one
+   (in log scale) and say "about", "N×" or "1/N of" it.                       */
+const SENSE=(()=>{
+  const r2=(x)=>{ if(x>=100) return String(Math.round(x)); if(x>=10) return String(Math.round(x*2)/2).replace(/\.0$/,""); return String(Number(x.toPrecision(2))); };
+  const ratioText=(k,ref)=>{ if(k>0.85&&k<1.18) return "about "+ref; if(k>=1.18&&k<2) return k.toFixed(1)+"× "+ref; if(k>=2) return r2(k)+"× "+ref; if(k>0.5) return "about "+Math.round(100*k)+"% of "+ref; return "about 1/"+r2(1/k)+" of "+ref; };
+  function nearest(x,ladder){ let best=null, bd=Infinity; for(const [v,s] of ladder){ const d=Math.abs(Math.log(x/v)); if(d<bd){ bd=d; best=[v,s]; } } return best; }
+  function ladderText(x,ladder){ if(!(x>0)) return ""; const [v,s]=nearest(x,ladder); return ratioText(x/v,s); }
+  /* --- ladders (SI) --- */
+  const SPEED=[[0.0014,"a garden snail"],[0.04,"a tortoise"],[0.3,"a slow stroll"],[1.4,"walking pace"],[3,"a jog"],[5.5,"a fast run"],[10.4,"an Olympic sprinter"],[13.4,"a car at 30 mph"],[20,"a car at 45 mph"],[29,"highway speed (65 mph)"],[45,"a car at 100 mph"],[62,"a cheetah / airliner takeoff"],[95,"an F1 car on a straight"],[130,"a fastball ×3 / a hurricane's strongest gusts ×2"],[250,"an airliner at cruise"],[343,"the speed of sound"],[600,"a rifle bullet"],[1000,"a high-speed rifle bullet"],[2000,"Mach 6"],[7660,"the ISS in orbit"],[11200,"Earth escape speed"],[30000,"Earth around the Sun"],[3e8,"the speed of light"]];
+  const ACC=[[0.01,"a train creeping out of a station — barely noticeable"],[0.1,"an elevator starting up"],[0.5,"a gentle city bus pulling away"],[1.5,"a normal car accelerating"],[3,"a sports car launch"],[5,"hard braking in a car"],[9.81,"free fall (1 g)"],[20,"a roller-coaster launch"],[40,"a fighter-jet turn (4 g)"],[60,"the g-limit for a jet pilot"],[100,"a bad car crash with an airbag"],[300,"a hard hit in football"],[1000,"a pistol bullet in the barrel ÷ 100"],[3000,"a golf ball at impact ÷ 100"]];
+  const ANGV=[[0.00007292,"the Earth's rotation"],[0.00175,"a clock's minute hand"],[0.105,"a clock's second hand"],[0.5,"a slow ceiling fan ÷ 40"],[1.6,"a wind turbine (15 rpm)"],[3.5,"a record player (33 rpm)"],[8,"a washing machine agitator"],[21,"a ceiling fan on high (200 rpm)"],[84,"a car engine at idle (800 rpm)"],[210,"a car engine at 2000 rpm"],[315,"a car engine cruising (3000 rpm)"],[630,"an engine near redline (6000 rpm)"],[2100,"a kitchen blender (20 000 rpm)"],[5200,"a Dremel tool on high"],[31000,"a dental drill"]];
+  const FORCE=[[1,"the weight of an apple"],[4.4,"the weight of a can of soda"],[10,"the weight of a 1-liter bottle"],[20,"the weight of a textbook (2 kg)"],[40,"the weight of a gallon of milk"],[100,"the weight of a 10-kg suitcase"],[250,"the weight of a large dog"],[700,"the weight of an adult person"],[1500,"the weight of a refrigerator"],[4000,"the weight of a small piano"],[13000,"the weight of a compact car"],[25000,"the weight of a pickup truck"],[60000,"the weight of an elephant"],[180000,"the weight of a loaded semi-truck"],[400000,"the thrust of a 777 jet engine"],[2000000,"the weight of a blue whale × 2"],[35000000,"the thrust of a Saturn V at liftoff"]];
+  const MASS=[[0.006,"a US penny × 2"],[0.05,"a golf ball"],[0.15,"a baseball"],[0.5,"a basketball / a can of soup"],[1,"a liter of water"],[2,"a textbook"],[5,"a bowling ball (12 lb)"],[10,"a large watermelon"],[25,"a checked suitcase"],[70,"an adult person"],[150,"a full-grown giant panda"],[500,"a grand piano"],[1300,"a compact car"],[2500,"a pickup truck"],[6000,"an elephant"],[18000,"a loaded semi-truck"],[80000,"a blue whale"],[400000,"a fully loaded 747"]];
+  const LEN=[[0.0001,"a human hair's thickness"],[0.001,"a credit card's thickness"],[0.01,"a fingernail's width"],[0.03,"a quarter's diameter ÷ 0.8"],[0.1,"a smartphone's width"],[0.19,"a pencil's length"],[0.3,"a ruler / a foot"],[1,"a long stride"],[2,"a door's height"],[4.5,"a car's length"],[12,"a city bus"],[30,"a blue whale"],[70,"a 747's length"],[100,"a football field"],[300,"the Eiffel Tower"],[830,"the Burj Khalifa"],[1600,"a mile"],[8850,"Mount Everest"],[42000,"a marathon"],[100000,"the edge of space (100 km)"],[400000,"the ISS altitude"],[6371000,"Earth's radius"],[384400000,"the distance to the Moon"]];
+  const TIME=[[0.001,"a camera flash"],[0.1,"an eye blink ÷ 3"],[0.3,"an eye blink"],[1,"one heartbeat"],[3,"a deep breath"],[10,"a 100-m sprint"],[60,"a minute"],[300,"a pop song"],[900,"a coffee break"],[3600,"an hour"],[28800,"a workday"],[86400,"a day"],[604800,"a week"],[2592000,"a month"],[31557600,"a year"]];
+  const ENERGY=[[1,"lifting an apple 1 m"],[10,"lifting a textbook onto a shelf"],[100,"a hard-thrown baseball"],[1000,"a 70-kg person running (about 1 kJ)"],[4184,"one food Calorie"],[10000,"a AA battery's stored energy"],[100000,"a compact car at 30 mph"],[500000,"a compact car at highway speed"],[3600000,"one kilowatt-hour"],[36000000,"a smartphone's battery × 1000"],[130000000,"a gallon of gasoline"]];
+  const IMPULSE=[[0.15,"catching a tossed tennis ball"],[1,"a thrown apple hitting your hand"],[6,"catching a fastball"],[30,"stopping a bowling ball rolled at you"],[100,"a walking person's momentum"],[1000,"a sprinter's momentum"],[10000,"a small car at 15 mph"],[40000,"a compact car at highway speed"],[500000,"a loaded semi-truck at highway speed"]];
+  const TORQUE=[[0.5,"turning a door knob"],[2,"tightening a jar lid"],[10,"a strong hand twist on a screwdriver"],[30,"pedaling a bike hard"],[100,"tightening a car lug nut"],[250,"a sedan's engine at full torque"],[600,"a diesel pickup's engine torque"],[3000,"a locomotive's wheel torque ÷ 10"]];
+  const INERTIA=[[0.0002,"a spinning coin about its axis × 10"],[0.005,"a baseball about its center"],[0.03,"a bowling ball about its center"],[0.15,"a bicycle wheel"],[1,"a car wheel and tire"],[3,"a person spinning with arms out"],[10,"a large office door about its hinges"],[100,"a small merry-go-round"],[1000,"a car about its center (yaw)"]];
+  const CONV={ // to SI
+    "m/s":1,"ft/s":0.3048,"mm/s":0.001,"in/s":0.0254,"km/h":1/3.6,"mph":0.44704,"km/s":1000,"mi/s":1609.34,
+    "m/s²":1,"ft/s²":0.3048,"mm/s²":0.001,"in/s²":0.0254,"g":9.81,
+    "rad/s":1,"rpm":2*Math.PI/60,"rev/s":2*Math.PI,"deg/s":Math.PI/180,
+    "N":1,"lbf":4.44822,"lb":4.44822,"kN":1000,"MN":1e6,
+    "kg":1,"slug":14.5939,"lbm":0.453592,"g_mass":0.001,
+    "m":1,"ft":0.3048,"in":0.0254,"mm":0.001,"cm":0.01,"km":1000,"mi":1609.34,
+    "s":1,"min":60,"h":3600,"hr":3600,"days":86400,"day":86400,
+    "J":1,"kJ":1000,"MJ":1e6,"ft·lb":1.35582,
+    "N·s":1,"lb·s":4.44822,"kg·m/s":1,
+    "N·m":1,"lb·ft":1.35582,"ft·lb_t":1.35582,
+    "kg·m²":1,"slug·ft²":1.35582
+  };
+  const KIND={
+    speed:["m/s","ft/s","mm/s","in/s","km/h","mph","km/s","mi/s"], acc:["m/s²","ft/s²","mm/s²","in/s²","g"], angv:["rad/s","rpm","rev/s","deg/s"],
+    force:["N","lbf","lb","kN","MN"], mass:["kg","slug","lbm"], len:["m","ft","in","mm","cm","km","mi"], time:["s","min","h","hr","days","day"],
+    energy:["J","kJ","MJ","ft·lb"], impulse:["N·s","lb·s","kg·m/s"], torque:["N·m","lb·ft"], inertia:["kg·m²","slug·ft²"], anga:["rad/s²"], angle:["°","deg","rad"]
+  };
+  function kindOf(unit){ for(const k in KIND) if(KIND[k].includes(unit)) return k; return null; }
+  function sense(val,unit,label=""){
+    const k=kindOf(unit); const x=Math.abs(val); if(!k) return special(val,unit,label);
+    if(x===0) return "exactly zero";
+    const si=x*(CONV[unit]||1);
+    switch(k){
+      case "speed": { const mph=si*2.23694; const lead=si>=343?"Mach "+Number((si/343).toPrecision(2))+" · ":si>=0.5?mph.toFixed(mph<10?1:0)+" mph · ":""; return lead+ladderText(si,SPEED); }
+      case "acc": { const gs=si/9.81; return (gs>=0.01?Number(gs.toPrecision(2))+" g · ":"")+ladderText(si,ACC); }
+      case "angv": { const rpm=si*60/(2*Math.PI); return (unit!=="rpm"?Number(rpm.toPrecision(3))+" rpm · ":"")+ladderText(si,ANGV); }
+      case "anga": { const t60=2*Math.PI/si; const dir=val<0?" (slowing, or spinning up the other way)":""; return t60<0.05?"changes the spin rate by 60 rpm in "+Number((t60*1000).toPrecision(2))+" ms — extremely fast"+dir:t60<3600?"changes the spin rate by 60 rpm (1 rev/s) every "+Number(t60.toPrecision(2))+" s"+dir:"very gentle: "+Number((t60/3600).toPrecision(2))+" h to change the spin by 60 rpm"+dir; }
+      case "force": return (unit==="N"||unit==="kN"?"≈ weight of "+Number((si/9.81).toPrecision(2))+" kg · ":"")+ladderText(si,FORCE);
+      case "mass": return (unit!=="kg"?Number(si.toPrecision(3))+" kg · ":"")+ladderText(si,MASS);
+      case "len": return ladderText(si,LEN);
+      case "time": return ladderText(si,TIME);
+      case "energy": return ladderText(si,ENERGY);
+      case "impulse": return ladderText(si,IMPULSE);
+      case "torque": return ladderText(si,TORQUE);
+      case "inertia": return ladderText(si,INERTIA);
+      case "angle": { const deg=unit==="rad"?x*180/Math.PI:x; const rev=deg/360; if(deg<1) return "a hair under 1° — barely a tilt"; if(deg<10) return "a small tilt (a clock's minute hand moves 6° per minute)"; if(deg<80) return Number((deg/90).toPrecision(2))+" of a right angle"; if(deg<100) return "about a right angle (quarter turn)"; if(deg<170) return "between a quarter and a half turn ("+Number(rev.toPrecision(2))+" rev)"; if(deg<190) return "about a half turn"; if(deg<350) return Number(rev.toPrecision(2))+" of a full turn"; return Number(rev.toPrecision(2))+" full revolution"+(rev>=1.5?"s":""); }
+    }
+    return "";
+  }
+  function special(val,unit,label){
+    const x=Math.abs(val);
+    if(unit==="%") return x<1?"less than 1% — negligible":x<10?"a small correction":x<50?"a big chunk":x<100?"most of it":"more than the whole";
+    if(/^e$/i.test(label.replace(/[^A-Za-z]/g,""))||/coefficient of restitution/i.test(label)){ if(x<0.05) return "nearly perfectly plastic — like a lump of clay (e ≈ 0)"; if(x<0.35) return "a dead bounce, like a beanbag or wet tennis ball (e ≈ 0.3)"; if(x<0.55) return "like a wooden ball on wood (e ≈ 0.5)"; if(x<0.7) return "like a basketball or tennis ball (e ≈ 0.6–0.7)"; if(x<0.85) return "like a golf ball on concrete (e ≈ 0.8)"; if(x<=1) return "like a superball or steel bearings (e ≈ 0.9)"; return "e > 1 is unphysical — energy would be created"; }
+    if(/μ|mu|friction/i.test(label)){ if(x<0.05) return "like skates on ice (μ ≈ 0.03)"; if(x<0.15) return "like a wet, oily floor (μ ≈ 0.1)"; if(x<0.35) return "like wood on wood or a dusty floor (μ ≈ 0.3)"; if(x<0.6) return "like rubber on wet pavement (μ ≈ 0.5)"; if(x<0.9) return "like rubber on dry pavement (μ ≈ 0.8)"; return "like racing slicks on hot asphalt (μ ≈ 1)"; }
+    return "";
+  }
+  return (val,unit,label)=>{ try{ return sense(val,unit,label||""); }catch(e){ return ""; } };
+})();
+
+/* MATLAB fill-in-the-blank scripts, hints and answer meanings — Particle Kinetics: Polar */
+const MAT={
+
+/* ================= NEWTON ================= */
+
+smoothbar:{
+  out:["v_r2"],
+  code:(v,r)=>`% Collar on a smooth bar rotating at constant omega in a horizontal plane
+clc; clear;
+
+% ---- Given ----
+rpm  = ${v.rpm};         % bar speed, rev/min (constant, so alpha = 0)
+m    = 1;                % collar mass, kg (cancels)
+r1   = ${v.r1};          % initial radius, m
+v_r1 = ${v.vr1};         % initial radial velocity (outward), m/s
+r2   = ${v.r2};          % final radius, m
+
+% ---- Unit conversion ----
+omega = {{rpm*2*pi/60 || 1 rev = 2*pi rad, 1 min = 60 s.}};                 % rad/s
+
+% ---- Radial equation: a smooth bar can only push in the theta direction ----
+% sum F_r = m (r_ddot - r omega^2) = 0   ->   r_ddot = r omega^2
+% Chain rule r_ddot = v_r dv_r/dr, then integrate:  v_r^2/2 - v_r1^2/2 = omega^2 (r2^2 - r1^2)/2
+v_r2 = {{sqrt(v_r1^2 + omega^2*(r2^2 - r1^2)) || Integrate v_r dv_r = omega^2 r dr from r1 to r2.}};   % m/s
+
+% ---- Full velocity at r2 (transverse part is r*omega) ----
+v_th2 = {{r2*omega || v_theta = r theta_dot.}};                              % m/s
+speed = {{sqrt(v_r2^2 + v_th2^2) || The polar components are perpendicular.}};   % m/s
+
+fprintf('omega = %.4f rad/s\\n', omega);
+fprintf('Radial velocity at r = %.2f m:  v_r = %.3f m/s outward\\n', r2, v_r2);
+fprintf('Transverse velocity there:      v_theta = %.3f m/s,  |v| = %.3f m/s\\n', v_th2, speed);`,
+  hints:(v,r)=>[
+    "The bar is smooth, so it cannot push along itself: ΣF_r = 0 (gravity is out of the horizontal plane). That does NOT mean r̈ = 0; a_r = r̈ − rω² = 0 gives r̈ = rω². Since r̈ depends on r, not t, use the chain rule r̈ = v_r dv_r/dr and integrate over r.",
+    "Key equations: ω = rpm·2π/60;  m(r̈ − rω²) = 0 → r̈ = ω² r;  v_r dv_r = ω² r dr → v_r2² = v_r1² + ω²(r2² − r1²).",
+    `ω = ${fmt(v.rpm)}·2π/60 = ${fmt(r.w)} rad/s, ω² = ${fmt(r.w2)} s⁻². Then v_r2² = ${fmt(v.vr1)}² + ${fmt(r.w2)}(${fmt(v.r2)}² − ${fmt(v.r1)}²).`],
+  sense:(v,r)=>[`${fmt(r.vr2/v.vr1,2)}× the radial speed it had at r₁`],
+},
+
+trainer:{
+  out:["F_r","F_th","F_res","F_seat"],
+  code:(v,r)=>`% Spatial disorientation trainer: r(t) and theta(t) given -> forces on the pilot
+clc; clear;
+
+% ---- Given ----
+W   = ${v.W};            % pilot weight, lb
+r0  = ${v.r0};           % ft      r(t) = r0 + A cos(k t)
+A   = ${v.A};            % ft
+k   = pi/3;              % rad/s
+c0  = ${v.c};            % rad     theta(t) = c0 (2 t^2 - t)
+t   = ${v.t};            % s
+g   = 32.2;              % ft/s^2
+
+m   = W/g;               % slug
+
+% ---- Radial coordinate and its time derivatives at t ----
+ph   = k*t;                                                     % argument of the cosine, rad
+r    = r0 + A*cos(ph);                                          % ft
+r_d  = {{-A*k*sin(ph) || d/dt of A cos(k t) is -A k sin(k t).}};             % ft/s
+r_dd = {{-A*k^2*cos(ph) || Differentiate again: -A k^2 cos(k t).}};          % ft/s^2
+
+% ---- Angular coordinate and its derivatives at t ----
+th    = c0*(2*t^2 - t);                                         % rad
+th_d  = {{c0*(4*t - 1) || d/dt of c0(2t^2 - t).}};                            % rad/s
+th_dd = {{4*c0 || Second derivative of c0(2t^2 - t) is constant.}};           % rad/s^2
+
+% ---- Polar acceleration components ----
+a_r  = {{r_dd - r*th_d^2 || a_r = r_ddot - r theta_dot^2.}};                  % ft/s^2
+a_th = {{r*th_dd + 2*r_d*th_d || a_theta = r theta_ddot + 2 r_dot theta_dot.}};   % ft/s^2
+
+% ---- Newton's 2nd law in the horizontal plane ----
+F_r   = m*a_r;                                                  % lb
+F_th  = m*a_th;                                                 % lb
+F_res = sqrt(F_r^2 + F_th^2);                                   % lb (resultant = m|a|)
+
+% ---- Total seat force: horizontal push plus vertical support of the weight ----
+F_seat = {{sqrt(F_r^2 + F_th^2 + W^2) || The seat also supplies W vertically; add three perpendicular components.}};   % lb
+
+fprintf('At t = %g s: r = %.3f ft, r_dot = %.3f ft/s, r_ddot = %.3f ft/s^2\\n', t, r, r_d, r_dd);
+fprintf('             theta_dot = %.3f rad/s, theta_ddot = %.3f rad/s^2\\n', th_d, th_dd);
+fprintf('Sum F_r = %.2f lb, Sum F_theta = %.2f lb, |Sum F| = %.2f lb\\n', F_r, F_th, F_res);
+fprintf('Total seat force on the pilot = %.2f lb (%.2f times body weight)\\n', F_seat, F_seat/W);`,
+  hints:(v,r)=>[
+    "r(t) and θ(t) are given explicitly, so this is differentiate-then-substitute: get ṙ, r̈, θ̇, θ̈ at the instant, plug into the polar acceleration, multiply by m = W/32.2. The motion is horizontal, so the seat's vertical push just cancels W; it does not appear in ΣF but it does appear in the total seat force.",
+    "Key equations: ṙ = −Ak sin(kt), r̈ = −Ak² cos(kt) with k = π/3;  θ̇ = c(4t − 1), θ̈ = 4c;  a_r = r̈ − rθ̇², a_θ = rθ̈ + 2ṙθ̇;  F_seat = √(F_r² + F_θ² + W²).",
+    `m = ${fmt(v.W)}/32.2 = ${fmt(r.m)} slug. At t = ${fmt(v.t)} s: r = ${fmt(r.r)} ft, ṙ = ${fmt(r.rd)} ft/s, r̈ = ${fmt(r.rdd)} ft/s², θ̇ = ${fmt(r.w)} rad/s, θ̈ = ${fmt(r.al)} rad/s². Then a_r = ${fmt(r.rdd)} − ${fmt(r.r)}(${fmt(r.w)})².`],
+  sense:(v,r)=>[null, null, `${fmt(r.R/v.W,2)} g sideways — a hard turn in a fighter jet is about 4 g`, `${fmt(r.S/v.W,2)}× the pilot's body weight`],
+},
+
+moon:{
+  out:["v","T_days"],
+  code:(v,r)=>`% Moon in a circular orbit: gravity supplies the centripetal force
+clc; clear;
+
+% ---- Given ----
+r_km = ${v.rkm};         % orbit radius (from Earth's center), km
+mu   = 3.986e14;         % G*M_E, m^3/s^2
+
+r = r_km*1000;           % m (work in SI)
+
+% ---- Radial equation with r constant (r_dot = r_ddot = 0) ----
+% -mu m / r^2 = m (0 - r omega^2)   ->   omega^2 = mu / r^3
+omega  = {{sqrt(mu/r^3) || Gravity toward Earth equals m r omega^2 (mass cancels).}};   % rad/s
+
+% ---- Speed: r constant, so v is purely transverse ----
+v      = {{r*omega || v = r_dot e_r + r theta_dot e_theta with r_dot = 0.}};            % m/s
+
+% ---- Period: one full revolution ----
+T      = {{2*pi/omega || One revolution is 2*pi rad at constant omega.}};               % s
+T_days = T/86400;        % days
+
+fprintf('omega = %.4e rad/s\\n', omega);
+fprintf('Orbital speed:  v = %.1f m/s  (%.3f km/s)\\n', v, v/1000);
+fprintf('Period:         T = %.4e s = %.2f days\\n', T, T_days);`,
+  hints:(v,r)=>[
+    "A circular orbit means r is constant, so ṙ = r̈ = 0 and a_r = −rω². The only force is gravity GM_E m/r², inward. Setting ΣF_r = m a_r gives ω; the mass of the Moon cancels. Work in metres, then convert the period to days at the end.",
+    "Key equations: −GM_E m/r² = m(0 − rω²) → ω = √(GM_E/r³);  v = rω = √(GM_E/r);  T = 2π/ω = 2πr/v.",
+    `r = ${fmt(v.rkm)} km = ${sci(r.r)} m. ω² = 3.986×10¹⁴/(${sci(r.r)})³, then v = rω and T = 2π/ω seconds; divide by 86 400 for days.`],
+  sense:(v,r)=>[`${fmt(r.vel/1000,3)} km/s, about Mach ${fmt(r.vel/343,2)}; the real Moon averages 1.02 km/s`,
+                `${fmt(r.Td,3)} days; the real sidereal month is 27.3 days`],
+},
+
+leo:{
+  out:["v","T_min"],
+  code:(v,r)=>`% Satellite in a circular low-Earth orbit: speed and period from altitude
+clc; clear;
+
+% ---- Given ----
+h_km = ${v.hkm};         % altitude above the surface, km
+R_E  = 6.371e6;          % Earth's radius, m
+mu   = 3.986e14;         % G*M_E, m^3/s^2
+
+% ---- Orbit radius is measured from Earth's CENTER, in metres ----
+r = {{R_E + h_km*1000 || Add the altitude (converted to m) to Earth's radius.}};   % m
+
+% ---- Radial equation, r constant: -mu m/r^2 = -m r omega^2 ----
+omega = {{sqrt(mu/r^3) || Solve mu/r^2 = r omega^2 for omega.}};                     % rad/s
+v     = {{r*omega || Only a transverse component, v = r theta_dot.}};                % m/s
+
+% ---- Period ----
+T     = {{2*pi*r/v || Circumference divided by speed (or 2*pi/omega).}};             % s
+T_min = T/60;            % min
+
+fprintf('Orbit radius:   r = %.4e m\\n', r);
+fprintf('Orbital speed:  v = %.1f m/s  (%.2f km/s)\\n', v, v/1000);
+fprintf('Period:         T = %.1f s = %.2f min\\n', T, T_min);`,
+  hints:(v,r)=>[
+    "Same idea as the Moon: circular orbit, so ṙ = r̈ = 0 and gravity alone supplies m r ω². The trap is r: it is the distance from Earth's center, R_E + h, in metres, not the altitude.",
+    "Key equations: r = R_E + h;  μ_E/r² = rω² → ω = √(μ_E/r³);  v = rω = √(μ_E/r);  T = 2πr/v.",
+    `r = 6.371×10⁶ + ${fmt(v.hkm)}×10³ = ${sci(r.r)} m. Then v = √(3.986×10¹⁴/${sci(r.r)}) and T = 2π(${sci(r.r)})/v seconds; divide by 60.`],
+  sense:(v,r)=>[`${fmt(r.vel/1000,3)} km/s, about ${fmt(r.vel/343,2)}× the speed of sound; the ISS does 7.66 km/s`,
+                `${fmt(r.Tm,3)} min per orbit; the ISS (400 km up) takes about 92 min`],
+},
+
+/* ================= WORK & ENERGY ================= */
+
+push:{
+  out:["v_2","omega_2"],
+  code:(v,r)=>`% Constant transverse push on a particle on a circular path (horizontal plane)
+clc; clear;
+
+% ---- Given ----
+m     = ${v.m};          % mass, kg
+r     = ${v.r};          % path radius, m (constant)
+F_th  = ${v.F};          % transverse force, N (constant, along the path)
+dtheta_deg = ${v.deg};   % angle swept, deg
+v_1   = 0;               % starts from rest, m/s
+
+dtheta = deg2rad(dtheta_deg);      % rad
+
+% ---- Work done by F_theta: it is tangent to the path, so U = F_theta * (arc length) ----
+% The normal force is radial and the weight is out of the plane: neither does work.
+s     = {{r*dtheta || Arc length is r times the angle in radians.}};          % m
+U_12  = {{F_th*s || Constant force along the path times distance along the path.}};   % J
+
+% ---- Work-energy: U_12 = T_2 - T_1 ----
+v_2   = {{sqrt(v_1^2 + 2*U_12/m) || U_12 = (1/2) m (v_2^2 - v_1^2).}};       % m/s
+
+% ---- Angular speed (r_dot = 0, so v = r theta_dot) ----
+omega_2 = {{v_2/r || v_theta = r theta_dot.}};                                % rad/s
+
+fprintf('Arc length s = %.4f m, work U = %.3f J\\n', s, U_12);
+fprintf('Speed after %g deg:  v_2 = %.3f m/s\\n', dtheta_deg, v_2);
+fprintf('Angular speed:       omega_2 = %.3f rad/s\\n', omega_2);`,
+  hints:(v,r)=>[
+    "Two positions and you need a speed: work-energy. The only force with a component along the path is F_θ; the path's normal force is radial and the weight is perpendicular to the horizontal plane, so they do no work. Convert the swept angle to radians so the arc length is rΔθ.",
+    "Key equations: U = ∫F_θ ds = F_θ r Δθ;  U = ½ m v_2² − 0;  ω_2 = v_2/r.",
+    `Δθ = ${fmt(v.deg)}° = ${fmt(r.dth)} rad, so U = ${fmt(v.F)}(${fmt(v.r)})(${fmt(r.dth)}) = ${fmt(r.U)} J. Then ${fmt(r.U)} = ½(${fmt(v.m)}) v_2².`],
+},
+
+central:{
+  out:["v_2"],
+  code:(v,r)=>`% Central force F_r = -k/r^2: speed change from work-energy
+clc; clear;
+
+% ---- Given ----
+m   = ${v.m};            % mass, kg
+k   = ${v.k};            % force constant, N*m^2  (F_r = -k/r^2, toward O)
+r_1 = ${v.r1};           % initial radius, m
+v_1 = ${v.v1};           % initial speed (radially outward), m/s
+r_2 = ${v.r2};           % final radius, m
+
+% ---- Kinetic energy at 1 ----
+T_1  = {{0.5*m*v_1^2 || Kinetic energy (1/2) m v^2.}};                              % J
+
+% ---- Work of the central force: only the radial displacement does work ----
+% U = integral from r_1 to r_2 of (-k/r^2) dr = k (1/r_2 - 1/r_1)   (negative: moving outward against the pull)
+U_12 = {{k*(1/r_2 - 1/r_1) || Integrate -k/r^2 dr; the antiderivative is +k/r.}};   % J
+
+% ---- Work-energy ----
+T_2  = T_1 + U_12;                                                                  % J
+v_2  = {{sqrt(2*T_2/m) || Invert T_2 = (1/2) m v_2^2.}};                            % m/s
+
+fprintf('T_1 = %.3f J, work by the central force U = %.3f J\\n', T_1, U_12);
+fprintf('Speed at r = %.2f m:  v_2 = %.3f m/s\\n', r_2, v_2);`,
+  hints:(v,r)=>[
+    "Position-dependent force, two positions, want a speed: work-energy. A central force is purely radial, so only dr matters in F·dr; any transverse motion does no work. Moving outward against an inward pull means negative work, so expect the particle to slow down.",
+    "Key equations: U = ∫(−k/r²) dr from r_1 to r_2 = k(1/r_2 − 1/r_1);  U = ½ m (v_2² − v_1²).",
+    `U = ${fmt(v.k)}(1/${fmt(v.r2)} − 1/${fmt(v.r1)}) = ${fmt(r.U)} J, and T_1 = ½(${fmt(v.m)})(${fmt(v.v1)})² = ${fmt(0.5*v.m*v.v1*v.v1)} J. Then ½(${fmt(v.m)}) v_2² = T_1 + U.`],
+  sense:(v,r)=>[`about ${fmt(100*r.v2/v.v1,2)}% of the ${fmt(v.v1)} m/s it started with`],
+},
+
+springcollar:{
+  out:["delta_2","v_2"],
+  code:(v,r)=>`% Collar on a smooth, non-rotating bar attached to a spring at O
+clc; clear;
+
+% ---- Given ----
+m   = ${v.m};            % mass, kg
+k   = ${v.k};            % spring stiffness, N/m
+s_0 = ${v.s0};           % unstretched spring length, m
+r_1 = ${v.r1};           % initial position, m
+v_1 = ${v.v1};           % initial (radial) speed, m/s
+r_2 = ${v.r2};           % final position, m
+
+% ---- Spring stretch is measured from the UNSTRETCHED length, not from O ----
+delta_1 = {{r_1 - s_0 || Stretch = current length minus unstretched length.}};       % m
+delta_2 = {{r_2 - s_0 || Same at position 2.}};                                       % m
+
+% ---- Work done by the spring (smooth horizontal bar: nothing else does work) ----
+U_12 = {{-0.5*k*(delta_2^2 - delta_1^2) || U_spring = -(1/2) k (delta_2^2 - delta_1^2).}};   % J
+
+% ---- Work-energy (omega = 0, so all velocity is radial: v = r_dot) ----
+v_2  = {{sqrt(v_1^2 + 2*U_12/m) || U_12 = (1/2) m (v_2^2 - v_1^2).}};                % m/s
+
+fprintf('Stretch: delta_1 = %.3f m, delta_2 = %.3f m\\n', delta_1, delta_2);
+fprintf('Work by the spring: U = %.4f J\\n', U_12);
+fprintf('Speed at r = %.2f m:  v_2 = %.3f m/s\\n', r_2, v_2);`,
+  hints:(v,r)=>[
+    "Two positions, position-dependent force: work-energy. The bar is smooth and horizontal, so only the spring does work. The classic mistake is using r as the stretch; the stretch is r − s_0. With the bar not rotating there is no transverse velocity, so v = ṙ.",
+    "Key equations: δ = r − s_0;  U_spring = −½ k (δ_2² − δ_1²);  U = ½ m (v_2² − v_1²).",
+    `δ_1 = ${fmt(v.r1)} − ${fmt(v.s0)} = ${fmt(r.d1)} m, δ_2 = ${fmt(v.r2)} − ${fmt(v.s0)} = ${fmt(r.d2)} m. Then U = −½(${fmt(v.k)})(${fmt(r.d2)}² − ${fmt(r.d1)}²) and ½(${fmt(v.m)})(v_2² − ${fmt(v.v1)}²) = U.`],
+  sense:(v,r)=>[`the spring is stretched ${fmt(100*r.d2/v.s0,2)}% beyond its free length`, `about ${fmt(100*r.v2/v.v1,2)}% of the ${fmt(v.v1)} m/s it had at r₁`],
+},
+
+escape:{
+  out:["v_esc"],
+  code:(v,r)=>`% Escape speed from a given altitude: energy conservation to r -> infinity
+clc; clear;
+
+% ---- Given ----
+h_km = ${v.hkm};         % altitude above the surface, km
+R_E  = 6.371e6;          % Earth's radius, m
+mu   = 3.986e14;         % G*M_E, m^3/s^2
+
+% ---- Distance from Earth's center, in metres ----
+r = {{R_E + h_km*1000 || Gravity depends on distance from the center, not altitude.}};   % m
+
+% ---- Work by gravity from r to infinity, per unit mass ----
+% U = integral from r to inf of (-mu/s^2) ds = -mu/r      (negative: gravity resists)
+U_inf = {{-mu/r || Antiderivative of -mu/s^2 is mu/s; evaluate from r to infinity.}};    % J/kg
+
+% ---- Work-energy with v = 0 at infinity: (1/2) v^2 + U_inf = 0 ----
+v_esc  = {{sqrt(-2*U_inf) || (1/2) v^2 = mu/r; solve for v.}};                            % m/s
+
+% ---- For comparison: circular-orbit speed at the same radius ----
+v_circ = {{sqrt(mu/r) || From mu/r^2 = v^2/r.}};                                          % m/s
+
+fprintf('r = %.4e m\\n', r);
+fprintf('Escape speed:          v_esc  = %.1f m/s  (%.3f km/s)\\n', v_esc, v_esc/1000);
+fprintf('Circular-orbit speed:  v_circ = %.1f m/s  (ratio v_esc/v_circ = %.4f)\\n', v_circ, v_esc/v_circ);`,
+  hints:(v,r)=>[
+    "Two positions (r and infinity), conservative force: use work-energy. The minimum speed is the one that arrives at infinity with zero speed, so the final kinetic energy is zero. Gravity's work from r to infinity is −GM_E m/r (it varies as 1/s², so you must integrate, not multiply).",
+    "Key equations: r = R_E + h;  U_{1→∞} = ∫_r^∞ (−GM_E m/s²) ds = −GM_E m/r;  ½ m v² − GM_E m/r = 0 → v_esc = √(2GM_E/r).",
+    `r = 6.371×10⁶ + ${fmt(v.hkm)}×10³ = ${sci(r.r)} m. Then ½ v² = 3.986×10¹⁴/${sci(r.r)}; take the square root of twice that.`],
+  sense:(v,r)=>[`${fmt(r.ve/1000,3)} km/s — √2 × the circular-orbit speed of ${fmt(r.vc/1000,3)} km/s there`],
+},
+
+/* ================= IMPULSE & MOMENTUM ================= */
+
+shortforce:{
+  out:["rdot_2","thdot_2","v_2"],
+  code:(v,r)=>`% Brief force on a collar on a rotating arm: impulse-momentum in polar components
+clc; clear;
+
+% ---- Given ----
+m      = ${v.m};         % mass, kg
+r      = ${v.r};         % radius (approximately constant during the impulse), m
+rdot_1 = ${v.rd1};       % initial radial velocity, m/s
+thdot_1 = ${v.w1};       % initial angular velocity, rad/s
+F_r    = ${v.Fr};        % radial force component, N
+F_th   = ${v.Ft};        % transverse force component, N
+dt     = ${v.dt};        % duration, s
+
+% ---- Velocity components before: v = r_dot e_r + r theta_dot e_theta ----
+vth_1 = {{r*thdot_1 || Transverse velocity is r theta_dot.}};                         % m/s
+
+% ---- Impulse components (constant force, short time: e_r and e_theta do not turn much) ----
+J_r  = F_r*dt;                                                                       % N*s
+J_th = F_th*dt;                                                                      % N*s
+
+% ---- Impulse-momentum, component by component ----
+rdot_2  = {{rdot_1 + J_r/m || J_r = m (r_dot_2 - r_dot_1).}};                         % m/s
+vth_2   = {{vth_1 + J_th/m || J_theta = m (v_theta2 - v_theta1).}};                   % m/s
+thdot_2 = {{vth_2/r || theta_dot = v_theta / r, with r unchanged.}};                  % rad/s
+
+% ---- Speed after ----
+v_2 = {{sqrt(rdot_2^2 + vth_2^2) || The polar components are perpendicular.}};       % m/s
+
+fprintf('Impulse: J = %.3f e_r + %.3f e_theta N*s\\n', J_r, J_th);
+fprintf('After: r_dot = %.3f m/s, theta_dot = %.3f rad/s\\n', rdot_2, thdot_2);
+fprintf('Speed after: |v| = %.3f m/s\\n', v_2);`,
+  hints:(v,r)=>[
+    "A force acting over a known time and you want the velocity after: impulse-momentum. Do it in e_r and e_θ components separately. The transverse momentum is m(rθ̇), so convert θ̇ to v_θ = rθ̇ before applying the impulse, and back afterward with the same r (short-duration assumption).",
+    "Key equations: v = ṙ e_r + rθ̇ e_θ;  F_r Δt = m(ṙ_2 − ṙ_1);  F_θ Δt = m(rθ̇_2 − rθ̇_1);  |v_2| = √(ṙ_2² + (rθ̇_2)²).",
+    `v_θ1 = ${fmt(v.r)}(${fmt(v.w1)}) = ${fmt(v.r*v.w1)} m/s. Radial: ${fmt(v.Fr)}(${fmt(v.dt)}) = ${fmt(v.m)}(ṙ_2 − (${fmt(v.rd1)})). Transverse: ${fmt(v.Ft)}(${fmt(v.dt)}) = ${fmt(v.m)}(v_θ2 − ${fmt(v.r*v.w1)}).`],
+},
+
+radialimp:{
+  out:["rdot_2"],
+  code:(v,r)=>`% Constant radial force on a collar for a short time: radial impulse-momentum
+clc; clear;
+
+% ---- Given ----
+m      = ${v.m};         % mass, kg
+r_1    = ${v.r1};        % radius, m (approximately constant during the impulse)
+rdot_1 = ${v.rd1};       % initial radial velocity, m/s (negative = inward)
+thdot  = ${v.w};         % angular velocity, rad/s
+F_r    = ${v.F};         % radial force, N (positive = outward)
+dt     = ${v.dt};        % duration, s
+
+% ---- Radial impulse ----
+J_r = {{F_r*dt || Constant force: impulse = force x time.}};                          % N*s
+
+% ---- Radial impulse-momentum: J_r = m (r_dot_2 - r_dot_1) ----
+rdot_2 = {{rdot_1 + J_r/m || Solve for r_dot_2; keep the sign of r_dot_1.}};          % m/s
+
+% ---- A radial force has no moment about O, so angular momentum is unchanged ----
+H_O = {{m*r_1^2*thdot || H_O = m r v_theta = m r^2 theta_dot.}};                     % kg*m^2/s
+
+% ---- Speeds before and after (transverse part r*theta_dot unchanged) ----
+v_1 = sqrt(rdot_1^2 + (r_1*thdot)^2);                                                % m/s
+v_2 = sqrt(rdot_2^2 + (r_1*thdot)^2);                                                % m/s
+
+fprintf('Radial impulse J_r = %.3f N*s\\n', J_r);
+fprintf('Radial velocity after: r_dot_2 = %.3f m/s (positive = outward)\\n', rdot_2);
+fprintf('Angular momentum about O (unchanged): H_O = %.3f kg*m^2/s\\n', H_O);
+fprintf('Speed before %.3f m/s, after %.3f m/s\\n', v_1, v_2);`,
+  hints:(v,r)=>[
+    "Force over a known time, want the velocity after: impulse-momentum, in the radial direction only. Keep the sign convention: outward positive, so the initial ṙ is negative. Because the force is radial it has no moment about O, so θ̇ (and rθ̇) is unchanged as long as r barely moves.",
+    "Key equations: ∫F_r dt = F_r Δt = m(ṙ_2 − ṙ_1);  H_O = m r² θ̇ = const.",
+    `J_r = ${fmt(v.F)}(${fmt(v.dt)}) = ${fmt(r.J)} N·s. Then ${fmt(r.J)} = ${fmt(v.m)}(ṙ_2 − (${fmt(v.rd1)})).`],
+  sense:(v,r)=>[r.rd2>0?`reversed: was ${fmt(Math.abs(v.rd1))} m/s inward, now moving outward`:(r.rd2<0?`still inward, at about ${fmt(100*Math.abs(r.rd2/v.rd1),2)}% of the initial inward speed`:`exactly zero: the impulse just stopped the inward motion`)],
+},
+
+tangimp:{
+  out:["v_th","thdot"],
+  code:(v,r)=>`% Transverse force on a collar at rest: impulse-momentum in the theta direction
+clc; clear;
+
+% ---- Given ----
+m    = ${v.m};           % mass, kg
+r    = ${v.r};           % radius, m
+F_th = ${v.F};           % transverse force, N
+dt   = ${v.dt};          % duration, s
+v_1  = 0;                % starts from rest, m/s
+
+% ---- Transverse impulse ----
+J_th = {{F_th*dt || Constant force: impulse = force x time.}};                        % N*s
+
+% ---- Impulse-momentum in the theta direction ----
+v_th = {{v_1 + J_th/m || J_theta = m (v_theta2 - v_theta1).}};                        % m/s
+
+% ---- Angular velocity of the arm (v_theta = r theta_dot) ----
+thdot = {{v_th/r || theta_dot = v_theta / r.}};                                       % rad/s
+
+% ---- Check: angular impulse about O equals the change in angular momentum ----
+H_O = {{m*r*v_th || H_O = m r v_theta; compare with r*J_th.}};                        % kg*m^2/s
+
+fprintf('Transverse impulse: J_theta = %.3f N*s\\n', J_th);
+fprintf('Velocity after: v = %.3f e_theta m/s\\n', v_th);
+fprintf('Angular velocity of the arm: theta_dot = %.3f rad/s\\n', thdot);
+fprintf('Angular momentum about O: %.3f kg*m^2/s  (angular impulse r*J_theta = %.3f)\\n', H_O, r*J_th);`,
+  hints:(v,r)=>[
+    "Force over a known time, want velocity after: impulse-momentum in the e_θ direction. The collar starts from rest, so the transverse momentum after is just the impulse. Then θ̇ follows from v_θ = rθ̇ (r is fixed here).",
+    "Key equations: F_θ Δt = m(v_θ2 − 0);  v_θ = r θ̇;  check: r F_θ Δt = m r v_θ (angular impulse = ΔH_O).",
+    `J_θ = ${fmt(v.F)}(${fmt(v.dt)}) = ${fmt(v.F*v.dt)} N·s, so ${fmt(v.F*v.dt)} = ${fmt(v.m)} v_θ. Then θ̇ = v_θ/${fmt(v.r)}.`],
+},
+
+};
+
+/* ---------- Hints, "what does it mean", and the MATLAB fill-in-the-blank panel ---------- */
+const meaningOf=(p,v,r,i,a)=>{ let s=""; try{ const m=(typeof MAT!=="undefined"&&MAT[p.id]&&MAT[p.id].sense)?MAT[p.id].sense(v,r):null; s=(m&&m[i])||""; }catch(e){} return s||SENSE(a.val,a.unit,a.label); };
+
+const HINTS=(()=>{
+  const COST=5;
+  function render(p,v,r){
+    const box=document.getElementById("hints"); if(!box) return;
+    let hints=null; try{ hints=(MAT[p.id]&&MAT[p.id].hints)?MAT[p.id].hints(v,r):null; }catch(e){}
+    if(!hints){ box.hidden=true; return; }
+    const m=GAME.rec(); m.hints=m.hints||0;
+    const names=["Approach","Key equations","Set it up with these numbers"];
+    box.innerHTML=hints.slice(0,m.hints).map((h,i)=>`<div class="hintcard"><span class="hk">Hint ${i+1} · ${names[i]}</span><div>${h}</div></div>`).join("");
+    box.hidden=!m.hints;
+    const btn=document.getElementById("hintbtn"); if(!btn) return;
+    if(m.hints>=hints.length){ btn.disabled=true; btn.textContent="No more hints"; }
+    else { btn.disabled=false; btn.textContent=(m.hints?`Hint ${m.hints+1} of ${hints.length}`:"Hint")+` (−${COST} XP)`; btn.onclick=()=>{ m.hints++; GAME.addXP(-COST); render(p,v,r); fixSubs(box); }; }
+    fixSubs(box);
+  }
+  return {render};
+})();
+
+const SENSE_UI={
+  show(p,v,r,i,a){ const el=document.getElementById("s"+i); if(!el) return; const s=meaningOf(p,v,r,i,a); if(!s){ el.hidden=true; return; } el.innerHTML=`<span class="sk">What it means</span> ${s}`; el.hidden=false; fixSubs(el); }
+};
+
+const MLAB=(()=>{
+  const mem=new WeakMap();
+  const rec=()=>{ let m=mem.get(state.vars); if(!m){ m={vals:{},revealed:false,done:false}; mem.set(state.vars,m); } return m; };
+  const esc=(s)=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  function hl(code){ /* tiny MATLAB highlighter for one code fragment (no blanks inside) */
+    let out="", i=0; const n=code.length;
+    while(i<n){
+      const c=code[i];
+      if(c==="%"){ out+=`<span class="c">${esc(code.slice(i))}</span>`; break; }
+      if(c==="'"){ const prev=code[i-1]||" "; if(!/[\w)\]']/.test(prev)){ let j=i+1; while(j<n&&code[j]!=="'") j++; out+=`<span class="s">${esc(code.slice(i,j+1))}</span>`; i=j+1; continue; } }
+      if(/[0-9]/.test(c)||(c==="."&&/[0-9]/.test(code[i+1]||""))){ let j=i; while(j<n&&/[0-9.eE]/.test(code[j])&&!(/[eE]/.test(code[j])&&!/[0-9+\-]/.test(code[j+1]||""))) j++; if(/[eE]/.test(code[j-1])) j--; if(/[+\-]/.test(code[j])&&/[eE]/.test(code[j-1])&&/[0-9]/.test(code[j+1]||"")){ j++; while(j<n&&/[0-9]/.test(code[j])) j++; } out+=`<span class="n">${esc(code.slice(i,j))}</span>`; i=j; continue; }
+      if(/[A-Za-z_]/.test(c)){ let j=i; while(j<n&&/[A-Za-z0-9_]/.test(code[j])) j++; const w=code.slice(i,j); const k=/^(clc|clear|fprintf|disp|end|pi)$/.test(w)?"k":/^(sqrt|abs|exp|log|log10|sin|cos|tan|asin|acos|atan|atan2|sind|cosd|tand|deg2rad|rad2deg|cross|dot|norm|sum|max|min|roots|hypot|zeros|ones|eye|inv|det|linspace|num2str|floor|ceil|round|sign|mod)$/.test(w)?"f":""; out+=k?`<span class="${k}">${w}</span>`:esc(w); i=j; continue; }
+      out+=esc(c); i++;
+    }
+    return out;
+  }
+  let cur=null;   /* {p,tpl,ref} for the sheet currently rendered */
+  function render(p,v,r){
+    const host=document.getElementById("mlab"); if(!host) return;
+    const M=(typeof MAT!=="undefined")&&MAT[p.id]; if(!M){ host.innerHTML=""; return; }
+    let src; try{ src=M.code(v,r); }catch(e){ host.innerHTML=""; return; }
+    const tpl=MLT.parseTemplate(src); const ref=ML.run(MLT.reference(tpl),{snapshots:true});
+    cur={p,tpl,ref,id:p.id}; const m=rec();
+    const lines=tpl.lines.map((ln,li)=>{ const parts=ln.split(/\u0000(\d+)\u0000/); let h=""; for(let k=0;k<parts.length;k++){ if(k%2===0) h+=hl(parts[k]); else { const b=tpl.blanks[+parts[k]]; const val=m.vals[b.i]||""; h+=`<span class="blank"><input class="mb" id="mb${b.i}" data-i="${b.i}" size="${Math.max(10,Math.min(46,b.ans.length+3))}" spellcheck="false" autocomplete="off" autocapitalize="off" value="${esc(val)}" placeholder="…" aria-label="blank ${b.i+1}"><button type="button" class="mbh" data-i="${b.i}" title="Hint for this blank" aria-label="hint">?</button></span>`; } } return `<div class="cl" id="cl${li+1}"><span class="ln">${li+1}</span><span class="ct">${h||" "}</span></div>`; });
+    host.innerHTML=`<details class="mlab" ${m.open?"open":""}>
+      <summary><span class="mlt">MATLAB</span> Fill in the ${tpl.blanks.length} blanks <span class="mlsub">· same numbers as above · +15 XP</span></summary>
+      <div class="mlbody">
+        <p class="mlhelp">Write each blank as a MATLAB expression using the variables already defined above it (for example <code>0.5*m*v^2</code> or <code>cross(omega, r_BA)</code>). Press <b>?</b> next to a blank for a hint, then <b>Check blanks</b>. <b>Run</b> executes the script right here and shows what MATLAB would print.</p>
+        <div class="mlcode" id="mlcode">${lines.join("")}</div>
+        <div class="mlbar">
+          <button class="btn primary" type="button" id="mlcheck">Check blanks</button>
+          <button class="btn" type="button" id="mlrun">Run script</button>
+          <button class="btn" type="button" id="mlreveal">Reveal solution</button>
+          <button class="btn" type="button" id="mldl">Download .m</button>
+          <button class="btn" type="button" id="mldls">Download solution .m</button>
+          <span class="hint" id="mlstat"></span>
+        </div>
+        <div class="mlout" id="mlout" hidden><div class="mlouth">Command Window</div><pre id="mloutp"></pre></div>
+      </div></details>`;
+    const det=host.querySelector("details"); det.addEventListener("toggle",()=>{ m.open=det.open; });
+    host.querySelectorAll(".mb").forEach(inp=>{ inp.addEventListener("input",()=>{ m.vals[+inp.dataset.i]=inp.value; inp.classList.remove("ok","bad"); }); inp.addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); check(); } }); });
+    host.querySelectorAll(".mbh").forEach(b=>b.onclick=()=>hint(+b.dataset.i));
+    document.getElementById("mlcheck").onclick=check; document.getElementById("mlrun").onclick=run; document.getElementById("mlreveal").onclick=reveal;
+    document.getElementById("mldl").onclick=()=>download(p.id+"_practice.m",MLT.student(tpl,tpl.blanks.map(b=>m.vals[b.i]||"")).replace(/____/g,"____   % <-- fill in"));
+    document.getElementById("mldls").onclick=()=>download(p.id+"_solution.m",MLT.reference(tpl));
+  }
+  function hint(i){ const b=cur.tpl.blanks[i]; const inp=document.getElementById("mb"+i); let tip=inp.parentNode.querySelector(".mbtip"); if(tip){ tip.remove(); return; } tip=document.createElement("span"); tip.className="mbtip"; tip.textContent=b.hint||"Think about which equation this line represents."; inp.parentNode.appendChild(tip); setTimeout(()=>tip.remove(),9000); }
+  function check(){
+    const {tpl,ref}=cur, m=rec(); let good=0, first=null;
+    tpl.blanks.forEach(b=>{ const inp=document.getElementById("mb"+b.i); const res=MLT.checkBlank(tpl,ref,b.i,inp.value); inp.classList.toggle("ok",res.ok); inp.classList.toggle("bad",!res.ok); inp.title=res.ok?"correct":(res.msg==="empty"?"fill this in":res.msg); if(res.ok) good++; else if(first===null) first=b; });
+    const st=document.getElementById("mlstat");
+    if(good===tpl.blanks.length){ st.textContent="All blanks correct."; st.className="hint good"; if(!m.done){ m.done=true; if(!m.revealed){ GAME.addXP(15,"Code complete <span class=\"plus\">+15 XP</span>","Press Run script to see the output."); const b=document.getElementById("mlcheck").getBoundingClientRect(); GAME.burst(b.left+b.width/2,b.top); } } }
+    else { st.textContent=`${good} of ${tpl.blanks.length} correct.`+(first&&first.hint&&document.getElementById("mb"+first.i).value.trim()?" Hover a red box to see why.":""); st.className="hint"; }
+  }
+  function run(){
+    const {tpl}=cur, m=rec(); const src=MLT.student(tpl,tpl.blanks.map(b=>m.vals[b.i]||""));
+    const R=ML.run(src); const out=document.getElementById("mlout"), pre=document.getElementById("mloutp"); out.hidden=false;
+    document.querySelectorAll("#mlcode .cl.err").forEach(e=>e.classList.remove("err"));
+    let txt=R.out||"";
+    if(R.error){ const empty=/____/.test(R.error.text); txt+=(txt&&!txt.endsWith("\n")?"\n":"")+`Error in line ${R.error.line}: ${empty?"a blank is still empty":R.error.msg}\n    ${R.error.text}`; const cl=document.getElementById("cl"+R.error.line); if(cl){ cl.classList.add("err"); cl.scrollIntoView({block:"nearest"}); } pre.className="haserr"; }
+    else { pre.className=""; if(!txt.trim()) txt="(the script ran, but printed nothing)"; }
+    pre.textContent=txt; out.scrollIntoView({block:"nearest",behavior:"smooth"});
+  }
+  function reveal(){ const {tpl}=cur, m=rec(); m.revealed=true; tpl.blanks.forEach(b=>{ const inp=document.getElementById("mb"+b.i); inp.value=b.ans; m.vals[b.i]=b.ans; inp.classList.remove("bad"); inp.classList.add("ok"); }); const st=document.getElementById("mlstat"); st.textContent="Solution shown — no XP for this set of numbers. Press New numbers to try again."; st.className="hint"; }
+  function download(name,text){ const blob=new Blob([text.replace(/\n/g,"\r\n")],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); }
+  return {render};
+})();
+
+/* MLAB-JS-END */
 /* GAME-JS-START */
 const GAME_PAGE="Particle_Kinetics_Polar.html";
 /* ---------- Game layer: XP, levels, streak, cleared badges, celebration ---------- */
@@ -787,7 +1640,8 @@ const GAME=(()=>{
     if(gain){ S.xp+=gain; save(); hud(["xp","lvl"]); }
   }
   function onReveal(){ const m=rec(); if(!m.revealed && !m.cleared){ m.revealed=true; if(S.streak){ S.streak=0; save(); hud(["streak"]); } } }
-  return {S,hud,markNav,onCheck,onReveal};
+  function addXP(n,big,small){ S.xp=Math.max(0,S.xp+n); save(); hud(n>0?["xp","lvl"]:["xp"]); if(big) toast(big,small); }
+  return {S,hud,markNav,onCheck,onReveal,addXP,toast,burst,rec};
 })();
 { const _rn=renderNav; renderNav=function(){ _rn(); GAME.markNav(); };
   const _ds=drawSolution; drawSolution=function(p,v,r,ans,steps){ _ds(p,v,r,ans,steps); if(state.shown>=steps.length) GAME.onReveal(); }; }
@@ -837,14 +1691,17 @@ function renderSheet(){
       ${ans.map((a,i)=>`<div class="arow">
         <label for="a${i}">${a.label}</label>
         <div class="inp"><input id="a${i}" inputmode="decimal" placeholder="e.g. 12.3"><span class="unit">${a.unit}</span></div>
-        <span class="chip idle" id="c${i}">not checked</span></div>`).join("")}
+        <span class="chip idle" id="c${i}">not checked</span><div class="sense" id="s${i}" hidden></div></div>`).join("")}
       <div class="checkbar">
         <button class="btn primary" type="submit">Check answers</button>
         <button class="btn" type="button" id="next">Show next step</button>
         <button class="btn" type="button" id="all">Show full solution</button>
+        <button class="btn" type="button" id="hintbtn">Hint</button>
         <span class="hint">Correct within 1%.</span>
       </div>
+      <div class="hints" id="hints" hidden></div>
     </form>
+    <section id="mlab"></section>
     <section id="sol" class="solution" ${state.shown?"":"hidden"}></section>`;
 
   $("#new").onclick=fresh; $("#orig").onclick=original;
@@ -853,6 +1710,7 @@ function renderSheet(){
   $("#ansform").onsubmit=(e)=>{ e.preventDefault(); ans.forEach((a,i)=>check(a,i)); GAME.onCheck(ans); };
   if(state.shown) drawSolution(p,v,r,ans,steps);
   fixSubs($("#sheet"));
+  MLAB.render(p,v,r); HINTS.render(p,v,r);
 }
 
 function check(a,i){
@@ -861,7 +1719,7 @@ function check(a,i){
   const x=parseFloat(raw);
   if(isNaN(x)){ chip.className="chip bad"; chip.textContent="not a number"; return; }
   const den=Math.max(Math.abs(a.val),a.scale||0,1e-9), err=Math.abs(x-a.val)/den;
-  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; }
+  if(err<=0.01){ chip.className="chip good"; chip.textContent="correct"; SENSE_UI.show(cur(),state.vars,cur().solve(state.vars),i,a); }
   else if(err<=0.05){ chip.className="chip warn"; chip.textContent="close, check rounding"; }
   else if(Math.abs(a.val)>1e-9 && Math.abs(x+a.val)/den<=0.01){ chip.className="chip warn"; chip.textContent="check the sign"; }
   else { chip.className="chip bad"; chip.textContent="not yet"; }
@@ -874,7 +1732,7 @@ function drawSolution(p,v,r,ans,steps){
   sol.innerHTML = `<h3>Worked solution</h3>
     <ol class="steps">${steps.slice(0,state.shown).map(s=>`<li><span class="step-title">${s.t}</span><div class="step-body"><div class="eq">${tex(s.eq)}</div>${s.note?`<p class="note">${s.note}</p>`:""}</div></li>`).join("")}</ol>
     ${done ? `
-      <div class="final">${ans.map(a=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div></div>`).join("")}</div>
+      <div class="final">${ans.map((a,i)=>`<div class="ans"><div class="k">${a.label}</div><div class="val">${typeof sci==="function"?sci(a.val):fmt(a.val)} ${a.unit}</div>${(m=>m?`<div class="mean"><span class="sk">Means</span>${m}</div>`:"")(meaningOf(p,v,r,i,a))}</div>`).join("")}</div>
       <p class="takeaway"><b>Takeaway.</b> ${tk}</p>
       <figure class="plotwrap" style="margin:0"><figcaption id="cap"></figcaption><canvas id="plot"></canvas></figure>`
       : `<p class="note">Step ${state.shown} of ${steps.length}. Try the next step yourself before revealing it.</p>`}`;
